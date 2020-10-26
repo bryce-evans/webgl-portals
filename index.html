@@ -1,0 +1,49 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<title>Pandora's Box</title>
+
+		<style>
+			body {
+				text-align: center;
+			}
+			#canvas-container {
+				margin: 0 auto;
+			}
+			#individual_cube_views {
+				display: block;
+			}
+			#individual_cube_views>div {
+				width: 350px;
+				height: 350px;
+				display: inline-block;
+				background-color: red;
+				margin: 2px;
+				position: relative;
+			}
+			#combined_cube_views>div {
+				width: 529px;
+				height: 529px;
+				display: inline-block;
+				background-color: teal;
+				margin: 2px;
+			}
+		</style>
+	</head>
+	<body onload="onLoad()">
+
+		<div id="canvas-container">
+			<div id="individual_cube_views">
+				<div id="canvas_face1"></div>
+				<div id="canvas_face2"></div>
+				<div id="canvas_face3"></div>
+			</div>
+			<div id="combined_cube_views">
+				<div id="canvas_main_side_view"></div>
+				<div id="canvas_main"></div>
+			</div>
+		</div>
+
+		<div id="statusContainer"></div>
+	</body>
+</html>

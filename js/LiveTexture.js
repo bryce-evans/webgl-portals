@@ -16,7 +16,8 @@ function main() {
   camera.position.z = 50;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  var controls = new OrbitControls(camera, renderer.domElement);
+  
+  
 
   var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0xff0000), new THREE.Color(0xffffff));
   scene.add(gridXZ);
@@ -28,6 +29,9 @@ function main() {
   var height = 512;
   var buffer_camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
   var main_camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
+
+  var controls = new OrbitControls(camera, renderer.domElement);
+  var controls_face1 = new OrbitControls(buffer_camera, renderer.domElement);
 
   var bufferTexture = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
   var bufferTexture2 = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
@@ -90,22 +94,23 @@ function main() {
   function render() {
 
     controls.update();
+    controls_face1.update();
     requestAnimationFrame(render);
 
     //Make the box rotate on box axises
-    boxObject.rotation.y += 0.01;
-    boxObject.rotation.x += 0.02;
-    boxObject2.rotation.y += 0.03;
-    boxObject2.rotation.x += 0.01;
+    // boxObject.rotation.y += 0.01;
+    // boxObject.rotation.x += 0.02;
+    // boxObject2.rotation.y += 0.03;
+    // boxObject2.rotation.x += 0.01;
     //Rotate the main box too
-    mainBoxObject.rotation.y -= 0.01;
-    mainBoxObject.rotation.x -= 0.01;
+    // mainBoxObject.rotation.y -= 0.01;
+    // mainBoxObject.rotation.x -= 0.01;
 
     renderer.setRenderTarget(bufferTexture)
-    renderer.render(bufferScene, buffer_camera);
+    renderer.render(bufferScene, camera);
 
     renderer.setRenderTarget(bufferTexture2)
-    renderer.render(bufferScene2, buffer_camera);
+    renderer.render(bufferScene2, camera);
 
     renderer.setRenderTarget(null)
     renderer.render(scene, camera);

@@ -1,42 +1,102 @@
 <!DOCTYPE>
 <html>
-	<head>
-		<title>Pandora's Box</title>
 
-		<style>
-			body {
-				text-align: center;
-			}
-			#canvas-container {
-				margin: 0 auto;
-			}
-			#individual_cube_views {
-				display: block;
-			}
-			#individual_cube_views>div {
-				width: 350px;
-				height: 350px;
-				display: inline-block;
-				background-color: red;
-				margin: 2px;
-				position: relative;
-			}
-			#combined_cube_views>div {
-				width: 529px;
-				height: 529px;
-				display: inline-block;
-				background-color: teal;
-				margin: 2px;
-			}
-		</style>
-	</head>
-	<body onload="onLoad()">
+<head>
+	<title>Pandora's Box</title>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.js"></script>
+	<script type="module" src="https://threejs.org/examples/jsm/controls/OrbitControls.js"></script>
+	<!-- <script type="text/javascript" src="js/Scene.js"></script> -->
+	<script type="module" src="js/LiveTexture.js"></script>
+	<!-- <script type="module" src="js/Controls.js"></script> -->
+	<style>
+		#c {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			display: block;
+			z-index: -1;
+		}
 
+		.diagram {
+			display: inline-block;
+			width: 5em;
+			height: 3em;
+		}
+
+		.left {
+			float: left;
+			margin-right: .25em;
+		}
+
+		.right {
+			float: right;
+			margin-left: .25em;
+		}
+
+		p {
+			margin: 1em auto;
+			max-width: 500px;
+			font-size: xx-large;
+		}
+
+
+
+
+
+
+
+
+
+		body {
+			text-align: center;
+		}
+
+		#canvas-container {
+			margin: 0 auto;
+		}
+
+		#individual_cube_views {
+			display: block;
+		}
+
+		#individual_cube_views>div {
+			width: 350px;
+			height: 350px;
+			display: inline-block;
+			background-color: red;
+			margin: 2px;
+			position: relative;
+		}
+
+		#combined_cube_views>div {
+			width: 529px;
+			height: 529px;
+			display: inline-block;
+			background-color: teal;
+			margin: 2px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<canvas id="c"></canvas>
+	<p>
+		<span id="canvas_face1" class="diagram left"></span>
+		<span id="canvas_face2" class="diagram center"></span>
+		<span id="canvas_face3" class="diagram right"></span>
+
+
+
+	</p>
+	<!-- 
 		<div id="canvas-container">
 			<div id="individual_cube_views">
-				<div id="canvas_face1"></div>
-				<div id="canvas_face2"></div>
-				<div id="canvas_face3"></div>
+				<div id="canvas_face1" class="box"></div>
+				<div id="canvas_face2" class="pyramid"></div>
+				<div id="canvas_face3" class="torus"></div>
 			</div>
 			<div id="combined_cube_views">
 				<div id="canvas_main_side_view"></div>
@@ -44,6 +104,7 @@
 			</div>
 		</div>
 
-		<div id="statusContainer"></div>
-	</body>
+		<div id="statusContainer"></div> -->
+</body>
+
 </html>

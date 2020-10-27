@@ -12,7 +12,7 @@ function main() {
   var scene = new THREE.Scene();
 
   // var camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-  var camera = new THREE.OrthographicCamera( width / -20, width / 20, height / 20, height / -20, 1, 1000 );
+  var camera = new THREE.OrthographicCamera(width / -20, width / 20, height / 20, height / -20, 1, 1000);
   camera.position.y = 15;
   camera.position.z = 15;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -52,21 +52,21 @@ function main() {
     light.target.position.set(0, 0, 0);
     buffer_scene.add(light);
     buffer_scene.add(light.target);
-  
+
     var hue = Math.random() * 360
-    var dummy_material = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl("+hue+", 100%, 50%)") });
+    var dummy_material = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl(" + hue + ", 100%, 50%)") });
     var dummy_geometry = new THREE.BoxGeometry(6, 6, 6);
     var dummy_obj = new THREE.Mesh(dummy_geometry, dummy_material);
     dummy_obj.position.z = -1;
     buffer_scene.add(dummy_obj);
     dummy_objs.push(dummy_obj)
-  
+
     var hue = Math.random() * 360
-    var dummy_bg_mat = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl("+hue+", 100%, 50%)") })
+    var dummy_bg_mat = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl(" + hue + ", 100%, 50%)") })
     dummy_bg_mat.side = THREE.BackSide
     dummy_bg_materials.push(dummy_bg_mat)
 
-    var plane = new THREE.BoxGeometry(10,10,10);
+    var plane = new THREE.BoxGeometry(10, 10, 10);
     var dummy_bg = new THREE.Mesh(plane, dummy_bg_mat);
     dummy_bgs.push(dummy_bg)
     buffer_scene.add(dummy_bg);
@@ -88,14 +88,14 @@ function main() {
   //  | /              | /   << 3 (under)
   //  . -------------- .
   //
-  
-  buffer_scenes[0].setRotationFromEuler(new THREE.Euler(0, Math.PI/2, 0))
-  buffer_scenes[1].setRotationFromEuler(new THREE.Euler(0, - Math.PI/2, 0))
-  buffer_scenes[2].setRotationFromEuler(new THREE.Euler(-Math.PI/2, 0, 0))
-  buffer_scenes[3].setRotationFromEuler(new THREE.Euler(Math.PI/2, 0, 0))
+
+  buffer_scenes[0].setRotationFromEuler(new THREE.Euler(0, Math.PI / 2, 0))
+  buffer_scenes[1].setRotationFromEuler(new THREE.Euler(0, - Math.PI / 2, 0))
+  buffer_scenes[2].setRotationFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0))
+  buffer_scenes[3].setRotationFromEuler(new THREE.Euler(Math.PI / 2, 0, 0))
   buffer_scenes[4].setRotationFromEuler(new THREE.Euler(0, 0, 0))
   buffer_scenes[5].setRotationFromEuler(new THREE.Euler(Math.PI, 0, 0))
-  
+
 
 
   // Forward render result to output texture.
@@ -104,17 +104,30 @@ function main() {
   scene.add(mainBoxObject);
 
 
-  var wireframe = new THREE.WireframeGeometry( mainBoxGeo );
-  
-  var line = new THREE.LineSegments( wireframe );
+  var wireframe = new THREE.WireframeGeometry(mainBoxGeo);
+
+  var line = new THREE.LineSegments(wireframe);
   line.material.depthTest = true;
   line.material.opacity = 0.5;
   line.material.color = new THREE.Color(0x0088ff)
   line.material.transparent = true;
-  
-  scene.add( line );
-  
-  
+
+  scene.add(line);
+
+
+  function toScreenXY(pos, canvas) {
+    var width = canvas.width, height = canvas.height;
+
+    var p = new THREE.Vector3(pos.x, pos.y, pos.z);
+    var vector = p.project(camera);
+
+    vector.x = (vector.x + 1) / 2 * width;
+    vector.y = -(vector.y - 1) / 2 * height;
+
+    return vector;
+  }
+
+
   function render() {
 
     controls.update();
@@ -129,10 +142,41 @@ function main() {
     // mainBoxObject.rotation.y -= 0.01;
     // mainBoxObject.rotation.x -= 0.01;
 
-    for (var i = 0; i < 6; i++){
-      renderer.setRenderTarget(buffer_textures[i])
-    renderer.render(buffer_scenes[i], camera);
+    camera.updateProjectionMatrix();
+    var face_uvs = mainBoxObject.geometry.faceVertexUvs[0];
+    var face_idx = mainBoxObject.geometry.faces;
+    var vertices = mainBoxObject.geometry.vertices;
+
+    // per tri
+    for (var i = 0; i < face_uvs.length; i++) {
+      var tri_uvs = face_uvs[i];
+      var tri_vertices = face_idx[i];
+      var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
+
+      // per vertex
+      for (var j = 0; j < tri_uvs.length; j++) {
+
+        // project to camera
+        var vertex = tri_geometry[j];
+        var projected = vertex.project(camera);
+
+        var uv = tri_uvs[j];
+        uv.x = projected.x;
+        uv.y = projected.y;
+      }
     }
+    mainBoxObject.geometry.uvsNeedUpdate = true;
+
+
+
+
+    for (var i = 0; i < 6; i++) {
+      renderer.setRenderTarget(buffer_textures[i])
+      renderer.render(buffer_scenes[i], camera);
+    }
+
+
+
 
     renderer.setRenderTarget(null)
     renderer.render(scene, camera);

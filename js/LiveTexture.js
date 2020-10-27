@@ -12,12 +12,12 @@ function main() {
   var scene = new THREE.Scene();
 
   // var camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-  var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
-  camera.position.y = 30;
-  camera.position.z = 50;
+  var camera = new THREE.OrthographicCamera( width / -20, width / 20, height / 20, height / -20, 1, 1000 );
+  camera.position.y = 15;
+  camera.position.z = 15;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0xff0000), new THREE.Color(0xffffff));
+  var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0x880000), new THREE.Color(0x333333));
   scene.add(gridXZ);
 
   var bufferScene = new THREE.Scene();
@@ -57,29 +57,64 @@ function main() {
     var dummy_material = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl("+hue+", 100%, 50%)") });
     var dummy_geometry = new THREE.BoxGeometry(6, 6, 6);
     var dummy_obj = new THREE.Mesh(dummy_geometry, dummy_material);
-    dummy_obj.position.z = -10;
+    dummy_obj.position.z = -1;
     buffer_scene.add(dummy_obj);
     dummy_objs.push(dummy_obj)
   
     var hue = Math.random() * 360
-    var dummy_bg_mat = new THREE.MeshBasicMaterial({ color: new THREE.Color("hsl("+hue+", 100%, 50%)") })
+    var dummy_bg_mat = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl("+hue+", 100%, 50%)") })
+    dummy_bg_mat.side = THREE.BackSide
     dummy_bg_materials.push(dummy_bg_mat)
-    var plane = new THREE.PlaneBufferGeometry(width, height);
+
+    var plane = new THREE.BoxGeometry(10,10,10);
     var dummy_bg = new THREE.Mesh(plane, dummy_bg_mat);
     dummy_bgs.push(dummy_bg)
-    dummy_bg.position.z = -15;
     buffer_scene.add(dummy_bg);
 
     var live_material = new THREE.MeshBasicMaterial({ map: buffer_texture.texture });
     live_materials.push(live_material)
   }
 
+  //        .----------------.
+  //      / |               /
+  //     /  |              / |                  Y  Z
+  //    /   |     2       /  |  << 5 (back)     | /
+  //   /    |            /   |                  |/
+  //  .----------------.     |                   ----- X
+  //  |  1             |  0  |
+  //  |    /           |    /
+  //  |   /    4       |   /
+  //  |  /             |  /
+  //  | /              | /   << 3 (under)
+  //  . -------------- .
+  //
+  
+  buffer_scenes[0].setRotationFromEuler(new THREE.Euler(0, Math.PI/2, 0))
+  buffer_scenes[1].setRotationFromEuler(new THREE.Euler(0, - Math.PI/2, 0))
+  buffer_scenes[2].setRotationFromEuler(new THREE.Euler(-Math.PI/2, 0, 0))
+  buffer_scenes[3].setRotationFromEuler(new THREE.Euler(Math.PI/2, 0, 0))
+  buffer_scenes[4].setRotationFromEuler(new THREE.Euler(0, 0, 0))
+  buffer_scenes[5].setRotationFromEuler(new THREE.Euler(Math.PI, 0, 0))
+  
+
+
   // Forward render result to output texture.
   var mainBoxGeo = new THREE.BoxGeometry(10, 10, 10);
   var mainBoxObject = new THREE.Mesh(mainBoxGeo, live_materials);
-  mainBoxObject.position.z = 0;
   scene.add(mainBoxObject);
 
+
+  var wireframe = new THREE.WireframeGeometry( mainBoxGeo );
+  
+  var line = new THREE.LineSegments( wireframe );
+  line.material.depthTest = true;
+  line.material.opacity = 0.5;
+  line.material.color = new THREE.Color(0x0088ff)
+  line.material.transparent = true;
+  
+  scene.add( line );
+  
+  
   function render() {
 
     controls.update();

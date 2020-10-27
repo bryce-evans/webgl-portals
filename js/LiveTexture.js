@@ -11,13 +11,11 @@ function main() {
 
   var scene = new THREE.Scene();
 
-  var camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+  // var camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+  var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
   camera.position.y = 30;
   camera.position.z = 50;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-  
-  
 
   var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0xff0000), new THREE.Color(0xffffff));
   scene.add(gridXZ);
@@ -27,74 +25,64 @@ function main() {
 
   var width = 512;
   var height = 512;
-  var buffer_camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
-  var main_camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
-
   var controls = new OrbitControls(camera, renderer.domElement);
-  var controls_face1 = new OrbitControls(buffer_camera, renderer.domElement);
-
-  var bufferTexture = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
-  var bufferTexture2 = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
-
-
-  /// SCENE 1
-  const color = 0xFFFFFF;
-  const intensity = 1;
-  const light = new THREE.DirectionalLight(color, intensity);
-  light.position.set(5, 5, 15);
-  light.target.position.set(0, 0, 0);
-  bufferScene.add(light);
-  bufferScene.add(light.target);
-
-  var redMaterial = new THREE.MeshPhongMaterial({ color: 0xF06565 });
-  var boxGeometry = new THREE.BoxGeometry(5, 5, 5);
-  var boxObject = new THREE.Mesh(boxGeometry, redMaterial);
-  boxObject.position.z = -10;
-  bufferScene.add(boxObject);
-
-  var blueMaterial = new THREE.MeshBasicMaterial({ color: 0x7074FF })
-  var plane = new THREE.PlaneBufferGeometry(width, height);
-  var planeObject = new THREE.Mesh(plane, blueMaterial);
-  planeObject.position.z = -15;
-  bufferScene.add(planeObject);
-
-  //////// SCENE 2
-
-
-  const light2 = new THREE.DirectionalLight(color, intensity);
-  light2.position.set(5, 5, 15);
-  light2.target.position.set(0, 0, 0);
-  bufferScene2.add(light2);
-  bufferScene2.add(light2.target);
-
-  var tealMaterial = new THREE.MeshPhongMaterial({ color: 0x0088aa });
-  var boxGeometry = new THREE.BoxGeometry(6, 6, 6);
-  var boxObject2 = new THREE.Mesh(boxGeometry, tealMaterial);
-  boxObject2.position.z = -10;
-  bufferScene2.add(boxObject2);
-
-  var blueMaterial = new THREE.MeshBasicMaterial({ color: 0x7074FF })
-  var plane = new THREE.PlaneBufferGeometry(width, height);
-  var planeObject = new THREE.Mesh(plane, blueMaterial);
-  planeObject.position.z = -15;
-  bufferScene2.add(planeObject);
 
   //////
 
+  var light_color = 0xffffff;
+  var light_intensity = 1;
+
+  var buffer_textures = []
+  var buffer_scenes = []
+  var lights = []
+  var dummy_materials = []
+  var dummy_objs = []
+  var dummy_bg_materials = []
+  var dummy_bgs = []
+  var live_materials = []
+  for (var i = 0; i < 6; i++) {
+    var buffer_texture = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
+    buffer_textures.push(buffer_texture)
+
+    var buffer_scene = new THREE.Scene();
+    buffer_scenes.push(buffer_scene)
+
+    var light = new THREE.DirectionalLight(light_color, light_intensity);
+    light.position.set(5, 5, 15);
+    light.target.position.set(0, 0, 0);
+    buffer_scene.add(light);
+    buffer_scene.add(light.target);
+  
+    var hue = Math.random() * 360
+    var dummy_material = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl("+hue+", 100%, 50%)") });
+    var dummy_geometry = new THREE.BoxGeometry(6, 6, 6);
+    var dummy_obj = new THREE.Mesh(dummy_geometry, dummy_material);
+    dummy_obj.position.z = -10;
+    buffer_scene.add(dummy_obj);
+    dummy_objs.push(dummy_obj)
+  
+    var hue = Math.random() * 360
+    var dummy_bg_mat = new THREE.MeshBasicMaterial({ color: new THREE.Color("hsl("+hue+", 100%, 50%)") })
+    dummy_bg_materials.push(dummy_bg_mat)
+    var plane = new THREE.PlaneBufferGeometry(width, height);
+    var dummy_bg = new THREE.Mesh(plane, dummy_bg_mat);
+    dummy_bgs.push(dummy_bg)
+    dummy_bg.position.z = -15;
+    buffer_scene.add(dummy_bg);
+
+    var live_material = new THREE.MeshBasicMaterial({ map: buffer_texture.texture });
+    live_materials.push(live_material)
+  }
 
   // Forward render result to output texture.
-  var live_material = new THREE.MeshBasicMaterial({ map: bufferTexture.texture });
-  var live_material2 = new THREE.MeshBasicMaterial({ map: bufferTexture2.texture });
-  var basic_material = new THREE.MeshBasicMaterial({ color: 'green' });
   var mainBoxGeo = new THREE.BoxGeometry(10, 10, 10);
-  var mainBoxObject = new THREE.Mesh(mainBoxGeo, [live_material, live_material, live_material, live_material2, live_material2, live_material2]);
+  var mainBoxObject = new THREE.Mesh(mainBoxGeo, live_materials);
   mainBoxObject.position.z = 0;
   scene.add(mainBoxObject);
 
   function render() {
 
     controls.update();
-    controls_face1.update();
     requestAnimationFrame(render);
 
     //Make the box rotate on box axises
@@ -106,11 +94,10 @@ function main() {
     // mainBoxObject.rotation.y -= 0.01;
     // mainBoxObject.rotation.x -= 0.01;
 
-    renderer.setRenderTarget(bufferTexture)
-    renderer.render(bufferScene, camera);
-
-    renderer.setRenderTarget(bufferTexture2)
-    renderer.render(bufferScene2, camera);
+    for (var i = 0; i < 6; i++){
+      renderer.setRenderTarget(buffer_textures[i])
+    renderer.render(buffer_scenes[i], camera);
+    }
 
     renderer.setRenderTarget(null)
     renderer.render(scene, camera);

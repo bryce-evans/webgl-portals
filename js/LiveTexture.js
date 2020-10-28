@@ -10,8 +10,8 @@ function main() {
 
   var scene = new THREE.Scene();
 
-  var camera = new THREE.PerspectiveCamera(45, 1, 1, 100); // width / height, 1, 100);
-  //var camera = new THREE.OrthographicCamera(width / -20, width / 20, height / 20, height / -20, 1, 1000);
+  // var camera = new THREE.PerspectiveCamera(45, 1, 1, 100); // width / height, 1, 100);
+  var camera = new THREE.OrthographicCamera(width / -20, width / 20, height / 20, height / -20, 1, 1000);
   camera.position.y = 15;
   camera.position.z = 15;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -20,7 +20,6 @@ function main() {
   // miniscene_camera.position.y = 15;
   // miniscene_camera.position.z = 15;
   // miniscene_camera.lookAt(new THREE.Vector3(0, 0, 0));
-
 
   var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0x880000), new THREE.Color(0x333333));
   scene.add(gridXZ);

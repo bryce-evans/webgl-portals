@@ -82,8 +82,22 @@
 			top: 0;
 			left: 0;
 		}
-		#miniscenes>canvas{
+		#miniscenes>div{
 			border: 1px solid #444;
+			position: relative;
+			display: inline-block;
+		}
+		#miniscenes>div>canvas{
+			position:relative;
+			left: 0;
+			top: 0;
+			z-index: 1;
+		}
+		#miniscenes>div>canvas.overlay{
+			position:absolute;
+			left: 0;
+			top: 0;
+			z-index: 2;
 		}
 	</style>
 </head>

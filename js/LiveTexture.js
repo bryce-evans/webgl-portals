@@ -10,8 +10,8 @@ function main() {
 
   var scene = new THREE.Scene();
 
-  //var camera = new THREE.PerspectiveCamera(45, width / height, 1, 100);
-  var camera = new THREE.OrthographicCamera(width / -20, width / 20, height / 20, height / -20, 1, 1000);
+  var camera = new THREE.PerspectiveCamera(45, width / height, 1, 100);
+  //var camera = new THREE.OrthographicCamera(width / -20, width / 20, height / 20, height / -20, 1, 1000);
   camera.position.y = 15;
   camera.position.z = 15;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -30,8 +30,8 @@ function main() {
   var bufferScene = new THREE.Scene();
   var bufferScene2 = new THREE.Scene();
 
-  var width = 512;
-  var height = 512;
+  var width = 256;
+  var height = 256;
   var controls = new OrbitControls(camera, renderer.domElement);
 
   //////
@@ -51,10 +51,27 @@ function main() {
     }
   });
 
+  function drawTriangle(canvas, a, b, c) {
+    if (!canvas.getContext) {
+      console.error("cannot get context for ", canvas);
+      return;
+    }
+
+      var ctx = canvas.getContext('2d');
+      ctx.strokeStyle = "#FF0000";
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x,b.y);
+      ctx.lineTo(c.x,c.y);
+      ctx.lineTo(a.x, a.y);
+      ctx.stroke();
+  }
+
   var light_color = 0xffffff;
   var light_intensity = 1;
 
   var renderers = []
+  var canvas2ds = []
   var buffer_textures = []
   var buffer_scenes = []
   var dummy_objs = []
@@ -65,7 +82,16 @@ function main() {
     var miniscene_renderer = new THREE.WebGLRenderer({ antialias: true });
     miniscene_renderer.setSize(width, height);
     renderers.push(miniscene_renderer);
-    $("#miniscenes").append(miniscene_renderer.domElement);
+  
+    var div = $('<div>');
+    div.append(miniscene_renderer.domElement);
+  
+    var canvas2d = $(`<canvas height=${height} width=${width} class="overlay"></canvas>`);
+    div.append(canvas2d)
+
+    canvas2ds.push(canvas2d[0]);
+    
+    $("#miniscenes").append(div);
 
     var buffer_texture = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
     buffer_textures.push(buffer_texture)
@@ -182,26 +208,43 @@ function main() {
     var face_idx = mainBoxObject.geometry.faces;
     var vertices = mainBoxObject.geometry.vertices;
 
-    // per tri
+    // just draw everything to the first one for now.
+    var canvas = canvas2ds[0];
+    var context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
     for (var i = 0; i < face_uvs.length; i++) {
+      // per tri
       var tri_uvs = face_uvs[i];
       var tri_vertices = face_idx[i];
       var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
 
-      // per vertex
+
+      var uvs = [];
       for (var j = 0; j < tri_uvs.length; j++) {
+        // per vertex
+
+
 
         // project to camera
         var vertex = tri_geometry[j];
-        var projected = vertex.clone().project(camera);
+        var projected = vertex.clone().project(miniscene_camera);
+        projected.x = (projected.x + 1) / 2; // * width;
+        projected.y = -(projected.y - 1) / 2; // * height;
+
+        // projected.x *= width/projected.z;
+        // projected.y *= height/projected.z;
+        uvs.push({x: projected.x * width, y: projected.y * height});
         // console.log(projected);
 
         var uv = tri_uvs[j];
-        // uv.x = projected.x;
-        // uv.y = projected.y;
+        uv.x = projected.x;
+        uv.y = projected.y;
       }
+      drawTriangle(canvas, uvs[0], uvs[1], uvs[2]);
+
     }
-    //mainBoxObject.geometry.uvsNeedUpdate = true;
+    mainBoxObject.geometry.uvsNeedUpdate = true;
 
     for (var i = 0; i < 6; i++) {
       renderer.setRenderTarget(buffer_textures[i])

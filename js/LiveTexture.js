@@ -206,16 +206,23 @@ function main() {
     var face_idx = mainBoxObject.geometry.faces;
     var vertices = mainBoxObject.geometry.vertices;
 
-    // just draw everything to the first one for now.
-    var canvas = canvas2ds[0];
-    var context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (var idx in canvas2ds){
+      var canvas = canvas2ds[idx];
+       var ctx = canvas.getContext('2d');
+       ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
     for (var i = 0; i < face_uvs.length; i++) {
       // per tri
       var tri_uvs = face_uvs[i];
       var tri_vertices = face_idx[i];
       var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
+         
+
+    var canvas = canvas2ds[Math.floor(i/2)];
+    var context = canvas.getContext('2d');
+    
 
 
       var uvs = [];

@@ -3,8 +3,8 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 
 function main() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
-  var width = window.innerWidth;
-  var height = window.innerHeight;
+  var width = 1024; //window.innerWidth;
+  var height = 1024;// window.innerHeight;
   renderer.setSize(width, height);
   document.body.appendChild(renderer.domElement);
 
@@ -20,7 +20,7 @@ function main() {
   // miniscene_camera.position.y = 15;
   // miniscene_camera.position.z = 15;
   // miniscene_camera.lookAt(new THREE.Vector3(0, 0, 0));
-  
+
 
   var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0x880000), new THREE.Color(0x333333));
   scene.add(gridXZ);
@@ -36,13 +36,13 @@ function main() {
 
   var show_miniscenes = false;
 
-  $(document).keydown(function( event ) {
+  $(document).keydown(function (event) {
     if (event.which == 32) {
       $('#miniscenes').show();
       show_miniscenes = true;
     }
   });
-  $(document).keyup(function( event ) {
+  $(document).keyup(function (event) {
     if (event.which == 32) {
       $('#miniscenes').hide();
       show_miniscenes = false;
@@ -55,14 +55,14 @@ function main() {
       return;
     }
 
-      var ctx = canvas.getContext('2d');
-      ctx.strokeStyle = "#FF0000";
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(b.x,b.y);
-      ctx.lineTo(c.x,c.y);
-      ctx.lineTo(a.x, a.y);
-      ctx.stroke();
+    var ctx = canvas.getContext('2d');
+    ctx.strokeStyle = "#FF0000";
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.lineTo(c.x, c.y);
+    ctx.lineTo(a.x, a.y);
+    ctx.stroke();
   }
 
   var light_color = 0xffffff;
@@ -78,17 +78,17 @@ function main() {
   var live_materials = []
   for (var i = 0; i < 6; i++) {
     var miniscene_renderer = new THREE.WebGLRenderer({ antialias: true });
-    miniscene_renderer.setSize(width/4, height/4);
+    miniscene_renderer.setSize(width / 4, height / 4);
     renderers.push(miniscene_renderer);
-  
+
     var div = $('<div>');
     div.append(miniscene_renderer.domElement);
-  
-    var canvas2d = $(`<canvas height=${height/4} width=${width/4} class="overlay"></canvas>`);
+
+    var canvas2d = $(`<canvas height=${height / 4} width=${width / 4} class="overlay"></canvas>`);
     div.append(canvas2d)
 
     canvas2ds.push(canvas2d[0]);
-    
+
     $("#miniscenes").append(div);
 
     var buffer_texture = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
@@ -194,7 +194,7 @@ function main() {
     // mainBoxObject.rotation.x -= 0.01;
 
     if (show_miniscenes) {
-      for (var i = 0; i<renderers.length; i++) {
+      for (var i = 0; i < renderers.length; i++) {
         var r = renderers[i];
         var miniscene = buffer_scenes[i];
         r.render(miniscene, miniscene_camera);
@@ -207,10 +207,10 @@ function main() {
     var vertices = mainBoxObject.geometry.vertices;
 
 
-    for (var idx in canvas2ds){
+    for (var idx in canvas2ds) {
       var canvas = canvas2ds[idx];
-       var ctx = canvas.getContext('2d');
-       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
     for (var i = 0; i < face_uvs.length; i++) {
@@ -218,11 +218,11 @@ function main() {
       var tri_uvs = face_uvs[i];
       var tri_vertices = face_idx[i];
       var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
-         
 
-    var canvas = canvas2ds[Math.floor(i/2)];
-    var context = canvas.getContext('2d');
-    
+
+      var canvas = canvas2ds[Math.floor(i / 2)];
+      var context = canvas.getContext('2d');
+
 
 
       var uvs = [];
@@ -239,7 +239,7 @@ function main() {
 
         // projected.x *= width/projected.z;
         // projected.y *= height/projected.z;
-        uvs.push({x: projected.x * width/4, y: projected.y * height/4});
+        uvs.push({ x: projected.x * width / 4, y: projected.y * height / 4 });
         // console.log(projected);
 
         var uv = tri_uvs[j];

@@ -10,15 +10,13 @@ function main() {
 
   var scene = new THREE.Scene();
 
-  var camera = new THREE.PerspectiveCamera(45, width / height, 1, 100);
+  var camera = new THREE.PerspectiveCamera(45, 1, 1, 100); // width / height, 1, 100);
   //var camera = new THREE.OrthographicCamera(width / -20, width / 20, height / 20, height / -20, 1, 1000);
   camera.position.y = 15;
   camera.position.z = 15;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  var miniscene_camera = camera;
-  
-  // new THREE.PerspectiveCamera(45, 1, 1, 100);
+  var miniscene_camera = camera; //new THREE.PerspectiveCamera(45, 1, 1, 100);
   // miniscene_camera.position.y = 15;
   // miniscene_camera.position.z = 15;
   // miniscene_camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -30,8 +28,8 @@ function main() {
   var bufferScene = new THREE.Scene();
   var bufferScene2 = new THREE.Scene();
 
-  var width = 256;
-  var height = 256;
+  var width = 1024;
+  var height = 1024;
   var controls = new OrbitControls(camera, renderer.domElement);
 
   //////
@@ -80,13 +78,13 @@ function main() {
   var live_materials = []
   for (var i = 0; i < 6; i++) {
     var miniscene_renderer = new THREE.WebGLRenderer({ antialias: true });
-    miniscene_renderer.setSize(width, height);
+    miniscene_renderer.setSize(width/4, height/4);
     renderers.push(miniscene_renderer);
   
     var div = $('<div>');
     div.append(miniscene_renderer.domElement);
   
-    var canvas2d = $(`<canvas height=${height} width=${width} class="overlay"></canvas>`);
+    var canvas2d = $(`<canvas height=${height/4} width=${width/4} class="overlay"></canvas>`);
     div.append(canvas2d)
 
     canvas2ds.push(canvas2d[0]);
@@ -234,12 +232,12 @@ function main() {
 
         // projected.x *= width/projected.z;
         // projected.y *= height/projected.z;
-        uvs.push({x: projected.x * width, y: projected.y * height});
+        uvs.push({x: projected.x * width/4, y: projected.y * height/4});
         // console.log(projected);
 
         var uv = tri_uvs[j];
         uv.x = projected.x;
-        uv.y = projected.y;
+        uv.y = 1 - projected.y;
       }
       drawTriangle(canvas, uvs[0], uvs[1], uvs[2]);
 

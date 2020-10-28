@@ -2,7 +2,6 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 
 
 function main() {
-
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   var width = window.innerWidth;
   var height = window.innerHeight;
@@ -11,11 +10,19 @@ function main() {
 
   var scene = new THREE.Scene();
 
-  // var camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+  //var camera = new THREE.PerspectiveCamera(45, width / height, 1, 100);
   var camera = new THREE.OrthographicCamera(width / -20, width / 20, height / 20, height / -20, 1, 1000);
   camera.position.y = 15;
   camera.position.z = 15;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+  var miniscene_camera = camera;
+  
+  // new THREE.PerspectiveCamera(45, 1, 1, 100);
+  // miniscene_camera.position.y = 15;
+  // miniscene_camera.position.z = 15;
+  // miniscene_camera.lookAt(new THREE.Vector3(0, 0, 0));
+  
 
   var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0x880000), new THREE.Color(0x333333));
   scene.add(gridXZ);
@@ -29,18 +36,37 @@ function main() {
 
   //////
 
+  var show_miniscenes = false;
+
+  $(document).keydown(function( event ) {
+    if (event.which == 32) {
+      $('#miniscenes').show();
+      show_miniscenes = true;
+    }
+  });
+  $(document).keyup(function( event ) {
+    if (event.which == 32) {
+      $('#miniscenes').hide();
+      show_miniscenes = false;
+    }
+  });
+
   var light_color = 0xffffff;
   var light_intensity = 1;
 
+  var renderers = []
   var buffer_textures = []
   var buffer_scenes = []
-  var lights = []
-  var dummy_materials = []
   var dummy_objs = []
   var dummy_bg_materials = []
   var dummy_bgs = []
   var live_materials = []
   for (var i = 0; i < 6; i++) {
+    var miniscene_renderer = new THREE.WebGLRenderer({ antialias: true });
+    miniscene_renderer.setSize(width, height);
+    renderers.push(miniscene_renderer);
+    $("#miniscenes").append(miniscene_renderer.domElement);
+
     var buffer_texture = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
     buffer_textures.push(buffer_texture)
 
@@ -61,13 +87,12 @@ function main() {
     buffer_scene.add(dummy_obj);
     dummy_objs.push(dummy_obj)
 
+    var room = new THREE.BoxGeometry(10, 10, 10);
     var hue = Math.random() * 360
     var dummy_bg_mat = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl(" + hue + ", 100%, 50%)") })
     dummy_bg_mat.side = THREE.BackSide
     dummy_bg_materials.push(dummy_bg_mat)
-
-    var plane = new THREE.BoxGeometry(10, 10, 10);
-    var dummy_bg = new THREE.Mesh(plane, dummy_bg_mat);
+    var dummy_bg = new THREE.Mesh(room, dummy_bg_mat);
     dummy_bgs.push(dummy_bg)
     buffer_scene.add(dummy_bg);
 
@@ -131,6 +156,8 @@ function main() {
   function render() {
 
     controls.update();
+    // miniscene_camera.position.set(camera.position);
+    // miniscene_camera.lookAt(new THREE.Vector3(0, 0, 0));
     requestAnimationFrame(render);
 
     //Make the box rotate on box axises
@@ -141,6 +168,14 @@ function main() {
     //Rotate the main box too
     // mainBoxObject.rotation.y -= 0.01;
     // mainBoxObject.rotation.x -= 0.01;
+
+    if (show_miniscenes) {
+      for (var i = 0; i<renderers.length; i++) {
+        var r = renderers[i];
+        var miniscene = buffer_scenes[i];
+        r.render(miniscene, miniscene_camera);
+      }
+    }
 
     camera.updateProjectionMatrix();
     var face_uvs = mainBoxObject.geometry.faceVertexUvs[0];
@@ -158,21 +193,19 @@ function main() {
 
         // project to camera
         var vertex = tri_geometry[j];
-        var projected = vertex.project(camera);
+        var projected = vertex.clone().project(camera);
+        // console.log(projected);
 
         var uv = tri_uvs[j];
-        uv.x = projected.x;
-        uv.y = projected.y;
+        // uv.x = projected.x;
+        // uv.y = projected.y;
       }
     }
-    mainBoxObject.geometry.uvsNeedUpdate = true;
-
-
-
+    //mainBoxObject.geometry.uvsNeedUpdate = true;
 
     for (var i = 0; i < 6; i++) {
       renderer.setRenderTarget(buffer_textures[i])
-      renderer.render(buffer_scenes[i], camera);
+      renderer.render(buffer_scenes[i], miniscene_camera);
     }
 
 

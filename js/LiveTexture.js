@@ -183,6 +183,7 @@ function main() {
   var mainBoxGeo = new THREE.BoxGeometry(8,8,8);
   var mainBoxObject = new THREE.Mesh(mainBoxGeo, live_materials);
   scene.add(mainBoxObject);
+  
 
 
   var wireframe = new THREE.WireframeGeometry(mainBoxGeo);
@@ -194,6 +195,20 @@ function main() {
   line.material.transparent = true;
 
   scene.add(line);
+
+  loader.load( 'rsc/models/frame.glb', function ( gltf ) {
+    gltf.scene.setSc
+    scene.add( gltf.scene );
+
+    var light = new THREE.PointLight(0xffffff, 1);
+    light.position.set(0, 3, 15);
+    scene.add(light);
+
+    scene.add( new THREE.AmbientLight(0xffffff, 1));
+
+  }, undefined, function ( error ) {
+    console.error( error );
+  } );
 
 
   function toScreenXY(pos, canvas) {
@@ -260,8 +275,6 @@ function main() {
       var uvs = [];
       for (var j = 0; j < tri_uvs.length; j++) {
         // per vertex
-
-
 
         // project to camera
         var vertex = tri_geometry[j];

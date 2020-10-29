@@ -10,8 +10,8 @@ function main() {
 
   var scene = new THREE.Scene();
 
-  // var camera = new THREE.PerspectiveCamera(45, 1, 1, 100); // width / height, 1, 100);
-  var camera = new THREE.OrthographicCamera(width / -20, width / 20, height / 20, height / -20, 1, 1000);
+  var camera = new THREE.PerspectiveCamera(45, 1, 1, 100); // width / height, 1, 100);
+  //var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
   camera.position.y = 15;
   camera.position.z = 15;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -67,11 +67,15 @@ function main() {
   var light_color = 0xffffff;
   var light_intensity = 1;
 
+  // Size of dummy objects
+  var size = 6;
+
   var renderers = []
   var canvas2ds = []
   var buffer_textures = []
   var buffer_scenes = []
-  var dummy_objs = []
+  var dummy_geos = [new THREE.BoxGeometry(size,size,size), new THREE.ConeGeometry(size,size, 6), new THREE.DodecahedronGeometry(size/2), new THREE.IcosahedronBufferGeometry(size/2), new THREE.TetrahedronBufferGeometry(size/2), new THREE.TorusGeometry(size/2, size/4, 10, 10)];
+  var dummy_objs = [];
   var dummy_bg_materials = []
   var dummy_bgs = []
   var live_materials = []
@@ -96,19 +100,30 @@ function main() {
     var buffer_scene = new THREE.Scene();
     buffer_scenes.push(buffer_scene)
 
-    var light = new THREE.DirectionalLight(light_color, light_intensity);
-    light.position.set(5, 5, 15);
-    light.target.position.set(0, 0, 0);
+    var light = new THREE.PointLight(light_color, light_intensity);
+    light.position.set(0, 3, 15);
+    // light.target.position.set(0, 0, 0);
     buffer_scene.add(light);
-    buffer_scene.add(light.target);
+    // buffer_scene.add(light.target);
+
+    // var light_geo = new THREE.SphereGeometry(5,5,5);
+    // var light_mat = new THREE.MeshBasicMaterial({color:new THREE.Color('red')});
+    // var light_mesh = new THREE.Mesh(light_geo, light_mat);
+    // light_mesh.position.set(light.position);
+    // scene.add(light_mesh);
+
+
+    buffer_scene.add( new THREE.AmbientLight(0xfff));
+
 
     var hue = Math.random() * 360
     var dummy_material = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl(" + hue + ", 100%, 50%)") });
-    var dummy_geometry = new THREE.BoxGeometry(6, 6, 6);
+    var dummy_geometry = dummy_geos[i]
     var dummy_obj = new THREE.Mesh(dummy_geometry, dummy_material);
     dummy_obj.position.z = -1;
     buffer_scene.add(dummy_obj);
-    dummy_objs.push(dummy_obj)
+    dummy_objs.push(dummy_obj);
+
 
     var room = new THREE.BoxGeometry(10, 10, 10);
     var hue = Math.random() * 360

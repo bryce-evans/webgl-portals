@@ -200,7 +200,6 @@ function main() {
     light.position.set(0, 3, 15);
     scene.add(light);
 
-
   }, undefined, function ( error ) {
     console.error( error );
   } );
@@ -274,17 +273,20 @@ function main() {
         // project to camera
         var vertex = tri_geometry[j];
         var projected = vertex.clone().project(miniscene_camera);
-        projected.x = (projected.x + 1) / 2; // * width;
-        projected.y = -(projected.y - 1) / 2; // * height;
+        projected.x = (projected.x+ 1) / 2; 
+        projected.y = -(projected.y - 1) / 2; 
 
-        // projected.x *= width/projected.z;
-        // projected.y *= height/projected.z;
+
+        // For drawing UVs in debugger tools.
         uvs.push({ x: projected.x * width / 4, y: projected.y * height / 4 });
-        // console.log(projected);
 
+
+        // Set the UVs.
         var uv = tri_uvs[j];
         uv.x = projected.x;
-        uv.y = 1 - projected.y;
+        uv.y = 1-projected.y;
+
+        
       }
       drawTriangle(canvas, uvs[0], uvs[1], uvs[2]);
 
@@ -295,9 +297,6 @@ function main() {
       renderer.setRenderTarget(buffer_textures[i])
       renderer.render(buffer_scenes[i], miniscene_camera);
     }
-
-
-
 
     renderer.setRenderTarget(null)
     renderer.render(scene, camera);

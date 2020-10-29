@@ -3,6 +3,7 @@ import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.
 
 function main() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setClearColor( 0x222222, 1 );
   var width = 1024; //window.innerWidth;
   var height = 1024;// window.innerHeight;
   renderer.setSize(width, height);
@@ -12,8 +13,7 @@ function main() {
 
   //var camera = new THREE.PerspectiveCamera(45, 1, 1, 100); // width / height, 1, 100);
   var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
-  camera.position.y = 15;
-  camera.position.z = 15;
+  camera.position.set(11,11,11);
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   var miniscene_camera = camera; //new THREE.PerspectiveCamera(45, 1, 1, 100);
@@ -21,8 +21,8 @@ function main() {
   // miniscene_camera.position.z = 15;
   // miniscene_camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0x880000), new THREE.Color(0x333333));
-  scene.add(gridXZ);
+  // var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0x880000), new THREE.Color(0x333333));
+  // scene.add(gridXZ);
 
   var bufferScene = new THREE.Scene();
   var bufferScene2 = new THREE.Scene();
@@ -177,34 +177,29 @@ function main() {
   buffer_scenes[4].setRotationFromEuler(new THREE.Euler(0, 0, 0))
   buffer_scenes[5].setRotationFromEuler(new THREE.Euler(Math.PI, 0, 0))
 
-
-
   // Forward render result to output texture.
-  var mainBoxGeo = new THREE.BoxGeometry(8,8,8);
+  var mainBoxGeo = new THREE.BoxGeometry(10,10,10);
   var mainBoxObject = new THREE.Mesh(mainBoxGeo, live_materials);
   scene.add(mainBoxObject);
   
+  // var wireframe = new THREE.WireframeGeometry(mainBoxGeo);
 
+  // var line = new THREE.LineSegments(wireframe);
+  // line.material.depthTest = true;
+  // line.material.opacity = 0.5;
+  // line.material.color = new THREE.Color(0x0088ff)
+  // line.material.transparent = true;
 
-  var wireframe = new THREE.WireframeGeometry(mainBoxGeo);
-
-  var line = new THREE.LineSegments(wireframe);
-  line.material.depthTest = true;
-  line.material.opacity = 0.5;
-  line.material.color = new THREE.Color(0x0088ff)
-  line.material.transparent = true;
-
-  scene.add(line);
+  // scene.add(line);
 
   loader.load( 'rsc/models/frame.glb', function ( gltf ) {
-    gltf.scene.setSc
+    gltf.scene.scale.set(1.1,1.1,1.1);
     scene.add( gltf.scene );
 
     var light = new THREE.PointLight(0xffffff, 1);
     light.position.set(0, 3, 15);
     scene.add(light);
 
-    scene.add( new THREE.AmbientLight(0xffffff, 1));
 
   }, undefined, function ( error ) {
     console.error( error );

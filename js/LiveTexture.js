@@ -1,5 +1,5 @@
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
-
+import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 
 function main() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -43,7 +43,7 @@ function main() {
     render();
 
   }
-  
+
   window.addEventListener( 'resize', onWindowResize, false );
 
   var show_miniscenes = false;
@@ -54,6 +54,7 @@ function main() {
       show_miniscenes = true;
     }
   });
+
   $(document).keyup(function (event) {
     if (event.which == 32) {
       $('#miniscenes').hide();
@@ -81,7 +82,7 @@ function main() {
   var light_intensity = 1;
 
   // Size of dummy objects
-  var size = 6;
+  var size = 5;
 
   var renderers = []
   var canvas2ds = []
@@ -115,19 +116,9 @@ function main() {
 
     var light = new THREE.PointLight(light_color, light_intensity);
     light.position.set(0, 3, 15);
-    // light.target.position.set(0, 0, 0);
     buffer_scene.add(light);
-    // buffer_scene.add(light.target);
-
-    // var light_geo = new THREE.SphereGeometry(5,5,5);
-    // var light_mat = new THREE.MeshBasicMaterial({color:new THREE.Color('red')});
-    // var light_mesh = new THREE.Mesh(light_geo, light_mat);
-    // light_mesh.position.set(light.position);
-    // scene.add(light_mesh);
-
 
     buffer_scene.add( new THREE.AmbientLight(0xfff));
-
 
     var hue = Math.random() * 360
     var dummy_material = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl(" + hue + ", 100%, 50%)") });
@@ -150,6 +141,20 @@ function main() {
     var live_material = new THREE.MeshBasicMaterial({ map: buffer_texture.texture });
     live_materials.push(live_material)
   }
+
+  // Clear first scene for cornell box
+  var cur_scene = buffer_scenes[4];
+  cur_scene.remove.apply(cur_scene, cur_scene.children);
+  const loader = new GLTFLoader();
+
+  loader.load( 'rsc/models/cornell-box.glb', function ( gltf ) {
+    cur_scene.add( gltf.scene );
+  }, undefined, function ( error ) {
+    console.error( error );
+  } );
+
+
+  // Set Scenes to correct orientation
 
   //        .----------------.
   //      / |               /
@@ -175,7 +180,7 @@ function main() {
 
 
   // Forward render result to output texture.
-  var mainBoxGeo = new THREE.BoxGeometry(10, 10, 10);
+  var mainBoxGeo = new THREE.BoxGeometry(8,8,8);
   var mainBoxObject = new THREE.Mesh(mainBoxGeo, live_materials);
   scene.add(mainBoxObject);
 

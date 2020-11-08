@@ -1,8 +1,8 @@
-import { Controls } from './Controls.js';
+import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 import { CubePortalLayout } from './portal_layouts/CubePortalLayout.js';
 
 
-MainScene = function () {
+var MainScene = function () {
 
   this.init = function () {
     var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -19,9 +19,9 @@ MainScene = function () {
     camera.position.set(11, 11, 11);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    this.controls = new Controls(camera, renderer.domElement);
+    this.controls = new OrbitControls(camera, renderer.domElement);
 
-    portal_cube = CubePortalLayout(size = 10);
+    portal_cube = CubePortalLayout(size=10);
     portal_cube.setCamera(camera);
     for (var i = 0; i < portal_cube.n_windows(); i++) {
       portal_cube.setScene(i, new RandomGeometryScene());
@@ -42,6 +42,6 @@ MainScene = function () {
   }
 }
 
-scene = new MainScene();
+var scene = new MainScene();
 scene.init();
 scene.render();

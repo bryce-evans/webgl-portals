@@ -1,8 +1,12 @@
-PortalWindow = function (geometry, transform, scene = null) {
-    this.geometry = geometry;
-    this.tranform = transform;
-    this.scene = scene;
-    return this;
+import { Object3D } from 'https://raw.githubusercontent.com/mrdoob/three.js/master/src/core/Object3D.js';
+
+class PortalWindow {
+    constructor(geometry, transform, scene = null) {
+        this.geometry = geometry;
+        this.tranform = transform;
+        this.scene = scene;
+        return this;
+    }
 }
 
 class PortalWindowLayout {
@@ -33,7 +37,7 @@ class PortalWindowLayout {
         this.renderer = renderer;
     }
 
-    setWindowToScene(window_id, scene) {
+    setScene(window_id, scene) {
         if (window_id > this.n_windows) {
             console.error("window_id not valid");
         }
@@ -128,3 +132,5 @@ class PortalWindowLayout {
         renderer.setRenderTarget(null)
     }
 }
+
+export { PortalWindowLayout };

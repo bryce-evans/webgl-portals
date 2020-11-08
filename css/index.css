@@ -1,0 +1,92 @@
+#c {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: -1;
+}
+
+.diagram {
+    display: inline-block;
+    width: 5em;
+    height: 3em;
+}
+
+.left {
+    float: left;
+    margin-right: .25em;
+}
+
+.right {
+    float: right;
+    margin-left: .25em;
+}
+
+p {
+    margin: 1em auto;
+    max-width: 500px;
+    font-size: xx-large;
+}
+
+body {
+    text-align: center;
+    background-color: #222222;
+}
+
+#canvas-container {
+    margin: 0 auto;
+}
+
+canvas:focus {
+    outline: -webkit-focus-ring-color auto 0px;
+
+}
+
+#individual_cube_views {
+    display: block;
+}
+
+#individual_cube_views>div {
+    width: 350px;
+    height: 350px;
+    display: inline-block;
+    background-color: red;
+    margin: 2px;
+    position: relative;
+}
+
+#combined_cube_views>div {
+    width: 529px;
+    height: 529px;
+    display: inline-block;
+    background-color: teal;
+    margin: 2px;
+}
+
+#miniscenes {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+#miniscenes>div {
+    border: 1px solid #444;
+    position: relative;
+    display: inline-block;
+}
+
+#miniscenes>div>canvas {
+    position: relative;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+#miniscenes>div>canvas.overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+}

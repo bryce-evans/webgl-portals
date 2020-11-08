@@ -1,13 +1,54 @@
- // Size of dummy objects
- var size = 5;
 
- var renderers = []
- var canvas2ds = []
- var buffer_textures = []
- var buffer_scenes = []
- var dummy_geos = [new THREE.BoxGeometry(size,size,size), new THREE.ConeGeometry(size,size, 6), new THREE.DodecahedronGeometry(size/2), new THREE.IcosahedronBufferGeometry(size/2), new THREE.TetrahedronBufferGeometry(size/2), new THREE.TorusGeometry(size/2, size/4, 10, 10)];
+class RandomGeometryScene {
+
+    constructor(size = 5) {
+        // Size of dummy objects
+        this.size = size;
+        this.scene = new THREE.Scene();
+    }
+
+    randGeometry(size) {
+        var size = this.size;
+        switch (Math.floor(Math.random() * 6)) {
+            case 0:
+                return new THREE.BoxGeometry(size, size, size);
+            case 1:
+                return new THREE.ConeGeometry(size, size, 6);
+            case 2:
+                return new THREE.DodecahedronGeometry(size / 2);
+            case 3:
+                return new THREE.IcosahedronBufferGeometry(size / 2);
+            case 4:
+                return new THREE.TetrahedronBufferGeometry(size / 2);
+            case 5:
+                return new THREE.TorusGeometry(size / 2, size / 4, 10, 10);
+        }
+    }
+
+    randPhongMaterial() {
+        var hue = Math.random() * 360
+        return new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl(" + hue + ", 100%, 50%)") });
+    }
 
 
- var light_color = 0xffffff;
- var light_intensity = 1;
- 
+    init(room_geo = THREE.BoxGeometry(10, 10, 10)) {
+        var light_color = 0xffffff;
+        var light_intensity = 1;
+        var light = new THREE.PointLight(light_color, light_intensity);
+        light.position.set(0, 3, 15);
+        this.scene.add(light);
+
+        this.scene.add(new THREE.AmbientLight(0xfff));
+
+        if (room_geo != null) {
+            var room_mat = this.randPhongMaterial();
+            room_mat.side = THREE.BackSide
+            var room = new THREE.Mesh(room_geo, room_mat);
+            this.scene.add(room);
+        }
+
+        var subject = new THREE.Mesh(this.randGeometry(), this.randPhongMaterial());
+        subject.position.z = -1;
+        this.scene.add(dummy_obj);
+    }
+}

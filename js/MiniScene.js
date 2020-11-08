@@ -17,6 +17,9 @@ MiniScene = function (renderer, scene, screen_geometry, transform, size) {
   this.buffer_image;
   this.renderer = renderer;
 
+  // This is required to be set with .setCamera()
+  this.camera = null;
+
   var renderers = []
   var canvas2ds = []
   var buffer_textures = []
@@ -44,24 +47,33 @@ MiniScene = function (renderer, scene, screen_geometry, transform, size) {
 
   }
 
-  this.init = function () {
+  this.setCamera = function(cam) {
+    this.camera = cam;
+  }
+
+  this.addCanvasToDebugDom = function(dom_elem) {
+    var div = $('<div>');
+    div.append(miniscene_renderer.domElement);
+    var canvas2d = $(`<canvas height=${height / 4} width=${width / 4} class="overlay"></canvas>`);
+    div.append(canvas2d)
+    canvas2ds.push(canvas2d[0]);
+    dom_elem.append(div);
+  }
+
+  this.init = function (debug_dom=null, render_width, render_height) {
     // Initialization of the scene
 
     var miniscene_renderer = new THREE.WebGLRenderer({ antialias: true });
-    miniscene_renderer.setSize(width / 4, height / 4);
+
+    // XXX: Not sure if downscaling by 4 is good. Another arg to set this needed?
+    miniscene_renderer.setSize(render_width / 4 , render_height / 4);
     renderers.push(miniscene_renderer);
 
-    var div = $('<div>');
-    div.append(miniscene_renderer.domElement);
-
-    var canvas2d = $(`<canvas height=${height / 4} width=${width / 4} class="overlay"></canvas>`);
-    div.append(canvas2d)
-
-    canvas2ds.push(canvas2d[0]);
-
-    $("#miniscenes").append(div);
-
-    var buffer_texture = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
+    if (debug_dom != null) {
+      this.addCanvasToDebugDom(debug_dom);
+    }
+    
+    var buffer_texture = new THREE.WebGLRenderTarget(render_width, render_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
     buffer_textures.push(buffer_texture)
 
     var buffer_scene = new THREE.Scene();

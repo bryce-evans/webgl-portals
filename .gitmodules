@@ -1,3 +1,9 @@
 [submodule "js/third-party/three.js"]
 	path = js/third-party/three.js
 	url = https://github.com/mrdoob/three.js.git
+[submodule "js/lib/jquery"]
+	path = js/lib/jquery
+	url = git://github.com/jquery/jquery.git
+[submodule "js/third-party/jquery"]
+	path = js/third-party/jquery
+	url = git://github.com/jquery/jquery.git

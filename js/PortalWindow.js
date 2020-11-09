@@ -36,7 +36,7 @@ class PortalWindow extends Mesh {
     this.resolution_width = args.resolution_width || window.innerWidth;
     this.resolution_height = args.resolution_height || window.innerHeight;
 
-    
+
     // call showDebugUVs() to enable.
     this.show_debug_uvs = false;
     this.debug_width = args.debug_width || this.resolution_width / 4;
@@ -114,7 +114,7 @@ class PortalWindow extends Mesh {
         projected.y = -(projected.y - 1) / 2;
 
         // For drawing UVs in debugger tools.
-        uvs.push({ x: projected.x * this.debug_width, y: projected.y * this.debug_height});
+        uvs.push({ x: projected.x * this.debug_width, y: projected.y * this.debug_height });
 
         // Set the UVs.
         var uv = tri_uvs[j];
@@ -156,13 +156,14 @@ class PortalWindow extends Mesh {
   showDebugUVs(dom_element) {
     this.show_debug_uvs = true;
 
-    var div = $('<div>');
+    var div = $('<div class="debug_container">');
 
-    var canvas = $(`<canvas height=${this.debug_height} width=${this.debug_width} class="overlay"></canvas>`);
-    div.append(this.debug_canvas2d)
-
+    var canvas = $(`<canvas height=${this.debug_height} width=${this.debug_width}></canvas>`);
+    canvas.addClass("overlay");
+    canvas.addClass("debug-portal-window");
     this.debug_canvas2d = canvas[0];
 
+    div.append(canvas)
     dom_element.append(div);
   }
 

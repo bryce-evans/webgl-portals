@@ -57,16 +57,16 @@ var MainScene = function () {
     //   scene.add(portal_cube);
     // }
 
+    if (show_miniscenes) {
+      portal.showDebugUVs($('#miniscenes'));
+    }
+
     this.render = function () {
       var renderer = this.renderer;
       function render_helper() {
         controls.update();
 
         requestAnimationFrame(render_helper)
-
-        if (show_miniscenes) {
-          portal.showDebugUVs($('#miniscenes'));
-        }
 
         renderer.render(scene, camera);
       }

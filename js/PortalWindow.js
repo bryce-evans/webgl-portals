@@ -129,7 +129,12 @@ class PortalWindow extends Mesh {
     }
     this.portal_geometry.uvsNeedUpdate = true;
 
+    this.renderer.setRenderTarget(null);
     this.renderer.render(this.scene, this.camera);
+
+    this.renderer.setRenderTarget(this.buffer_texture);
+    this.renderer.render(this.scene, this.camera);
+
   }
 
   drawTriangle(canvas, a, b, c) {
@@ -153,9 +158,7 @@ class PortalWindow extends Mesh {
 
     var div = $('<div>');
 
-    div.append(this.renderer.domElement);
-
-    var canvas = $(`<canvas height=${this.resolution_height / 4} width=${this.resolution_width / 4} class="overlay"></canvas>`);
+    var canvas = $(`<canvas height=${this.debug_height} width=${this.debug_width} class="overlay"></canvas>`);
     div.append(this.debug_canvas2d)
 
     this.debug_canvas2d = canvas[0];
@@ -164,6 +167,5 @@ class PortalWindow extends Mesh {
   }
 
 }
-
 
 export { PortalWindow };

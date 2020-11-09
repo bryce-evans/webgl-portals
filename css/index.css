@@ -82,6 +82,7 @@ canvas:focus {
     left: 0;
     top: 0;
     z-index: 1;
+    background-color: green;
 }
 
 #miniscenes>div>canvas.overlay {

@@ -1,20 +1,11 @@
-import { Object3D } from 'https://raw.githubusercontent.com/mrdoob/three.js/master/src/core/Object3D.js';
-
-class PortalWindow {
-    constructor(geometry, transform, scene = null) {
-        this.geometry = geometry;
-        this.tranform = transform;
-        this.scene = scene;
-        return this;
-    }
-}
-
 class PortalWindowLayout {
-    constructor(camera, renderer, size = 1) {
+    constructor(args) {
         this.windows = [];
-        this.camera = camera;
-        this.renderer = renderer;
-        this.size = size;
+
+        // Shared camera between all miniscenes.
+        this.camera = args.camera;
+
+        this.size = args.size || 1;
     }
 
     init() {
@@ -42,10 +33,6 @@ class PortalWindowLayout {
             console.error("window_id not valid");
         }
         this.windows[window_id].scene = scene;
-    }
-
-    renderDebugTextureUVs(domElement) {
-        console.error("not implemented");
     }
 
     /**

@@ -29,12 +29,13 @@ class PortalWindow extends Mesh {
     // XXX TODO.
     this.transform = null;
 
-    this.buffer_texture = new THREE.WebGLRenderTarget(this.resolution_width, this.resolution_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
-    this.live_material = new THREE.MeshBasicMaterial({ map: this.buffer_texture.texture });
-
     this.antialias = args.antialias || false;
     this.resolution_width = args.resolution_width || window.innerWidth;
     this.resolution_height = args.resolution_height || window.innerHeight;
+
+
+    this.buffer_texture = new THREE.WebGLRenderTarget(this.resolution_width, this.resolution_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
+    this.live_material = new THREE.MeshBasicMaterial({ map: this.buffer_texture.texture });
 
 
     // call showDebugUVs() to enable.
@@ -42,11 +43,10 @@ class PortalWindow extends Mesh {
     this.debug_width = args.debug_width || this.resolution_width / 4;
     this.debug_height = args.debug_height || this.resolution_height / 4;
 
-
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setSize(this.resolution_width, this.resolution_height);
-    this.renderer.setRenderTarget(this.buffer_texture)
-
+    this.renderer = args.renderer;
+    
+    this.debug_renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.debug_renderer.setSize(this.debug_width, this.debug_height);
 
     // Required to be set in Mesh.
     this.geometry = this.portal_geometry;
@@ -129,11 +129,15 @@ class PortalWindow extends Mesh {
     }
     this.portal_geometry.uvsNeedUpdate = true;
 
-    this.renderer.setRenderTarget(null);
-    this.renderer.render(this.scene, this.camera);
+
+    this.debug_renderer.render(this.scene, this.camera);
 
     this.renderer.setRenderTarget(this.buffer_texture);
     this.renderer.render(this.scene, this.camera);
+    this.renderer.setRenderTarget(null);
+
+    // Copy results to debug
+    //this.debug_canvas2d.getContext('2d').drawImage( this.renderer.domElement, 0, 0 );
 
   }
 
@@ -157,6 +161,7 @@ class PortalWindow extends Mesh {
     this.show_debug_uvs = true;
 
     var div = $('<div class="debug_container">');
+    div.append(this.debug_renderer.domElement);
 
     var canvas = $(`<canvas height=${this.debug_height} width=${this.debug_width}></canvas>`);
     canvas.addClass("overlay");

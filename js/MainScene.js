@@ -9,7 +9,7 @@ var MainScene = function () {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
 
-    var show_miniscenes = true;
+    var show_uv_debug = true;
 
     var width = 1024;
     var height = 1024;
@@ -26,8 +26,8 @@ var MainScene = function () {
     this.controls = new OrbitControls(camera, this.renderer.domElement);
 
     var miniscene = new THREE.Scene();
-    var dummy_geo = new THREE.DodecahedronGeometry(10);
-    var dummy_mat = new THREE.MeshBasicMaterial({ color: new THREE.Color("hsl(0, 100%, 50%)") });
+    var dummy_geo = new THREE.DodecahedronGeometry(3);
+    var dummy_mat = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl(220, 100%, 50%)") });
     var dummy_mesh = new THREE.Mesh(dummy_geo, dummy_mat);
     miniscene.add(dummy_mesh)
 
@@ -37,13 +37,10 @@ var MainScene = function () {
     light.position.set(0, 3, 15);
     miniscene.add(light);
 
-    miniscene.add( new THREE.AmbientLight(0xfff));
-
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
 
-    var portal = new PortalWindow({ scene: miniscene, portal_geometry: portal_geo });
+    var portal = new PortalWindow({ scene: miniscene, portal_geometry: portal_geo, renderer: this.renderer });
     portal.setCamera(camera);
-    portal.showDebugUVs($("#miniscenes"));
     scene.add(portal);
 
     var controls = new OrbitControls(camera, this.renderer.domElement);
@@ -57,17 +54,15 @@ var MainScene = function () {
     //   scene.add(portal_cube);
     // }
 
-    if (show_miniscenes) {
-      portal.showDebugUVs($('#miniscenes'));
+    if (show_uv_debug) {
+      portal.showDebugUVs($('#debug_uvs'));
     }
 
     this.render = function () {
       var renderer = this.renderer;
       function render_helper() {
         controls.update();
-
         requestAnimationFrame(render_helper)
-
         renderer.render(scene, camera);
       }
       render_helper();

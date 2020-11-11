@@ -20,4 +20,4 @@ class Utils {
 
 }
 
-exports = { Utils }
+export { Utils }

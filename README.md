@@ -2,10 +2,12 @@
 # Three JS Portals
 
 Terminology:
-A Miniscene is contained inside the portal. 
-The portal is a mesh that renders the miniscene.
-A Portal Layout just a group of these portals in a preset configuation.
+* `Miniscene`: A Scene that is offscreen and rendered as part of the main scene through buffers.
+* `PortalMaterial`: a Texture that is animated by rendering a Miniscene.
+* `PortalWindow`: a Mesh that has a LiveTexture as a material.
+* `PortalLayout`: a set of windows organized in a group.
 
+All together, a `PortalLayout` encapulates various `MiniScenes` inside each of its faces.
 
 This framework was written top down with final user-syntax being the center of the design. 
 To render a cube with each face showing a portal into a difference scene, only a few lines are needed:

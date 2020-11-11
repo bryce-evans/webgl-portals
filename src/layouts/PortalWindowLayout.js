@@ -1,38 +1,35 @@
-class PortalWindowLayout {
+class PortalWindowLayout extends THREE.Group {
     constructor(args) {
-        this.windows = [];
-
-        // Shared camera between all miniscenes.
-        this.camera = args.camera;
-
+        super();
+        this.portals = [];
         this.size = args.size || 1;
+
+        // Allow initialization with showing wire
+        this.show_wire_geometry = args.show_wire_geometry || false;
+        this.showWireGeometry(this.show_wire_geometry);
     }
 
-    init() {
-        console.error("not implemented.");
+    portals() {
+        return this.portals;
     }
 
-    windows() {
-        console.error("not implemented.");
+    foreach_portal(fn) {
+        for (var i = 0; this.portals.length; i++) {
+            var p = this.portals[i];
+            fn(p);
+        }
     }
 
-    showFrameGeometry() {
-        console.error("not implemented.");
+    showWireGeometry(show) {
+        this.show_wire_geometry = show;
+        this.foreach_portal(function(p){p.showWireGeometry(show);});
     }
 
-    setCamera() {
-        this.camera = camera;
-    }
-
-    setRenderer() {
-        this.renderer = renderer;
-    }
-
-    setScene(window_id, scene) {
-        if (window_id > this.n_windows) {
+    setScene(portal_id, scene) {
+        if (portal_id > this.n_windows) {
             console.error("window_id not valid");
         }
-        this.windows[window_id].scene = scene;
+        this.portals[portal_id].scene = scene;
     }
 
     /**

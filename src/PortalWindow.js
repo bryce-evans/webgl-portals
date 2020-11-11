@@ -44,7 +44,7 @@ class PortalWindow extends Mesh {
     this.debug_height = args.debug_height || this.resolution_height / 4;
 
     this.renderer = args.renderer;
-    
+
     this.debug_renderer = new THREE.WebGLRenderer({ antialias: true });
     this.debug_renderer.setSize(this.debug_width, this.debug_height);
 
@@ -52,12 +52,35 @@ class PortalWindow extends Mesh {
     this.geometry = this.portal_geometry;
     this.material = this.live_material;
 
-    //this.portal = new THREE.Mesh(this.portal_geometry, this.live_materials);
-    //scene.add(this.portal);
+    // Show wireframe of actual geometry if requested.
+    this.show_wire_geometry = args.show_wire_geometry || false;
+    if (this.show_wire_geometry) { this.showWireGeometry(); }
 
     // This is required to be set with .setCamera()
     this.camera = null;
 
+    // A wireframe showing the geometry.
+    this.wire = null;
+
+  }
+
+  showWireGeometry(show) {
+    if (show) {
+      if (!this.wire) {
+        var wireframe = new THREE.WireframeGeometry(mainBoxGeo);
+        var line = new THREE.LineSegments(wireframe);
+        line.material.depthTest = true;
+        line.material.opacity = 0.5;
+        line.material.color = new THREE.Color(0x0088ff)
+        line.material.transparent = true;
+        this.wire = line;
+      }
+      this.scene.add(this.wire);
+    } else {
+      if (this.wire) {
+        this.scene.remove(this.wire);
+      }
+    }
   }
 
   getScene() {
@@ -79,6 +102,16 @@ class PortalWindow extends Mesh {
     // TODO: implement.
     console.warn("isVisible not implemented");
     return true;
+  }
+
+  /**
+   * True if the geometry is coplanar.
+   * This technically only checks the normals so translations of the same plane are valid.
+   * Allows for optimizations in rendering.
+   */
+  isPlanar() {
+    console.warn("isPlanar not implemented.");
+    return false;
   }
 
   setCamera(cam) {

@@ -1,4 +1,3 @@
-import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 import {PortalWindowLayout} from './PortalWindowLayout.js'
 
 class CubePortalLayout extends PortalWindowLayout {
@@ -6,7 +5,7 @@ class CubePortalLayout extends PortalWindowLayout {
         super(args);
 
         // Forward render result to output texture.
-        var mainBoxGeo = new THREE.BoxGeometry(size, size, size);
+        var mainBoxGeo = new THREE.BoxGeometry(this.size, this.size, this.size);
         var mainBoxObject = new THREE.Mesh(mainBoxGeo, live_materials);
         scene.add(mainBoxObject);
 

@@ -1,10 +1,8 @@
-
-class RandomGeometryScene {
+class RandomGeometryScene extends THREE.Scene {
 
     constructor(size = 5) {
         // Size of dummy objects
         this.size = size;
-        this.scene = new THREE.Scene();
     }
 
     randGeometry(size) {
@@ -36,19 +34,21 @@ class RandomGeometryScene {
         var light_intensity = 1;
         var light = new THREE.PointLight(light_color, light_intensity);
         light.position.set(0, 3, 15);
-        this.scene.add(light);
+        this.add(light);
 
-        this.scene.add(new THREE.AmbientLight(0xfff));
+        this.add(new THREE.AmbientLight(0xfff));
 
         if (room_geo != null) {
             var room_mat = this.randPhongMaterial();
             room_mat.side = THREE.BackSide
             var room = new THREE.Mesh(room_geo, room_mat);
-            this.scene.add(room);
+            this.add(room);
         }
 
         var subject = new THREE.Mesh(this.randGeometry(), this.randPhongMaterial());
         subject.position.z = -1;
-        this.scene.add(dummy_obj);
+        this.add(dummy_obj);
     }
 }
+
+exports = { RandomGeometryScene }

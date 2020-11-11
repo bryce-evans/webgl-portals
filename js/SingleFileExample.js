@@ -1,4 +1,5 @@
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
+import { Controls } from './Controls.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 
 function main() {
@@ -29,7 +30,8 @@ function main() {
 
   var width = 1024;
   var height = 1024;
-  var controls = new OrbitControls(camera, renderer.domElement);
+  var controls = new Controls(camera, renderer.domElement);
+  controls.addListeners();
 
   ////// Listeners
 
@@ -46,19 +48,19 @@ function main() {
 
   window.addEventListener( 'resize', onWindowResize, false );
 
-  var show_miniscenes = false;
+  var show_debug_uvs = false;
 
   $(document).keydown(function (event) {
     if (event.which == 32) {
-      $('#miniscenes').show();
-      show_miniscenes = true;
+      $('#debug_uvs').show();
+      show_debug_uvs = true;
     }
   });
 
   $(document).keyup(function (event) {
     if (event.which == 32) {
-      $('#miniscenes').hide();
-      show_miniscenes = false;
+      $('#debug_uvs').hide();
+      show_debug_uvs = false;
     }
   });
 
@@ -106,7 +108,7 @@ function main() {
 
     canvas2ds.push(canvas2d[0]);
 
-    $("#miniscenes").append(div);
+    $("#debug_uvs").append(div);
 
     var buffer_texture = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
     buffer_textures.push(buffer_texture)
@@ -234,7 +236,7 @@ function main() {
     // mainBoxObject.rotation.y -= 0.01;
     // mainBoxObject.rotation.x -= 0.01;
 
-    if (show_miniscenes) {
+    if (controls.show_debug_uvs) {
       for (var i = 0; i < renderers.length; i++) {
         var r = renderers[i];
         var miniscene = buffer_scenes[i];

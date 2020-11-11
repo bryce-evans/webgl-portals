@@ -1,5 +1,11 @@
+/**
+ * This file is a standalone example that does not use the heavier framework.
+ * It shows that the entire construction of a 6 faced cube each with a different scene is possible in <200 lines.
+ */
+
+
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
-import { Controls } from './Controls.js';
+import { Controls } from '/src/Controls.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 
 function main() {
@@ -149,7 +155,7 @@ function main() {
   cur_scene.remove.apply(cur_scene, cur_scene.children);
   const loader = new GLTFLoader();
 
-  loader.load( 'rsc/models/cornell-box.glb', function ( gltf ) {
+  loader.load( '/rsc/models/cornell-box.glb', function ( gltf ) {
     cur_scene.add( gltf.scene );
   }, undefined, function ( error ) {
     console.error( error );
@@ -194,7 +200,7 @@ function main() {
 
   // scene.add(line);
 
-  loader.load( 'rsc/models/frame.glb', function ( gltf ) {
+  loader.load( '/rsc/models/frame.glb', function ( gltf ) {
     gltf.scene.scale.set(1.1,1.1,1.1);
     scene.add( gltf.scene );
 

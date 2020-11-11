@@ -1,5 +1,5 @@
-import { Object3D } from './third-party/three.js/src/core/Object3D.js';
-import { Mesh } from './third-party/three.js/src/objects/Mesh.js';
+import { Object3D } from '/modules/three.js/src/core/Object3D.js';
+import { Mesh } from '/modules/three.js/src/objects/Mesh.js';
 
 class PortalWindow extends Mesh {
   constructor(args) {

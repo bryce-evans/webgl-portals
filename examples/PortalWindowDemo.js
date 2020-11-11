@@ -1,6 +1,5 @@
-import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
-import { CubePortalLayout } from './portal_layouts/CubePortalLayout.js';
-import { PortalWindow } from './PortalWindow.js';
+import { Controls } from '/src/Controls.js';
+import { PortalWindow } from '/src/PortalWindow.js';
 
 
 var MainScene = function () {
@@ -23,7 +22,8 @@ var MainScene = function () {
     camera.position.set(11, 11, 11);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    this.controls = new OrbitControls(camera, this.renderer.domElement);
+    this.controls = new Controls(camera, this.renderer.domElement);
+    this.controls.addListeners();
 
     var miniscene = new THREE.Scene();
     var dummy_geo = new THREE.DodecahedronGeometry(3);
@@ -43,8 +43,6 @@ var MainScene = function () {
     portal.setCamera(camera);
     scene.add(portal);
 
-    var controls = new OrbitControls(camera, this.renderer.domElement);
-
     //   portal_cube = new CubePortalLayout({size: 10});
     //   portal_cube.setCamera(camera);
     //   for (var i = 0; i < portal_cube.n_windows(); i++) {
@@ -60,12 +58,13 @@ var MainScene = function () {
 
     this.render = function () {
       var renderer = this.renderer;
-      function render_helper() {
+      var controls = this.controls;
+      function render_loop() {
         controls.update();
-        requestAnimationFrame(render_helper)
+        requestAnimationFrame(render_loop)
         renderer.render(scene, camera);
       }
-      render_helper();
+      render_loop();
     }
   }
 }

@@ -104,7 +104,7 @@ class PortalMesh extends Mesh {
     if (this.show_debug_uvs) {
       var ctx = this.debug_canvas2d.getContext('2d');
       ctx.clearRect(0, 0, this.debug_canvas2d.width, this.debug_canvas2d.height);
-      this.debug_renderer.render(this.scene, this.camera);
+      this.debug_renderer.render(this.material.scene, this.camera);
     }
 
     var face_uvs = this.geometry.faceVertexUvs[0];
@@ -160,10 +160,17 @@ class PortalMesh extends Mesh {
     ctx.stroke();
   }
 
-  showDebugUVs(show) {
+  showDebugUVs(show=true) {
+    if (show == undefined && typeof(show) != Boolean) {
+      console.error("showDebugUVs takes boolean input.")
+    }
     this.show_debug_uvs = show;
 
     if (!this.debug_dom_el) {
+      if (!this.debug_height || !this.debug_width) {
+        console.error("Debugging window dimensions not set. Include debug_{height, width} in constructor options.")
+      }
+
       var div = $('<div class="debug_container">');
       div.append(this.debug_renderer.domElement);
 
@@ -173,7 +180,8 @@ class PortalMesh extends Mesh {
       this.debug_canvas2d = canvas[0];
 
       div.append(canvas)
-      $(document.body).append(div);
+      $("#debug_uvs").append(div);
+      //$(document.body).append(div);
     }
   }
 

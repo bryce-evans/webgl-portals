@@ -41,11 +41,11 @@ var MainScene = function () {
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
     var portal_mat = new PortalMaterial(miniscene, this.renderer);
     portal_mat.setCamera(camera);
-    var portal = new PortalMesh(portal_geo, portal_mat);
+    var portal = new PortalMesh(portal_geo, portal_mat, {"debug_width":512, "debug_height":512});
     scene.add(portal);
 
     if (show_uv_debug) {
-      //portal.showDebugUVs($('#debug_uvs'));
+      portal.showDebugUVs(true);
     }
 
     this.render = function () {

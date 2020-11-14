@@ -12,8 +12,6 @@ class Controls {
   }
   addListeners() {
 
-    ////// Listeners
-
     function onWindowResize() {
 
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -26,7 +24,6 @@ class Controls {
     }
 
     window.addEventListener('resize', onWindowResize, false);
-
 
     $(document).keydown(function (event) {
       if (event.which == 32) {

@@ -2,7 +2,7 @@ import { Mesh } from '/modules/three.js/src/objects/Mesh.js';
 import { PortalMaterial } from './PortalMaterial.js';
 
 class PortalMesh extends Mesh {
-  constructor(geometry, portal_material, options={}) {
+  constructor(geometry, portal_material, options = {}) {
     /** Represents a scene on a face.
      *  
      * Params:
@@ -160,8 +160,8 @@ class PortalMesh extends Mesh {
     ctx.stroke();
   }
 
-  showDebugUVs(show=true) {
-    if (show == undefined && typeof(show) != Boolean) {
+  renderDebugUVs(show = true) {
+    if (show == undefined && typeof (show) != Boolean) {
       console.error("showDebugUVs takes boolean input.")
     }
     this.show_debug_uvs = show;

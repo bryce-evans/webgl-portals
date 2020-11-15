@@ -9,8 +9,6 @@ var MainScene = function () {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
 
-    var show_uv_debug = true;
-
     var width = 1024;
     var height = 1024;
     this.renderer.setSize(width, height);
@@ -41,12 +39,9 @@ var MainScene = function () {
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
     var portal_mat = new PortalMaterial(miniscene, this.renderer);
     portal_mat.setCamera(camera);
-    var portal = new PortalMesh(portal_geo, portal_mat, {"debug_width":512, "debug_height":512});
+    var portal = new PortalMesh(portal_geo, portal_mat, {"debug_width":256, "debug_height":256});
+    portal.renderDebugUVs(true);
     scene.add(portal);
-
-    if (show_uv_debug) {
-      portal.showDebugUVs(true);
-    }
 
     this.render = function () {
       var renderer = this.renderer;

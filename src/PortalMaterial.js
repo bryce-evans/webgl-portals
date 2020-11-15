@@ -1,5 +1,5 @@
 class PortalMaterial extends THREE.MeshBasicMaterial {
-  constructor(scene, renderer, options={}) {
+  constructor(scene, renderer, options = {}) {
     /** Represents an animated material derived from rendering an offscreen scene.
      *  
      * Params:

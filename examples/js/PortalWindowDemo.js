@@ -16,7 +16,7 @@ var MainScene = function () {
     document.body.appendChild(this.renderer.domElement);
 
     var scene = new THREE.Scene();
-    scene.add( new THREE.AmbientLight(0xfff));
+    scene.add(new THREE.AmbientLight(0xfff));
 
     var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
     camera.position.set(11, 11, 11);

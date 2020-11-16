@@ -29,11 +29,10 @@ var MainScene = function () {
 
     var cube_scenes = [];
     for (var i = 0; i < CubePortalLayout.maxScenes(); i++) {
-      cube_scenes.push(new RandomGeometryScene());
+      cube_scenes.push(new RandomGeometryScene({"size": 5}));
     }
 
     var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10 });
-    //portal_cube.showFrameGeometry();
     scene.add(portal_cube);
 
     // if (show_uv_debug) {

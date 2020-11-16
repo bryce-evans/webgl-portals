@@ -4,6 +4,8 @@ class RandomGeometryScene extends THREE.Scene {
         super(options);
         // Size of dummy objects
         this.size = options.size || 1;
+
+        this.init();
     }
 
     randGeometry(size) {
@@ -30,7 +32,7 @@ class RandomGeometryScene extends THREE.Scene {
     }
 
 
-    init(room_geo = THREE.BoxGeometry(10, 10, 10)) {
+    init(room_geo = new THREE.BoxGeometry(10, 10, 10)) {
         var light_color = 0xffffff;
         var light_intensity = 1;
         var light = new THREE.PointLight(light_color, light_intensity);
@@ -48,7 +50,7 @@ class RandomGeometryScene extends THREE.Scene {
 
         var subject = new THREE.Mesh(this.randGeometry(), this.randPhongMaterial());
         subject.position.z = -1;
-        this.add(dummy_obj);
+        this.add(subject);
     }
 }
 

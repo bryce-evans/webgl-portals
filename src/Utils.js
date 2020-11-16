@@ -13,12 +13,12 @@ class Utils {
 
         var group_size = n_faces / n_groups;
 
-        for (var i = 0; i <= n_faces; i += group_size) {
+        for (var i = 0; i < n_faces; i += group_size) {
 
             // Create a new geometry for each group, with map for old vertex indices to new.
             var g = new THREE.Geometry();
             var vertex_map = {};
-            for (var j = 0; i < group_size; i++) {
+            for (var j = 0; j < group_size; j++) {
                 // Move the faces in the group to the new geometry.
                 var f = geometry.faces[i + j];
                 var new_vert_idx = [];

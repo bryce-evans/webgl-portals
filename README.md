@@ -1,41 +1,35 @@
 
-# Three JS Portals
+# WebGL Portals
 
-Terminology:
-* `Miniscene`: A Scene that is offscreen and rendered as part of the main scene through buffers.
-* `PortalMaterial`: a Texture that is animated by rendering a Miniscene.
-* `PortalWindow`: a Mesh that has a LiveTexture as a material.
-* `PortalLayout`: a set of windows organized in a group.
+A framework built ontop of Three.js for adding portals into a WebGL scene.
 
-All together, a `PortalLayout` encapulates various `MiniScenes` inside each of its faces.
+Portals allow for the appearance of windows into alternate scenes, or a portal into another location in the main scene.
+
+The core of the Portals framework extends Three.js classes: Material, Mesh, and Group.
 
 This framework was written top down with final user-syntax being the center of the design. 
 To render a cube with each face showing a portal into a difference scene, only a few lines are needed:
 ```
-    portal_cube = CubePortalLayout(size = 10);
-    portal_cube.setCamera(camera);
-    for (var i = 0; i < portal_cube.n_windows(); i++) {
-      portal_cube.setScene(i, new RandomGeometryScene());
+    var cube_scenes = [];
+    for (var i = 0; i < CubePortalLayout.maxScenes(); i++) {
+      cube_scenes.push(new RandomGeometryScene({"size": 5}));
     }
+
+    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10 });
     scene.add(portal_cube);
 ```
 
 
 ### Structure and classes
 
-#### MiniScene
-A wrapper around THREE.Scene with some needed extras to support adding the scene into a window.
+#### PortalMaterial
+Extends `THREE.Material`. A material that can be added to a PortalMesh to make it act like a portal. It dynamically updates to give the allusion of a 3D scene inside of the mesh the material is attached to.
 
+#### PortalMesh
+Extends `THREE.Mesh`. Requires a PortalMaterial to be attached. Makes the mesh act like a portal with the texture updating to the scene inside the associated PortalMaterial.
 
-#### Portal Window
-A window into a scene. Takes a scene, camera, and geometry to project to (usually just a triangle or plane). Internally has a number of optimizations to minimize overhead, and also includes support for mouse events into the contained scene (Overing over the portal window can get the hovered object from within the internal scene). 
-
-In most cases the camera will want to be the camera of the main scene. 
-
-#### Portal Layout
-A structure of several portals. These are essentially just a THREE.Group of portal windows, but contains additional optimizations as well as useful preset geometries. A `CubePortalLayout` is a Cube with each face showing a different Scene, but could be constructed with 6 independent `PortalWindows` with a plane added as the portal geometry.
-
-
+#### PortalLayout
+Extends `THREE.Group`. A group of portals in a preset configuration. This is mostly useful for having all portals in a scene update with common changes. Several Three.js geometry primitives are included, as well as utils to split up additional geometric shapes and quickly create a unique scene inside each face.
 
 ### Resources
 

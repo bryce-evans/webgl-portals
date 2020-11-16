@@ -1,4 +1,4 @@
-import { PortalWindow, PortalWindowLayout } from "./PortalWindowLayout.js"
+import { PortalLayout } from "./PortalWindowLayout.js"
 
 class SinglePlanePortalLayout {
     constructor(camera, renderer, size = 1) {
@@ -14,10 +14,6 @@ class SinglePlanePortalLayout {
 
     n_windows() {
         return 1;
-    }
-
-    init() {
-        this.windows.push(new PortalWindow)
     }
 
     showFrameGeometry() {

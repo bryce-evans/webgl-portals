@@ -1,4 +1,4 @@
-import { PortalWindowLayout } from "./PortalWindowLayout.js"
+import { PortalLayout } from "./PortalLayout.js"
 
 class DodecahedronLayout extends PortalWindowLayout {
     constructor(scene) {

@@ -1,5 +1,6 @@
 import { Controls } from '/src/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
+import {RandomGeometryScene} from '/src/scenes/RandomGeometryScene.js';
 
 
 var MainScene = function () {
@@ -25,17 +26,19 @@ var MainScene = function () {
     this.controls = new Controls(camera, this.renderer.domElement);
     this.controls.addListeners();
 
-    portal_cube = new CubePortalLayout({ size: 10 });
-    portal_cube.setCamera(camera);
-    for (var i = 0; i < portal_cube.n_windows(); i++) {
-      portal_cube.setScene(i, new RandomGeometryScene());
+
+    var cube_scenes = [];
+    for (var i = 0; i < CubePortalLayout.maxScenes(); i++) {
+      cube_scenes.push(new RandomGeometryScene());
     }
-    portal_cube.showFrameGeometry();
+
+    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10 });
+    //portal_cube.showFrameGeometry();
     scene.add(portal_cube);
 
-    if (show_uv_debug) {
-      portal.showDebugUVs($('#debug_uvs'));
-    }
+    // if (show_uv_debug) {
+    //   portal_cube.showDebugUVs($('#debug_uvs'));
+    // }
 
     this.render = function () {
       var renderer = this.renderer;

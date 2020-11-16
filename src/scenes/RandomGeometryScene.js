@@ -1,8 +1,9 @@
 class RandomGeometryScene extends THREE.Scene {
 
-    constructor(size = 5) {
+    constructor(options={}) {
+        super(options);
         // Size of dummy objects
-        this.size = size;
+        this.size = options.size || 1;
     }
 
     randGeometry(size) {
@@ -51,4 +52,4 @@ class RandomGeometryScene extends THREE.Scene {
     }
 }
 
-exports = { RandomGeometryScene }
+export { RandomGeometryScene }

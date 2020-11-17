@@ -27,7 +27,7 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     this.scene = scene;
     this.camera = camera;
     this.renderer = renderer;
-    
+
     // XXX TODO.
     this.transform = options.transform || null;
 

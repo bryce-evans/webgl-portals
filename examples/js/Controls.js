@@ -1,9 +1,15 @@
+/**
+ * Improved controls over the standard THREE.OrbitControls.
+ * Adds listeners to show debug info on keypress.
+ */
+
+
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
 class Controls {
   constructor(camera, domElement) {
     this.orbit_controls = new OrbitControls(camera, domElement);
-    
+
     this.show_debug_uvs = false;
   }
 
@@ -11,18 +17,12 @@ class Controls {
     this.orbit_controls.update();
   }
   addListeners() {
-
     function onWindowResize() {
-
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
-
       renderer.setSize(window.innerWidth, window.innerHeight);
-
       render();
-
     }
-
     window.addEventListener('resize', onWindowResize, false);
 
     $(document).keydown(function (event) {

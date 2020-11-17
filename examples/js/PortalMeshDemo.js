@@ -37,8 +37,7 @@ var MainScene = function () {
     miniscene.add(light);
 
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
-    var portal_mat = new PortalMaterial(miniscene, this.renderer);
-    portal_mat.setCamera(camera);
+    var portal_mat = new PortalMaterial(miniscene, camera, this.renderer);
     var portal = new PortalMesh(portal_geo, portal_mat, {"debug_width":256, "debug_height":256});
     portal.renderDebugUVs(true);
     scene.add(portal);

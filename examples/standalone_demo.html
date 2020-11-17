@@ -7,15 +7,28 @@
 	<script type="text/javascript" src="/modules/three.js/build/three.js"></script>
 	<script type="module" src="/modules/three.js/examples/jsm/controls/OrbitControls.js"></script>
 	<script type="module" src="js/StandaloneExample.js"></script>
-	<script type="module" src="/src/Controls.js"></script>
-	<!-- <script type="module" src="src/MainScene.js"></script>
-	<script type="module" src="src/Utils.js"></script> -->
+	<script type="module" src="/examples/js/Controls.js"></script>
 	<link rel="stylesheet" href="/css/index.css">
+	<style>
+		#info {
+			position: fixed; 
+			background: rgba(0, 0, 0, 0.5);
+			bottom: 0px;
+			right: 25%;
+			left: 50%;
+			margin-left: -150px;
+
+			font-family: consolas;
+			color: white;
+		}
+	</style>
 </head>
 
 <body>
-
+	<div id="info">Portal Cube. Press &lt;space&gt; to show textures.</div>
 	<div id="debug_uvs" style="display: none;"></div>
+	<div id="main_canvas"></div>
+	
 
 </body>
 

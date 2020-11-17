@@ -1,16 +1,15 @@
 /**
  * This file is a standalone example that does not use the heavier framework.
- * It shows that the entire construction of a 6 faced cube each with a different scene is possible in <200 lines.
+ * It shows that the entire construction of a 6 faced cube each with a different scene is possible in a few hundred lines.
  */
 
 
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
-import { Controls } from '/src/Controls.js';
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 
 function main() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setClearColor( 0x222222, 1 );
+  renderer.setClearColor(0x222222, 1);
   var width = 1024; //window.innerWidth;
   var height = 1024;// window.innerHeight;
   renderer.setSize(width, height);
@@ -18,41 +17,27 @@ function main() {
 
   var scene = new THREE.Scene();
 
-  //var camera = new THREE.PerspectiveCamera(45, 1, 1, 100); // width / height, 1, 100);
   var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
-  camera.position.set(11,11,11);
+  camera.position.set(11, 11, 11);
   camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-  var miniscene_camera = camera; //new THREE.PerspectiveCamera(45, 1, 1, 100);
-  // miniscene_camera.position.y = 15;
-  // miniscene_camera.position.z = 15;
-  // miniscene_camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-  // var gridXZ = new THREE.GridHelper(100, 10, new THREE.Color(0x880000), new THREE.Color(0x333333));
-  // scene.add(gridXZ);
-
-  var bufferScene = new THREE.Scene();
-  var bufferScene2 = new THREE.Scene();
 
   var width = 1024;
   var height = 1024;
-  var controls = new Controls(camera, renderer.domElement);
-  controls.addListeners();
+  var controls = new OrbitControls(camera, renderer.domElement);
 
   ////// Listeners
-
   function onWindowResize() {
 
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
     render();
 
   }
 
-  window.addEventListener( 'resize', onWindowResize, false );
+  window.addEventListener('resize', onWindowResize, false);
 
   var show_debug_uvs = false;
 
@@ -92,11 +77,11 @@ function main() {
   // Size of dummy objects
   var size = 5;
 
-  var renderers = []
+  var debug_renderers = []
   var canvas2ds = []
   var buffer_textures = []
   var buffer_scenes = []
-  var dummy_geos = [new THREE.BoxGeometry(size,size,size), new THREE.ConeGeometry(size,size, 6), new THREE.DodecahedronGeometry(size/2), new THREE.IcosahedronBufferGeometry(size/2), new THREE.TetrahedronBufferGeometry(size/2), new THREE.TorusGeometry(size/2, size/4, 10, 10)];
+  var dummy_geos = [new THREE.BoxGeometry(size, size, size), new THREE.ConeGeometry(size, size, 6), new THREE.DodecahedronGeometry(size / 2), new THREE.IcosahedronBufferGeometry(size / 2), new THREE.TetrahedronBufferGeometry(size / 2), new THREE.TorusGeometry(size / 2, size / 4, 10, 10)];
   var dummy_objs = [];
   var dummy_bg_materials = []
   var dummy_bgs = []
@@ -104,7 +89,7 @@ function main() {
   for (var i = 0; i < 6; i++) {
     var miniscene_renderer = new THREE.WebGLRenderer({ antialias: true });
     miniscene_renderer.setSize(width / 4, height / 4);
-    renderers.push(miniscene_renderer);
+    debug_renderers.push(miniscene_renderer);
 
     var div = $('<div>');
     div.append(miniscene_renderer.domElement);
@@ -126,7 +111,7 @@ function main() {
     light.position.set(0, 3, 15);
     buffer_scene.add(light);
 
-    buffer_scene.add( new THREE.AmbientLight(0xfff));
+    buffer_scene.add(new THREE.AmbientLight(0xfff));
 
     var hue = Math.random() * 360
     var dummy_material = new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl(" + hue + ", 100%, 50%)") });
@@ -155,11 +140,11 @@ function main() {
   cur_scene.remove.apply(cur_scene, cur_scene.children);
   const loader = new GLTFLoader();
 
-  loader.load( '/rsc/models/cornell-box.glb', function ( gltf ) {
-    cur_scene.add( gltf.scene );
-  }, undefined, function ( error ) {
-    console.error( error );
-  } );
+  loader.load('/rsc/models/cornell-box.glb', function (gltf) {
+    cur_scene.add(gltf.scene);
+  }, undefined, function (error) {
+    console.error(error);
+  });
 
 
   // Set Scenes to correct orientation
@@ -186,67 +171,20 @@ function main() {
   buffer_scenes[5].setRotationFromEuler(new THREE.Euler(Math.PI, 0, 0))
 
   // Forward render result to output texture.
-  var mainBoxGeo = new THREE.BoxGeometry(10,10,10);
+  var mainBoxGeo = new THREE.BoxGeometry(10, 10, 10);
   var mainBoxObject = new THREE.Mesh(mainBoxGeo, live_materials);
   scene.add(mainBoxObject);
-  
-  // var wireframe = new THREE.WireframeGeometry(mainBoxGeo);
-
-  // var line = new THREE.LineSegments(wireframe);
-  // line.material.depthTest = true;
-  // line.material.opacity = 0.5;
-  // line.material.color = new THREE.Color(0x0088ff)
-  // line.material.transparent = true;
-
-  // scene.add(line);
-
-  loader.load( '/rsc/models/frame.glb', function ( gltf ) {
-    gltf.scene.scale.set(1.1,1.1,1.1);
-    scene.add( gltf.scene );
-
-    var light = new THREE.PointLight(0xffffff, 1);
-    light.position.set(0, 3, 15);
-    scene.add(light);
-
-  }, undefined, function ( error ) {
-    console.error( error );
-  } );
-
-
-  function toScreenXY(pos, canvas) {
-    var width = canvas.width, height = canvas.height;
-
-    var p = new THREE.Vector3(pos.x, pos.y, pos.z);
-    var vector = p.project(camera);
-
-    vector.x = (vector.x + 1) / 2 * width;
-    vector.y = -(vector.y - 1) / 2 * height;
-
-    return vector;
-  }
-
 
   function render() {
 
     controls.update();
-    // miniscene_camera.position.set(camera.position);
-    // miniscene_camera.lookAt(new THREE.Vector3(0, 0, 0));
     requestAnimationFrame(render);
 
-    //Make the box rotate on box axises
-    // boxObject.rotation.y += 0.01;
-    // boxObject.rotation.x += 0.02;
-    // boxObject2.rotation.y += 0.03;
-    // boxObject2.rotation.x += 0.01;
-    //Rotate the main box too
-    // mainBoxObject.rotation.y -= 0.01;
-    // mainBoxObject.rotation.x -= 0.01;
-
     if (controls.show_debug_uvs) {
-      for (var i = 0; i < renderers.length; i++) {
-        var r = renderers[i];
+      for (var i = 0; i < debug_renderers.length; i++) {
+        var r = debug_renderers[i];
         var miniscene = buffer_scenes[i];
-        r.render(miniscene, miniscene_camera);
+        r.render(miniscene, camera);
       }
     }
 
@@ -268,11 +206,8 @@ function main() {
       var tri_vertices = face_idx[i];
       var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
 
-
       var canvas = canvas2ds[Math.floor(i / 2)];
       var context = canvas.getContext('2d');
-
-
 
       var uvs = [];
       for (var j = 0; j < tri_uvs.length; j++) {
@@ -280,33 +215,35 @@ function main() {
 
         // project to camera
         var vertex = tri_geometry[j];
-        var projected = vertex.clone().project(miniscene_camera);
-        projected.x = (projected.x+ 1) / 2; 
-        projected.y = -(projected.y - 1) / 2; 
-
+        var projected = vertex.clone().project(camera);
+        projected.x = (projected.x + 1) / 2;
+        projected.y = -(projected.y - 1) / 2;
 
         // For drawing UVs in debugger tools.
         uvs.push({ x: projected.x * width / 4, y: projected.y * height / 4 });
 
-
         // Set the UVs.
         var uv = tri_uvs[j];
         uv.x = projected.x;
-        uv.y = 1-projected.y;
-
-        
+        uv.y = 1 - projected.y;
       }
       drawTriangle(canvas, uvs[0], uvs[1], uvs[2]);
 
     }
     mainBoxObject.geometry.uvsNeedUpdate = true;
 
+    // Render Textures.
     for (var i = 0; i < 6; i++) {
-      renderer.setRenderTarget(buffer_textures[i])
-      renderer.render(buffer_scenes[i], miniscene_camera);
+      renderer.setRenderTarget(buffer_textures[i]);
+      renderer.render(buffer_scenes[i], camera);
     }
 
-    renderer.setRenderTarget(null)
+    // Render Texture + UV Visualization.
+    for (var i = 0; i < 6; i++) {
+      debug_renderers[i].render(buffer_scenes[i], camera);
+    }
+
+    renderer.setRenderTarget(null);
     renderer.render(scene, camera);
 
   }

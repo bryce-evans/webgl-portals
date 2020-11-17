@@ -1,4 +1,4 @@
-import { Controls } from '/src/Controls.js';
+import { Controls } from '/examples/js//Controls.js';
 import { PortalMaterial } from '/src/PortalMaterial.js';
 import { PortalMesh } from '/src/PortalMesh.js';
 

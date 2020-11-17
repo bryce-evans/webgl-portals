@@ -1,6 +1,6 @@
-import { Controls } from '/src/Controls.js';
+import { Controls } from '/examples/js/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
-import {RandomGeometryScene} from '/src/scenes/RandomGeometryScene.js';
+import {RandomGeometryScene} from '/examples/js/RandomGeometryScene.js';
 
 
 var MainScene = function () {

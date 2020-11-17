@@ -2,35 +2,34 @@ import { Mesh } from '/modules/three.js/src/objects/Mesh.js';
 
 class PortalMesh extends Mesh {
   constructor(geometry, portal_material, options = {}) {
-    /** Represents a scene on a face.
+    /** Renders as the scene associated with input portal_material.
+     * Gives the appearance of the mesh acting as a portal.
      *  
      * Params:
-     * 
+     * ----------
      * geometry: THREE.Geometry
-            Geometry that scene render gets projected to 
-     * scene: THREE.Scene
-     *      Scene to render inside the window.
-
-     * renderer: THREE.Renderer
-     *      Renderer to use for rendering the scene.
+     *      Geometry that scene render gets projected to 
+     * portal_material: PortalMaterial
+     *      Portal material to be rendered to this Mesh.
      * 
      * Options:
-     *
-     * transform: THREE.Euler
-     *      Rotation of the scene so it appears in the correct orientation for target portal geometry
-     *
-     * antialias: boolean (default=true)
-     *      Renders with anti-aliasing if true
-     * 
-     * resolution_width: int
-     * resolution_height: int
-     *      Height and width resolution of the render. Should usually be the same as the main window.
+     * -----------
+     * show_wire_geometry: boolean (default=false)
+     *      Shows a wireframe alongside the mesh to show the geometry of the portal area.
+     * debug_width: int
+     * debug_height: int
+     *      Height and width of debug info to be rendered to.
      */
+
+    console.assert(geometry instanceof THREE.Geometry, "geometry is not an instance of THREE.Geometry");
+    console.assert(portal_material instanceof PortalMaterial, "portal_material is not an instance of PortalMaterial");
 
     super(geometry, portal_material);
 
     // call showDebugUVs() to enable.
     this.show_debug_uvs = false;
+
+    // TODO: Allow debug rendering to be configurable.
     this.debug_width = options.debug_width || this.resolution_width / 4;
     this.debug_height = options.debug_height || this.resolution_height / 4;
 
@@ -49,8 +48,9 @@ class PortalMesh extends Mesh {
 
   showWireGeometry(show) {
     if (show) {
+      // Delay creating wireframe until first call to show.
       if (!this.wire) {
-        var wireframe = new THREE.WireframeGeometry(mainBoxGeo);
+        var wireframe = new THREE.WireframeGeometry(this.geometry);
         var line = new THREE.LineSegments(wireframe);
         line.material.depthTest = true;
         line.material.opacity = 0.5;
@@ -98,36 +98,36 @@ class PortalMesh extends Mesh {
   }
 
   onBeforeRender() {
-    this.material.onBeforeRender();
-
     if (this.show_debug_uvs) {
       var ctx = this.debug_canvas2d.getContext('2d');
       ctx.clearRect(0, 0, this.debug_canvas2d.width, this.debug_canvas2d.height);
       this.debug_renderer.render(this.material.scene, this.camera);
     }
 
+    // Compute UVs for where the mesh is on the screen.
     var face_uvs = this.geometry.faceVertexUvs[0];
     var face_idx = this.geometry.faces;
     var vertices = this.geometry.vertices;
 
     for (var i = 0; i < face_uvs.length; i++) {
-      // per tri
+      // Tri Processing:
       var tri_uvs = face_uvs[i];
       var tri_vertices = face_idx[i];
-      var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
+      var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]];
 
       var uvs = [];
       for (var j = 0; j < tri_uvs.length; j++) {
-        // per vertex
-
-        // project to camera
+        // Vertex Processing:
+        // Project to camera.
         var vertex = tri_geometry[j];
         var projected = vertex.clone().project(this.camera);
         projected.x = (projected.x + 1) / 2;
         projected.y = -(projected.y - 1) / 2;
 
-        // For drawing UVs in debugger tools.
-        uvs.push({ x: projected.x * this.debug_width, y: projected.y * this.debug_height });
+        // Push point to debug viz.
+        if (this.show_debug_uvs) {
+          uvs.push({ x: projected.x * this.debug_width, y: projected.y * this.debug_height });
+        }
 
         // Set the UVs.
         var uv = tri_uvs[j];
@@ -135,15 +135,19 @@ class PortalMesh extends Mesh {
         uv.y = 1 - projected.y;
       }
 
+      // Draw debug viz.
       if (this.show_debug_uvs) {
-        this.drawTriangle(this.debug_canvas2d, uvs[0], uvs[1], uvs[2]);
+        this._drawTriangle(this.debug_canvas2d, uvs[0], uvs[1], uvs[2]);
       }
 
     }
     this.geometry.uvsNeedUpdate = true;
+
+    // Render the Scene inside.
+    this.material.onBeforeRender();
   }
 
-  drawTriangle(canvas, a, b, c) {
+  _drawTriangle(canvas, a, b, c) {
     if (!canvas.getContext) {
       console.error("cannot get context for ", canvas);
       return;
@@ -180,7 +184,6 @@ class PortalMesh extends Mesh {
 
       div.append(canvas)
       $("#debug_uvs").append(div);
-      //$(document.body).append(div);
     }
   }
 

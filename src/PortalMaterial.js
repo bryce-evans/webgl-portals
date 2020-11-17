@@ -1,5 +1,5 @@
 class PortalMaterial extends THREE.MeshBasicMaterial {
-  constructor(scene, renderer, camera, options = {}) {
+  constructor(scene, camera, renderer, options = {}) {
     /** Represents an animated material derived from rendering an offscreen scene.
      *  
      * Params:
@@ -22,6 +22,10 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
      *      Height and width resolution of the render. Should usually be the same as the main window.
      */
 
+    console.assert(scene instanceof THREE.Scene, "scene is not instance of THREE.Scene.");
+    console.assert(camera instanceof THREE.Camera, "camera is not instance of THREE.Camera");
+    console.assert(renderer instanceof THREE.WebGLRenderer, "renderer is not an instance of THREE.WebGLRenderer");
+
     super(options);
 
     this.scene = scene;
@@ -32,11 +36,10 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     this.transform = options.transform || null;
 
     this.antialias = options.antialias || false;
-    this.resolution_width = options.resolution_width || window.innerWidth;
-    this.resolution_height = options.resolution_height || window.innerHeight;
+    this.resolution_width = options.resolution_width || 1024;
+    this.resolution_height = options.resolution_height || 1024;
 
     this.buffer_texture = new THREE.WebGLRenderTarget(this.resolution_width, this.resolution_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
-    //this.live_material = new THREE.MeshBasicMaterial({ map: this.buffer_texture.texture });
 
     // Required by parent to render.
     this.map = this.buffer_texture.texture;
@@ -55,12 +58,11 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
   }
 
   onBeforeRender() {
-    this.camera.updateProjectionMatrix();
+    var initial = this.renderer.getRenderTarget();
     this.renderer.setRenderTarget(this.buffer_texture);
     this.renderer.render(this.scene, this.camera);
-    this.renderer.setRenderTarget(null);
+    this.renderer.setRenderTarget(initial);
   }
-
 }
 
 export { PortalMaterial };

@@ -1,4 +1,4 @@
-import { Controls } from '/examples/js//Controls.js';
+import { Controls } from '/examples/js/Controls.js';
 import { PortalMaterial } from '/src/PortalMaterial.js';
 import { PortalMesh } from '/src/PortalMesh.js';
 
@@ -15,7 +15,7 @@ var MainScene = function () {
     document.body.appendChild(this.renderer.domElement);
 
     var scene = new THREE.Scene();
-    scene.add( new THREE.AmbientLight(0xfff));
+    scene.add(new THREE.AmbientLight(0xfff));
 
     var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
     camera.position.set(11, 11, 11);
@@ -38,23 +38,30 @@ var MainScene = function () {
 
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
     var portal_mat = new PortalMaterial(miniscene, camera, this.renderer);
-    var portal = new PortalMesh(portal_geo, portal_mat, {"debug_width":256, "debug_height":256});
+    var portal = new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
+    var test = new THREE.Mesh(portal_geo);
     portal.renderDebugUVs(true);
     scene.add(portal);
 
-    this.render = function () {
-      var renderer = this.renderer;
-      var controls = this.controls;
-      function render_loop() {
-        controls.update();
-        requestAnimationFrame(render_loop)
-        renderer.render(scene, camera);
-      }
-      render_loop();
+    var test = new THREE.Mesh(new THREE.CubeGeometry(3, 3, 3));
+    scene.add(test);
+
+    this.camera = camera;
+    this.scene = scene;
+  }
+
+  this.animate = function () {
+    var renderer = this.renderer;
+    var scene = this.scene;
+    var camera = this.camera;
+    function render_loop() {
+      requestAnimationFrame(render_loop);
+      renderer.render(scene, camera);
     }
+    render_loop();
   }
 }
 
 var scene = new MainScene();
 scene.init();
-scene.render();
+scene.animate();

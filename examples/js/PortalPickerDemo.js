@@ -1,6 +1,5 @@
-import { Controls } from '/examples/js/Controls.js';
+import { ObjectPicker, Controls } from '/examples/js/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
-import { RandomGeometryScene } from '/examples/js/RandomGeometryScene.js';
 
 
 class PortalCubeDemo {
@@ -27,11 +26,55 @@ class PortalCubeDemo {
     this.controls = new Controls(camera, this.renderer);
     this.controls.addListeners();
 
-    this.obj_picker = new ObjectPicker();
+    this.obj_picker = new ObjectPicker(this.renderer.domElement);
+
+
+    const boxWidth = 1;
+    const boxHeight = 1;
+    const boxDepth = 1;
+    const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+    function rand(min, max) {
+      if (max === undefined) {
+        max = min;
+        min = 0;
+      }
+      return min + (max - min) * Math.random();
+    }
+
+    function randomColor() {
+      return `hsl(${rand(360) | 0}, ${rand(50, 100) | 0}%, 50%)`;
+    }
+
+    for (let i = 0; i < 20; ++i) {
+      const material = new THREE.MeshPhongMaterial({
+        color: "hsl(200, 100, 50%)",
+      });
+
+      const cube = new THREE.Mesh(geometry, material);
+      cube.position.set(rand(-25, 25), rand(-25, 25), rand(-25, 25));
+      cube.rotation.set(rand(Math.PI), rand(Math.PI), 0);
+      cube.scale.set(rand(2, 6), rand(2, 6), rand(2, 6));
+      scene.add(cube);
+    }
+
 
     var cube_scenes = [];
     for (var i = 0; i < CubePortalLayout.maxScenes(); i++) {
-      cube_scenes.push(new RandomGeometryScene({ "size": 5 }));
+      var miniscene = new THREE.Scene();
+      const numObjects = 50;
+      for (let i = 0; i < numObjects; ++i) {
+        const material = new THREE.MeshBasicMaterial({
+          color: randomColor(),
+        });
+
+        const cube = new THREE.Mesh(geometry, material);
+        cube.position.set(rand(-5, 5), rand(-5, 5), rand(-5, 5));
+        cube.rotation.set(rand(Math.PI), rand(Math.PI), 0);
+        cube.scale.set(rand(1, 3), rand(1, 3), rand(1, 3));
+        miniscene.add(cube);
+      }
+      cube_scenes.push(miniscene);
     }
 
     var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10, debug_height: 256, debug_width: 256 });
@@ -49,12 +92,14 @@ class PortalCubeDemo {
     var scene = this.scene;
     var portal = this.portal;
     var obj_picker = this.obj_picker;
+    var time = 0.0;
     function render_loop() {
+      time += 0.0001;
       controls.update();
       requestAnimationFrame(render_loop)
 
       portal.onBeforeRender();
-      obj_picker.pick()
+      obj_picker.pick(scene, camera, time);
       renderer.render(scene, camera);
     }
     render_loop();

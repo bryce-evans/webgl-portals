@@ -1,4 +1,3 @@
-
 server_port=8000
 
 # Kill existing processes on port

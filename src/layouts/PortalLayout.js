@@ -29,7 +29,7 @@ class PortalLayout extends THREE.Group {
 
             for (var i = 0; i < scenes.length; i++) {
                 var portal_mat = new PortalMaterial(scenes[i], camera, renderer);
-                var portal = new PortalMesh(geometries[i], portal_mat);
+                var portal = new PortalMesh(geometries[i], portal_mat, this.options);
                 this.portal_materials.push(portal_mat);
                 this.portals.push(portal);
             }
@@ -116,6 +116,13 @@ class PortalLayout extends THREE.Group {
         for (var i = 0; i < this.portals.length; i++) {
             this.portals[i].onBeforeRender();
         }
+    }
+
+    renderDebugUVs(show = true) {
+        console.assert(show !== undefined && typeof (show) == "boolean",
+            "showDebugUVs takes boolean input."
+        );
+        this.foreachPortal(function (p) { p.renderDebugUVs(show); });
     }
 }
 

@@ -32,13 +32,13 @@ class PortalCubeDemo {
       cube_scenes.push(new RandomGeometryScene({ "size": 5 }));
     }
 
-    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10 });
+    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10, debug_height: 256, debug_width: 256 });
     scene.add(portal_cube);
     this.portal = portal_cube;
 
-    // if (show_uv_debug) {
-    //   portal_cube.showDebugUVs($('#debug_uvs'));
-    // }
+    if (show_uv_debug) {
+      portal_cube.renderDebugUVs(true);
+    }
   }
   render() {
     var camera = this.camera;

@@ -187,9 +187,9 @@ class PortalMesh extends Mesh {
   }
 
   renderDebugUVs(show = true) {
-    if (show == undefined && typeof (show) != Boolean) {
-      console.error("showDebugUVs takes boolean input.")
-    }
+    console.assert(show !== undefined && typeof (show) == "boolean",
+      "showDebugUVs takes boolean input."
+    );
     this.show_debug_uvs = show;
 
     if (!this.debug_dom_el) {

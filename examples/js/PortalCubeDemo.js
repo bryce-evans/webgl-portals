@@ -10,8 +10,8 @@ class PortalCubeDemo {
 
     var show_uv_debug = true;
 
-    var width = 1024;
-    var height = 1024;
+    var width = window.innerWidth;
+    var height = window.innerHeight;
     this.renderer.setSize(width, height);
     document.body.appendChild(this.renderer.domElement);
 

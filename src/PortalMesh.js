@@ -1,4 +1,5 @@
 import { Mesh } from '/modules/three.js/src/objects/Mesh.js';
+import { PortalMaterial } from './PortalMaterial.js';
 
 class PortalMesh extends Mesh {
   constructor(geometry, portal_material, options = {}) {

@@ -39,24 +39,61 @@ var MainScene = function () {
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
     var portal_mat = new PortalMaterial(miniscene, camera, this.renderer);
     var portal = new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
-    var test = new THREE.Mesh(portal_geo);
     portal.renderDebugUVs(true);
     scene.add(portal);
 
-    var test = new THREE.Mesh(new THREE.CubeGeometry(3, 3, 3));
-    scene.add(test);
+    // var test = new THREE.Mesh(new THREE.CubeGeometry(3, 3, 3));
+    // scene.add(test);
 
     this.camera = camera;
     this.scene = scene;
+    this.portal = portal;
   }
 
   this.animate = function () {
     var renderer = this.renderer;
     var scene = this.scene;
     var camera = this.camera;
+    var portal = this.portal;
     function render_loop() {
       requestAnimationFrame(render_loop);
+
+      var face_uvs = portal.geometry.faceVertexUvs[0];
+      var face_idx = portal.geometry.faces;
+      var vertices = portal.geometry.vertices;
+  
+      for (var i = 0; i < face_uvs.length; i++) {
+        // per tri
+        var tri_uvs = face_uvs[i];
+        var tri_vertices = face_idx[i];
+        var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
+  
+        for (var j = 0; j < tri_uvs.length; j++) {
+          // per vertex
+  
+          // project to camera
+          var vertex = tri_geometry[j];
+          var projected = vertex.clone().project(camera);
+          projected.x = (projected.x + 1) / 2;
+          projected.y = -(projected.y - 1) / 2;
+  
+          // Set the UVs.
+          var uv = tri_uvs[j];
+          uv.x = projected.x;
+          uv.y = 1 - projected.y;
+        }
+      }
+      portal.geometry.uvsNeedUpdate = true;
+  
+      // Render Textures.
+      renderer.setRenderTarget(portal.material.buffer_texture);
+      renderer.render(portal.material.scene, camera);
+
+      renderer.setRenderTarget(null);
       renderer.render(scene, camera);
+
+      // requestAnimationFrame(render_loop);
+      // renderer.render(scene, camera);
     }
     render_loop();
   }

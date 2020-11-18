@@ -140,7 +140,7 @@ function main() {
   cur_scene.remove.apply(cur_scene, cur_scene.children);
   const loader = new GLTFLoader();
 
-  loader.load('/rsc/models/cornell-box.glb', function (gltf) {
+  loader.load('/examples/rsc/models/cornell-box.glb', function (gltf) {
     cur_scene.add(gltf.scene);
   }, undefined, function (error) {
     console.error(error);

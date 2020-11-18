@@ -44,7 +44,7 @@ var MainScene = function () {
     this.buffer_texture = portal_mat.buffer_texture; 
 
     var portal = new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
-    //portal.renderDebugUVs(true);
+    portal.renderDebugUVs(true);
     scene.add(portal);
 
     // var test = new THREE.Mesh(new THREE.CubeGeometry(3, 3, 3));
@@ -61,51 +61,14 @@ var MainScene = function () {
     var scene = this.scene;
     var camera = this.camera;
     var portal = this.portal;
-    var miniscene = this.miniscene;
-    var buffer_texture = this.buffer_texture;
     var controls = this.controls;
 
     function render_loop() {
       controls.update();
       requestAnimationFrame(render_loop);
 
-      camera.updateProjectionMatrix();
-      var face_uvs = portal.geometry.faceVertexUvs[0];
-      var face_idx = portal.geometry.faces;
-      var vertices = portal.geometry.vertices;
-  
-      for (var i = 0; i < face_uvs.length; i++) {
-        // per tri
-        var tri_uvs = face_uvs[i];
-        var tri_vertices = face_idx[i];
-        var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
-  
-        for (var j = 0; j < tri_uvs.length; j++) {
-          // per vertex
-  
-          // project to camera
-          var vertex = tri_geometry[j];
-          var projected = vertex.clone().project(camera);
-          projected.x = (projected.x + 1) / 2;
-          projected.y = -(projected.y - 1) / 2;
-  
-          // Set the UVs.
-          var uv = tri_uvs[j];
-          uv.x = projected.x;
-          uv.y = 1 - projected.y;
-        }
-      }
-      portal.geometry.uvsNeedUpdate = true;
-  
-      // Render Textures.
-      renderer.setRenderTarget(buffer_texture);
-      renderer.render(miniscene, camera);
-
-      renderer.setRenderTarget(null);
+      portal._onBeforeRender(renderer);
       renderer.render(scene, camera);
-
-      // requestAnimationFrame(render_loop);
-      // renderer.render(scene, camera);
     }
     render_loop();
   }

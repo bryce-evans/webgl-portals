@@ -98,7 +98,7 @@ class PortalMesh extends Mesh {
     return false;
   }
 
-  _onBeforeRender() {
+  _onBeforeRender(renderer, scene, camera, geometry, material, group) {
     if (this.show_debug_uvs) {
       var ctx = this.debug_canvas2d.getContext('2d');
       ctx.clearRect(0, 0, this.debug_canvas2d.width, this.debug_canvas2d.height);

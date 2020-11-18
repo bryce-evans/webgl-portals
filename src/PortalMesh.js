@@ -98,7 +98,10 @@ class PortalMesh extends Mesh {
     return false;
   }
 
-  _onBeforeRender(renderer, scene, camera, geometry, material, group) {
+  onBeforeRender(renderer, scene, camera, geometry, material, group) {
+    // Render the internal scene of the portal to this mesh's texture.
+    this.material.onBeforeRender();
+
     if (this.show_debug_uvs) {
       var ctx = this.debug_canvas2d.getContext('2d');
       ctx.clearRect(0, 0, this.debug_canvas2d.width, this.debug_canvas2d.height);
@@ -143,9 +146,6 @@ class PortalMesh extends Mesh {
 
     }
     this.geometry.uvsNeedUpdate = true;
-
-    // Render the Scene inside.
-    this.material.onBeforeRender();
   }
 
   _drawTriangle(canvas, a, b, c) {

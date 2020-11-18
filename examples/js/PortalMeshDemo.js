@@ -67,7 +67,7 @@ var MainScene = function () {
       controls.update();
       requestAnimationFrame(render_loop);
 
-      portal._onBeforeRender(renderer);
+      portal.onBeforeRender(renderer);
       renderer.render(scene, camera);
     }
     render_loop();

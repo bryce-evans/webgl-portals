@@ -21,7 +21,7 @@ var MainScene = function () {
     camera.position.set(11, 11, 11);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    this.controls = new Controls(camera, this.renderer.domElement);
+    this.controls = new Controls(camera, this.renderer);
     this.controls.addListeners();
 
     var miniscene = new THREE.Scene();
@@ -39,12 +39,11 @@ var MainScene = function () {
     this.miniscene = miniscene;
 
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
-    var portal_mat = new THREE.MeshBasicMaterial(); //new PortalMaterial(miniscene, camera, this.renderer);
+    var portal_mat = new PortalMaterial(miniscene, camera, this.renderer);
     
-    this.buffer_texture = new THREE.WebGLRenderTarget(1024, 1024, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
-    portal_mat.map = this.buffer_texture.texture;
+    this.buffer_texture = portal_mat.buffer_texture; 
 
-    var portal = new THREE.Mesh(portal_geo, portal_mat); //new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
+    var portal = new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
     //portal.renderDebugUVs(true);
     scene.add(portal);
 

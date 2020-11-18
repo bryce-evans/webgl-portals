@@ -7,9 +7,11 @@
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
 class Controls {
-  constructor(camera, domElement) {
-    this.orbit_controls = new OrbitControls(camera, domElement);
+  constructor(camera, renderer) {
+    this.orbit_controls = new OrbitControls(camera, renderer.domElement);
 
+    this.renderer = renderer;
+    this.camera = camera;
     this.show_debug_uvs = false;
   }
 
@@ -18,12 +20,11 @@ class Controls {
   }
   addListeners() {
     function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      render();
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
-    window.addEventListener('resize', onWindowResize, false);
+    window.addEventListener('resize', onWindowResize.bind(this), false);
 
     $(document).keydown(function (event) {
       if (event.which == 32) {

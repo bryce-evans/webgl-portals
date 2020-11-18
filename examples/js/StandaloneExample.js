@@ -188,7 +188,6 @@ function main() {
       }
     }
 
-    camera.updateProjectionMatrix();
     var face_uvs = mainBoxObject.geometry.faceVertexUvs[0];
     var face_idx = mainBoxObject.geometry.faces;
     var vertices = mainBoxObject.geometry.vertices;

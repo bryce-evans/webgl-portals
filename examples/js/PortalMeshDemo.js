@@ -3,9 +3,8 @@ import { PortalMaterial } from '/src/PortalMaterial.js';
 import { PortalMesh } from '/src/PortalMesh.js';
 
 
-var MainScene = function () {
-
-  this.init = function () {
+class PortalMeshDemo {
+  constructor() {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
 
@@ -47,16 +46,13 @@ var MainScene = function () {
     portal.renderDebugUVs(true);
     scene.add(portal);
 
-    // var test = new THREE.Mesh(new THREE.CubeGeometry(3, 3, 3));
-    // scene.add(test);
-
     this.camera = camera;
     this.scene = scene;
     this.portal = portal;
     this.portal_mat = portal_mat;
   }
 
-  this.animate = function () {
+  render() {
     var renderer = this.renderer;
     var scene = this.scene;
     var camera = this.camera;
@@ -74,6 +70,5 @@ var MainScene = function () {
   }
 }
 
-var scene = new MainScene();
-scene.init();
-scene.animate();
+var page = new PortalMeshDemo();
+page.render();

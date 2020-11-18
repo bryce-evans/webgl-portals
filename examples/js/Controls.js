@@ -26,10 +26,15 @@ class Controls {
     }
     window.addEventListener('resize', onWindowResize.bind(this), false);
 
+    window._FREEZE_ALL_PORTALS = false;
     $(document).keydown(function (event) {
       if (event.which == 32) {
+        // space bar: Show debug pane.
         $('#debug_uvs').show();
         this.show_debug_uvs = true;
+      } else if (event.which == 70) {
+        // F: freeze textures.
+        window._FREEZE_ALL_PORTALS = !window._FREEZE_ALL_PORTALS;
       }
     }.bind(this));
 

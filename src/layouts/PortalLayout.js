@@ -28,7 +28,7 @@ class PortalLayout extends THREE.Group {
             }
 
             for (var i = 0; i < scenes.length; i++) {
-                var portal_mat = new PortalMaterial(scenes[i], renderer, camera);
+                var portal_mat = new PortalMaterial(scenes[i], camera, renderer);
                 var portal = new PortalMesh(geometries[i], portal_mat);
                 this.portal_materials.push(portal_mat);
                 this.portals.push(portal);
@@ -113,10 +113,9 @@ class PortalLayout extends THREE.Group {
      * Render the windows in the group here.
      */
     onBeforeRender() {
-        console.log("onBeforeRenderCalled!");
-        // Render code here...
-
-
+        for (var i = 0; i < this.portals.length; i++) {
+            this.portals[i].onBeforeRender();
+        }
     }
 }
 

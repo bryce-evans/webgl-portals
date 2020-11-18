@@ -98,9 +98,31 @@ class PortalMesh extends Mesh {
     return false;
   }
 
+  /**
+   * Render the internal portal scene to this Mesh.
+   * This function is called implicitly by THREE.js.
+   * It should be noted that the input args here are the args of the full scene,
+   *  **not** the args to the portal scene we are renderering.
+   * 
+   * @param {THREE.WebGLRenderer} renderer
+   *    The renderer of the full scene (not the internal portal scene).
+   * @param {THREE.Scene} scene
+   *    The full scene being rendered that this is part of.
+   * @param {THREE.Camera} camera
+   *    Main camera of the scene.
+   * @param {THREE.Geometry} geometry 
+   *    The geometry of the portal mesh.
+   * @param {THREE.Material} material 
+   *    The material of the rendered object (this).
+   * @param {THREE.Group} group
+   *    The group this portal belongs to (if any).
+   */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
+    if (window._FREEZE_ALL_PORTALS) {
+      return;
+    }
     // Render the internal scene of the portal to this mesh's texture.
-    this.material.onBeforeRender();
+    this.material.onBeforeRender(renderer, scene, camera, geometry, material, group);
 
     if (this.show_debug_uvs) {
       var ctx = this.debug_canvas2d.getContext('2d');

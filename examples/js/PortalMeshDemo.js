@@ -36,10 +36,16 @@ var MainScene = function () {
     light.position.set(0, 3, 15);
     miniscene.add(light);
 
+    this.miniscene = miniscene;
+
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
-    var portal_mat = new PortalMaterial(miniscene, camera, this.renderer);
-    var portal = new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
-    portal.renderDebugUVs(true);
+    var portal_mat = new THREE.MeshBasicMaterial(); //new PortalMaterial(miniscene, camera, this.renderer);
+    
+    this.buffer_texture = new THREE.WebGLRenderTarget(1024, 1024, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
+    portal_mat.map = this.buffer_texture.texture;
+
+    var portal = new THREE.Mesh(portal_geo, portal_mat); //new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
+    //portal.renderDebugUVs(true);
     scene.add(portal);
 
     // var test = new THREE.Mesh(new THREE.CubeGeometry(3, 3, 3));
@@ -48,6 +54,7 @@ var MainScene = function () {
     this.camera = camera;
     this.scene = scene;
     this.portal = portal;
+    this.portal_mat = portal_mat;
   }
 
   this.animate = function () {
@@ -55,9 +62,15 @@ var MainScene = function () {
     var scene = this.scene;
     var camera = this.camera;
     var portal = this.portal;
+    var miniscene = this.miniscene;
+    var buffer_texture = this.buffer_texture;
+    var controls = this.controls;
+
     function render_loop() {
+      controls.update();
       requestAnimationFrame(render_loop);
 
+      camera.updateProjectionMatrix();
       var face_uvs = portal.geometry.faceVertexUvs[0];
       var face_idx = portal.geometry.faces;
       var vertices = portal.geometry.vertices;
@@ -86,8 +99,8 @@ var MainScene = function () {
       portal.geometry.uvsNeedUpdate = true;
   
       // Render Textures.
-      renderer.setRenderTarget(portal.material.buffer_texture);
-      renderer.render(portal.material.scene, camera);
+      renderer.setRenderTarget(buffer_texture);
+      renderer.render(miniscene, camera);
 
       renderer.setRenderTarget(null);
       renderer.render(scene, camera);

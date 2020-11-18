@@ -193,7 +193,6 @@ function main() {
     var face_idx = mainBoxObject.geometry.faces;
     var vertices = mainBoxObject.geometry.vertices;
 
-
     for (var idx in canvas2ds) {
       var canvas = canvas2ds[idx];
       var ctx = canvas.getContext('2d');
@@ -206,8 +205,8 @@ function main() {
       var tri_vertices = face_idx[i];
       var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
 
+      // Get debug canvas to render UVs.
       var canvas = canvas2ds[Math.floor(i / 2)];
-      var context = canvas.getContext('2d');
 
       var uvs = [];
       for (var j = 0; j < tri_uvs.length; j++) {

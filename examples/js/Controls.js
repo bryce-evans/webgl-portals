@@ -59,8 +59,8 @@ class ObjectPicker {
     domElement.addEventListener('mousemove', this.setPickPosition.bind(this));
     domElement.addEventListener('mouseout', this.clearPickPosition.bind(this));
     domElement.addEventListener('mouseleave', this.clearPickPosition.bind(this));
-    //domElement.addEventListener('mousedown', this.clickHandler.bind(this));
-    $(domElement).on('click', this.clickHandler.bind(this));
+    domElement.addEventListener('click', this.clickHandler.bind(this));
+    //$(domElement).on('mousedown', this.clickHandler.bind(this));
 
     this.pickPosition = { x: 0, y: 0 };
     this.clearPickPosition();
@@ -119,6 +119,7 @@ class ObjectPicker {
       var pickedObject = intersectedObjects[0].object;
       if (pickedObject instanceof PortalMesh) {
         //this.raycaster.setFromCamera(normalizedPosition, camera);
+        //this.raycaster.setFromCamera(intersectedObjects[0].uv, pickedObject.material.camera);
         intersectedObjects = this.raycaster.intersectObjects(pickedObject.material.scene.children);
         max_jumps--;
         continue handle_intersected;

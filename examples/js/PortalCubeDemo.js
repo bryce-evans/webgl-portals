@@ -1,4 +1,4 @@
-import { Controls } from '/examples/js/Controls.js';
+import { ObjectPicker, Controls } from '/examples/js/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
 import { RandomGeometryScene } from '/examples/js/RandomGeometryScene.js';
 
@@ -27,7 +27,7 @@ class PortalCubeDemo {
     this.controls = new Controls(camera, this.renderer);
     this.controls.addListeners();
 
-    this.obj_picker = new ObjectPicker();
+    this.obj_picker = new ObjectPicker(this.renderer.domElement);
 
     var cube_scenes = [];
     for (var i = 0; i < CubePortalLayout.maxScenes(); i++) {
@@ -54,7 +54,7 @@ class PortalCubeDemo {
       requestAnimationFrame(render_loop)
 
       portal.onBeforeRender();
-      obj_picker.pick()
+      obj_picker.pick(scene, camera, 0);
       renderer.render(scene, camera);
     }
     render_loop();

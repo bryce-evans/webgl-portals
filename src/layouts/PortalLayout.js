@@ -118,6 +118,11 @@ class PortalLayout extends THREE.Group {
         }
     }
 
+    raycast(raycaster, intersects) { 
+        intersects = intersects.concat(raycaster.intersectObjects(this.portals));
+        return intersects;
+    }
+
     renderDebugUVs(show = true) {
         console.assert(show !== undefined && typeof (show) == "boolean",
             "showDebugUVs takes boolean input."

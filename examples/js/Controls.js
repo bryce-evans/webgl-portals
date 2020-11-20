@@ -5,6 +5,7 @@
 
 
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
+import { PortalMesh } from '/src/PortalMesh.js';
 
 class Controls {
   constructor(camera, renderer) {
@@ -58,7 +59,8 @@ class ObjectPicker {
     domElement.addEventListener('mousemove', this.setPickPosition.bind(this));
     domElement.addEventListener('mouseout', this.clearPickPosition.bind(this));
     domElement.addEventListener('mouseleave', this.clearPickPosition.bind(this));
-
+    //domElement.addEventListener('mousedown', this.clickHandler.bind(this));
+    $(domElement).on('click', this.clickHandler.bind(this));
 
     this.pickPosition = { x: 0, y: 0 };
     this.clearPickPosition();
@@ -90,9 +92,19 @@ class ObjectPicker {
 
   pick(scene, camera, time) {
     var normalizedPosition = this.pickPosition;
-    console.log(this.pickPosition);
+
     // restore the color if there is a picked object
     if (this.pickedObject) {
+      // We put this here to handle the case the click comes in the middle of executing this fn.
+      if (this.clicked) {
+        console.log(this.pickedObject.material.color);
+        this.pickedObject.material.emissive.setHex(0xFFFFFF);
+        this.pickedObject.clicked = true;
+        this.pickedObjectSavedColor = 0xFFFFFF;
+
+        this.clicked = false;
+      }
+
       this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
       this.pickedObject = undefined;
     }
@@ -100,16 +112,31 @@ class ObjectPicker {
     // cast a ray through the frustum
     this.raycaster.setFromCamera(normalizedPosition, camera);
     // get the list of objects the ray intersected
-    const intersectedObjects = this.raycaster.intersectObjects(scene.children);
-    if (intersectedObjects.length) {
-      console.log(intersectedObjects.length);
+    var intersectedObjects = this.raycaster.intersectObjects(scene.children);
+    var max_jumps = -1;
+    handle_intersected: while (intersectedObjects.length && max_jumps !== 0) {
       // pick the first object. It's the closest one
-      this.pickedObject = intersectedObjects[0].object;
-      // save its color
-      this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
-      // set its emissive color to flashing red/yellow
-      this.pickedObject.material.emissive.setHex((time * 8) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
+      var pickedObject = intersectedObjects[0].object;
+      if (pickedObject instanceof PortalMesh) {
+        //this.raycaster.setFromCamera(normalizedPosition, camera);
+        intersectedObjects = this.raycaster.intersectObjects(pickedObject.material.scene.children);
+        max_jumps--;
+        continue handle_intersected;
+      }
+
+      if (!pickedObject.clicked) {
+        // save its color
+        this.pickedObjectSavedColor = pickedObject.material.emissive.getHex();
+        // set its emissive color to flashing red/yellow
+        pickedObject.material.emissive.setHex((time * 8) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
+        this.pickedObject = pickedObject;
+      }
+      break;
     }
+
+  }
+  clickHandler(e) {
+    this.clicked = true;
   }
 }
 

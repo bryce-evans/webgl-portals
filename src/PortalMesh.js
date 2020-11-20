@@ -67,6 +67,10 @@ class PortalMesh extends Mesh {
     }
   }
 
+  isPortal() {
+    return true;
+  }
+
   getScene() {
     return this.portal_material.getScene();
   }

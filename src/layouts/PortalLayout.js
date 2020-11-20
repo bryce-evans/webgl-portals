@@ -123,6 +123,10 @@ class PortalLayout extends THREE.Group {
         return intersects;
     }
 
+    update() {
+        this.foreachPortal(p=>{p.update()});
+    }
+
     renderDebugUVs(show = true) {
         console.assert(show !== undefined && typeof (show) == "boolean",
             "showDebugUVs takes boolean input."

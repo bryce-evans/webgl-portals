@@ -19,13 +19,38 @@
  * resolution_height: int
  *      Height and width resolution of the render. Should usually be the same as the main window.
  */
-class PortalMaterial extends THREE.MeshBasicMaterial {
+class PortalMaterial extends THREE.ShaderMaterial {
+
   constructor(scene, camera, renderer, options = {}) {
     console.assert(scene instanceof THREE.Scene, "scene is not instance of THREE.Scene.");
     console.assert(camera instanceof THREE.Camera, "camera is not instance of THREE.Camera");
     console.assert(renderer instanceof THREE.WebGLRenderer, "renderer is not an instance of THREE.WebGLRenderer");
 
-    super(options);
+
+
+
+    // TODO: load shaders from file
+    // var loader = new THREE.FileLoader();
+    // loader.load('shaders/portal.frag',function ( data ) {fShader =  data;},);
+    // loader.load('shaders/portal.vertex',function ( data ) {vShader =  data;},);
+
+    let clock = new THREE.Clock();
+    let uniforms = {
+      "time": { value: 1.0 }
+    };
+
+    super({
+
+      // uniforms: {
+      //   internalSceneTexture: this.map
+      // },
+      uniforms: uniforms,
+      vertexShader: document.getElementById('vertexShader').textContent,
+      fragmentShader: document.getElementById('fragmentShader').textContent,
+    });
+
+    this.clock = clock;
+    this.uniforms = uniforms;
 
     this.scene = scene;
     this.camera = camera;
@@ -40,10 +65,14 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
 
     this.buffer_texture = new THREE.WebGLRenderTarget(this.resolution_width, this.resolution_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
 
-    // Required by parent to render.
-    this.map = this.buffer_texture.texture;
+    // @super member variables
+    //this.map = this.buffer_texture.texture;
   }
 
+  update() {
+    const delta = this.clock.getDelta();
+    this.uniforms["time"].value += delta * 5;
+  }
   getScene() {
     return this.scene;
   }

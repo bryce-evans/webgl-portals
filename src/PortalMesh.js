@@ -67,6 +67,10 @@ class PortalMesh extends Mesh {
     }
   }
 
+  update() {
+    this.material.update();
+  }
+
   isPortal() {
     return true;
   }

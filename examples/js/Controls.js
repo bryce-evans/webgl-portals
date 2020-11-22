@@ -10,6 +10,7 @@ import { PortalMesh } from '/src/PortalMesh.js';
 class Controls {
   constructor(camera, renderer) {
     this.orbit_controls = new OrbitControls(camera, renderer.domElement);
+    this.orbit_controls.enableDamping = true;
 
     this.renderer = renderer;
     this.camera = camera;

@@ -31,7 +31,6 @@ class RandomGeometryScene extends THREE.Scene {
         return new THREE.MeshPhongMaterial({ color: new THREE.Color("hsl(" + hue + ", 100%, 50%)") });
     }
 
-
     init(room_geo = new THREE.BoxGeometry(10, 10, 10)) {
         var light_color = 0xffffff;
         var light_intensity = 1;
@@ -49,7 +48,6 @@ class RandomGeometryScene extends THREE.Scene {
         }
 
         var subject = new THREE.Mesh(this.randGeometry(), this.randPhongMaterial());
-        subject.position.z = -1;
         this.add(subject);
     }
 }

@@ -25,9 +25,7 @@ class PortalLayout extends THREE.Group {
         this.portals = [];
 
         if (geometries instanceof Array) {
-            if (geometries.length !== scenes.length) {
-                console.error("Input geometries and scenes don't match.");
-            }
+            console.assert(geometries.length === scenes.length, "Input geometries and scenes don't match.");
 
             for (var i = 0; i < scenes.length; i++) {
                 var portal_mat = new PortalMaterial(scenes[i], camera, renderer, {"name":`${this.name}__p${i}`
@@ -53,8 +51,6 @@ class PortalLayout extends THREE.Group {
             this.add(this.portals[i]);
         }
 
-        // Allow initialization with showing wire
-        this.showWireGeometry(this.show_wire_geometry);
     }
 
     getPortals() {
@@ -81,9 +77,10 @@ class PortalLayout extends THREE.Group {
         this.foldPortals(fn);
     }
 
-    showWireGeometry(show) {
-        this.show_wire_geometry = show;
-        this.foreachPortal(function (p) { p.showWireGeometry(show); });
+    wireGeometry() {
+        var group = new THREE.Group();
+        this.foreachPortal(function (p) { group.add(p.wireGeometry()); });
+        return group;
     }
 
     setScene(portal_id, scene) {

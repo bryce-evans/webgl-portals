@@ -21,23 +21,20 @@
 			gl_Position = projectionMatrix * mvPosition;
 		}
 
+	
 	</script>
 	<script id="fragmentShader" type="x-shader/x-fragment">
-
+		uniform float time;
+		uniform int windowWidth;
+		uniform int windowHeight;
+		varying vec2 vUv;
 		uniform sampler2D internalSceneTexture;
 
-void main() {
-	//const vec4 tex = texture2D(internalSceneTexture, gl_FragCoord.xy);
-	gl_FragColor = texture2D(internalSceneTexture, gl_FragCoord.xy);
-	//gl_FragColor = vec4(0.0,0.0,1.0,0);
-}
-
-//"varying vec2 vUv;",
- //           "uniform sampler2D texture;",
-  //          "void main() {",
-   //             "gl_FragColor = texture2D(texture, vUv);",
-    //        "}",
-
+		void main() {
+			//gl_FragColor = texture2D(internalSceneTexture, vUv);
+			gl_FragColor = texture2D(internalSceneTexture, gl_FragCoord.xy / vec2(windowWidth, windowHeight));
+		}
+		
 	</script>
 	<div id="info">Perspective Camera Test<br>Press &lt;space&gt; to show textures, F to freeze/unfreeze</div>
 	<div id="debug_uvs" style="display: none;"></div>

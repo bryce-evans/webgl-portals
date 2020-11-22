@@ -1,6 +1,7 @@
 import { Mesh } from '/modules/three.js/src/objects/Mesh.js';
 import { PortalMaterial } from './PortalMaterial.js';
 
+
 class PortalMesh extends Mesh {
   constructor(geometry, portal_material, options = {}) {
     /** Renders as the scene associated with input portal_material.
@@ -37,34 +38,20 @@ class PortalMesh extends Mesh {
     this.debug_renderer = new THREE.WebGLRenderer({ antialias: true });
     this.debug_renderer.setSize(this.debug_width, this.debug_height);
 
-    // Show wireframe of actual geometry if requested.
-    this.show_wire_geometry = options.show_wire_geometry || false;
-    if (this.show_wire_geometry) { this.showWireGeometry(); }
-
     this.camera = this.material.camera;
 
     // A wireframe showing the geometry.
     this.wire = null;
   }
 
-  showWireGeometry(show) {
-    if (show) {
-      // Delay creating wireframe until first call to show.
-      if (!this.wire) {
-        var wireframe = new THREE.WireframeGeometry(this.geometry);
-        var line = new THREE.LineSegments(wireframe);
-        line.material.depthTest = true;
-        line.material.opacity = 0.5;
-        line.material.color = new THREE.Color(0x0088ff)
-        line.material.transparent = true;
-        this.wire = line;
-      }
-      this.scene.add(this.wire);
-    } else {
-      if (this.wire) {
-        this.scene.remove(this.wire);
-      }
-    }
+  wireGeometry() {
+    var wireframe = new THREE.WireframeGeometry(this.geometry);
+    var line = new THREE.LineSegments(wireframe);
+    line.material.depthTest = true;
+    //line.material.opacity = 0.5;
+    line.material.color = new THREE.Color(0x0088ff)
+    //line.material.transparent = true;
+    return line;
   }
 
   update() {
@@ -129,6 +116,9 @@ class PortalMesh extends Mesh {
     if (window._FREEZE_ALL_PORTALS) {
       return;
     }
+
+    this.update();
+
     // Render the internal scene of the portal to this mesh's texture.
     this.material.onBeforeRender(renderer, scene, camera, geometry, material, group);
 

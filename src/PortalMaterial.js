@@ -19,28 +19,60 @@
  * resolution_height: int
  *      Height and width resolution of the render. Should usually be the same as the main window.
  */
-class PortalMaterial extends THREE.MeshBasicMaterial {
+class PortalMaterial extends THREE.ShaderMaterial {
   constructor(scene, camera, renderer, options = {}) {
     console.assert(scene instanceof THREE.Scene, "scene is not instance of THREE.Scene.");
     console.assert(camera instanceof THREE.Camera, "camera is not instance of THREE.Camera");
     console.assert(renderer instanceof THREE.WebGLRenderer, "renderer is not an instance of THREE.WebGLRenderer");
 
-    super(options);
+    let name = options.name || "";
+
+    // TODO: load shaders from file.
+    // var loader = new THREE.FileLoader();
+    // loader.load('shaders/portal.frag',function ( data ) {fShader =  data;},);
+    // loader.load('shaders/portal.vertex',function ( data ) {vShader =  data;},);
+    let clock = new THREE.Clock();
+
+    let antialias = options.antialias || false;
+    let resolution_width = options.resolution_width || 1024;
+    let resolution_height = options.resolution_height || 1024;
+
+    let buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
+    buffer_texture.name = name;
+    buffer_texture.texture.image.name = name;
+
+    let uniforms = {
+      "time": { value: 1.0 },
+      "windowWidth": { value: resolution_width },
+      "windowHeight": { value: resolution_height },
+      "internalSceneTexture": { value: buffer_texture.texture },
+    };
+
+    super({
+      uniforms: uniforms,
+      vertexShader: document.getElementById('vertexShader').textContent,
+      fragmentShader: document.getElementById('fragmentShader').textContent,
+      name: name,
+    });
+
+    this.name = name;
+    this.clock = clock;
+    this.uniforms = uniforms;
 
     this.scene = scene;
     this.camera = camera;
     this.renderer = renderer;
 
     // XXX TODO.
-    this.transform = options.transform || null;
+    this.transform = this.transform;
 
-    this.antialias = options.antialias || false;
-    this.resolution_width = options.resolution_width || 1024;
-    this.resolution_height = options.resolution_height || 1024;
+    this.antialias = antialias;
+    this.resolution_width = resolution_width;
+    this.resolution_height = resolution_height;
 
-    this.buffer_texture = new THREE.WebGLRenderTarget(this.resolution_width, this.resolution_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
+    this.buffer_texture = buffer_texture;
 
-    // Required by parent to render.
+    // @super member variables
     this.map = this.buffer_texture.texture;
   }
 
@@ -54,6 +86,11 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
 
   setCamera(cam) {
     this.camera = cam;
+  }
+
+  update() {
+    const delta = this.clock.getDelta();
+    this.uniforms["time"].value += delta * 5;
   }
 
   /**
@@ -81,8 +118,13 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     // so make sure set it back after rendering our scene.
     var initial = this.renderer.getRenderTarget();
     this.renderer.setRenderTarget(this.buffer_texture);
+    this.renderer.setSize(this.width, this.height);
     this.renderer.render(this.scene, this.camera);
     this.renderer.setRenderTarget(initial);
+    this.buffer_texture.texture.needsUpdate = false;
+
+    /// Get from original
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 }
 

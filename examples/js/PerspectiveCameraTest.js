@@ -10,7 +10,7 @@ class PerspectiveCameraTest {
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
-    //this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(width, height);
     document.body.appendChild(this.renderer.domElement);
 
@@ -35,7 +35,8 @@ class PerspectiveCameraTest {
       cube_scenes.push(new RandomGeometryScene({ "size": 5 }));
     }
 
-    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10, debug_height: 256, debug_width: 256 });
+    const portal_render_resolution = 1048 *  window.devicePixelRatio;
+    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10, resolution_height: portal_render_resolution, resolution_height: portal_render_resolution,  debug_height: 256, debug_width: 256 });
     scene.add(portal_cube);
     scene.add(portal_cube.wireGeometry());
     this.portal = portal_cube;

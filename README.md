@@ -7,7 +7,8 @@ Portals allow for the appearance of windows into alternate scenes, or a portal i
 
 The core of the Portals framework extends Three.js classes: Material, Mesh, and Group.
 
-This framework was written top down with final user-syntax being the center of the design. 
+This framework was written top down with final user-syntax being the center of the design.
+The mechanics of rendering the scenes is kept internal.
 To render a cube with each face showing a portal into a difference scene, only a few lines are needed:
 ```
     var cube_scenes = [];
@@ -33,9 +34,11 @@ Extends `THREE.Group`. A group of portals in a preset configuration. This is mos
 
 ### Resources
 
-Render to texture
+Render to Texture
 https://gamedevelopment.tutsplus.com/tutorials/quick-tip-how-to-render-to-a-texture-in-threejs--cms-25686
 
+Frame Buffer to Canvas Example
+https://threejs.org/examples/webgl_framebuffer_texture
 
-Multiple scenes
+Multiple Scenes
 https://threejsfundamentals.org/threejs/lessons/threejs-multiple-scenes.html

@@ -2,7 +2,6 @@ import { Controls } from '/examples/js/Controls.js';
 import { PortalMaterial } from '/src/PortalMaterial.js';
 import { PortalMesh } from '/src/PortalMesh.js';
 
-
 class PortalMeshDemo {
   constructor() {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -39,8 +38,8 @@ class PortalMeshDemo {
 
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
     var portal_mat = new PortalMaterial(miniscene, camera, this.renderer);
-    
-    this.buffer_texture = portal_mat.buffer_texture; 
+
+    this.buffer_texture = portal_mat.buffer_texture;
 
     var portal = new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
     portal.renderDebugUVs(true);

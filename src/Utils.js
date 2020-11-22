@@ -1,4 +1,7 @@
 class Utils {
+    static genId() {
+        Math.random().toString(36).substring(7);
+    }
 
     /** Takes a geometry and splits the tris into n_groups. 
      *  Useful for splitting core geometry into faces.
@@ -50,6 +53,8 @@ class Utils {
         debugger;
         return geometries[0];
     }
+
+
 
 
 }

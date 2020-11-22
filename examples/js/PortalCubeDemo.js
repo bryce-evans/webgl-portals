@@ -5,18 +5,20 @@ import { RandomGeometryScene } from '/examples/js/RandomGeometryScene.js';
 
 class PortalCubeDemo {
   constructor() {
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
+    //this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(width, height);
+    //this.renderer.autoClear = false;
+    document.body.appendChild(this.renderer.domElement);
 
     var show_uv_debug = true;
 
-    var width = window.innerWidth;
-    var height = window.innerHeight;
-    this.renderer.setSize(width, height);
-    document.body.appendChild(this.renderer.domElement);
-
     var scene = new THREE.Scene();
-    scene.add(new THREE.AmbientLight(0xfff));
+    scene.add(new THREE.AmbientLight(0xffffff));
     this.scene = scene;
 
     var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);

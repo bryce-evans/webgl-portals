@@ -3,23 +3,22 @@ import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
 import { RandomGeometryScene } from '/examples/js/RandomGeometryScene.js';
 
 
-class PortalCubeDemo {
+class PerspectiveCameraTest {
   constructor() {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.autoClear = false;
+    document.body.appendChild(this.renderer.domElement);
 
     var show_uv_debug = true;
-
-    var width = window.innerWidth;
-    var height = window.innerHeight;
-    this.renderer.setSize(width, height);
-    document.body.appendChild(this.renderer.domElement);
 
     var scene = new THREE.Scene();
     scene.add(new THREE.AmbientLight(0xfff));
     this.scene = scene;
 
-    var camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
+    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.set(11, 11, 11);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     this.camera = camera;
@@ -34,7 +33,7 @@ class PortalCubeDemo {
       cube_scenes.push(new RandomGeometryScene({ "size": 5 }));
     }
 
-    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10, debug_height: 256, debug_width: 256 });
+    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10, debug_height: 256, debug_width: 256, "name": "main_cube" });
     scene.add(portal_cube);
     this.portal = portal_cube;
 
@@ -62,5 +61,5 @@ class PortalCubeDemo {
   }
 }
 
-var page = new PortalCubeDemo();
+var page = new PerspectiveCameraTest();
 page.render();

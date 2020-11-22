@@ -7,6 +7,8 @@ class PortalLayout extends THREE.Group {
 
         this.options = options;
 
+        this.name = options.name || "";
+
         // Size of the mesh.
         this.size = options.size || 1;
 
@@ -28,7 +30,8 @@ class PortalLayout extends THREE.Group {
             }
 
             for (var i = 0; i < scenes.length; i++) {
-                var portal_mat = new PortalMaterial(scenes[i], camera, renderer);
+                var portal_mat = new PortalMaterial(scenes[i], camera, renderer, {"name":`${this.name}__p${i}`
+                });
                 var portal = new PortalMesh(geometries[i], portal_mat, this.options);
                 this.portal_materials.push(portal_mat);
                 this.portals.push(portal);

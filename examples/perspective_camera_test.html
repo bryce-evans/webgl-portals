@@ -25,14 +25,14 @@
 	</script>
 	<script id="fragmentShader" type="x-shader/x-fragment">
 		uniform float time;
-		uniform int windowWidth;
-		uniform int windowHeight;
+		uniform int scaleX;
+		uniform int scaleY;
 		varying vec2 vUv;
 		uniform sampler2D internalSceneTexture;
 
 		void main() {
 			//gl_FragColor = texture2D(internalSceneTexture, vUv);
-			gl_FragColor = texture2D(internalSceneTexture, gl_FragCoord.xy / vec2(windowWidth, windowHeight));
+			gl_FragColor = texture2D(internalSceneTexture, gl_FragCoord.xy / vec2(scaleX, scaleY));
 		}
 		
 	</script>

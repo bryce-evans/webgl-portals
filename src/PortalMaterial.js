@@ -20,10 +20,10 @@
  *      Height and width resolution of the render. Should usually be the same as the main window.
  */
 class PortalMaterial extends THREE.ShaderMaterial {
-  constructor(scene, camera, renderer, options = {}) {
+  constructor(scene, camera, _renderer, options = {}) {
     console.assert(scene instanceof THREE.Scene, "scene is not instance of THREE.Scene.");
     console.assert(camera instanceof THREE.Camera, "camera is not instance of THREE.Camera");
-    console.assert(renderer instanceof THREE.WebGLRenderer, "renderer is not an instance of THREE.WebGLRenderer");
+    console.assert(_renderer instanceof THREE.WebGLRenderer, "renderer is not an instance of THREE.WebGLRenderer");
 
     let name = options.name || "";
 
@@ -41,10 +41,17 @@ class PortalMaterial extends THREE.ShaderMaterial {
     buffer_texture.name = name;
     buffer_texture.texture.image.name = name;
 
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(resolution_width, resolution_height);
+    renderer.setRenderTarget(buffer_texture);
+
+    let dims = new THREE.Vector2();
+    _renderer.getDrawingBufferSize(dims);
+
     let uniforms = {
       "time": { value: 1.0 },
-      "windowWidth": { value: resolution_width },
-      "windowHeight": { value: resolution_height },
+      "scaleX": { value: resolution_width * (dims.x / resolution_width) },
+      "scaleY": { value: resolution_height * (dims.y / resolution_height) },
       "internalSceneTexture": { value: buffer_texture.texture },
     };
 
@@ -62,6 +69,8 @@ class PortalMaterial extends THREE.ShaderMaterial {
     this.scene = scene;
     this.camera = camera;
     this.renderer = renderer;
+    this._renderer = _renderer;
+
 
     // XXX TODO.
     this.transform = this.transform;
@@ -74,6 +83,16 @@ class PortalMaterial extends THREE.ShaderMaterial {
 
     // @super member variables
     this.map = this.buffer_texture.texture;
+
+    window.addEventListener('resize', this.onWindowResize.bind(this), false);
+  }
+
+  onWindowResize() {
+    let dims = new THREE.Vector2();
+    this._renderer.getDrawingBufferSize(dims);
+
+    this.uniforms["scaleX"].value = this.resolution_width * (dims.x / this.resolution_width);
+    this.uniforms["scaleY"].value = this.resolution_height * (dims.y / this.resolution_height);
   }
 
   getScene() {
@@ -114,17 +133,18 @@ class PortalMaterial extends THREE.ShaderMaterial {
    *    The group this portal belongs to (if any).
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
-    // The same renderer may be used for other targets,
-    // so make sure set it back after rendering our scene.
-    var initial = this.renderer.getRenderTarget();
-    this.renderer.setRenderTarget(this.buffer_texture);
-    this.renderer.setSize(this.width, this.height);
-    this.renderer.render(this.scene, this.camera);
-    this.renderer.setRenderTarget(initial);
+    var initial = this._renderer.getRenderTarget();
+    this._renderer.setRenderTarget(this.buffer_texture);
+    var dims = new THREE.Vector2();
+    //this._renderer.getDrawingBufferSize(dims);
+
+    //this._renderer.setSize(this.resolution_width, this.resolution_height);
+
+    this._renderer.render(this.scene, this.camera);
     this.buffer_texture.texture.needsUpdate = false;
 
-    /// Get from original
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this._renderer.setRenderTarget(initial);
+    //this._renderer.setSize(dims);
   }
 }
 

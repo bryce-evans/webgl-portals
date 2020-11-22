@@ -10,7 +10,7 @@ class PerspectiveCameraTest {
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
+    //this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(width, height);
     document.body.appendChild(this.renderer.domElement);
 
@@ -20,8 +20,8 @@ class PerspectiveCameraTest {
     scene.add(new THREE.AmbientLight(0xffffff));
     this.scene = scene;
 
-    //var camera = new THREE.PerspectiveCamera(45, width/height, 1, 1000);
-    var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
+    var camera = new THREE.PerspectiveCamera(45, width/height, 1, 1000);
+    //var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
     
     camera.position.set(11, 11, 11);
     camera.lookAt(new THREE.Vector3(0, 0, 0));

@@ -5,57 +5,27 @@
 	<title>WebGL Portals | Perspective Camera Test</title>
 	<script type="text/javascript" src="/modules/jquery/build/jquery-3.5.1.min.js"></script>
 	<script type="text/javascript" src="/modules/three.js/build/three.js"></script>
-	<script type="module" src="js/PerspectiveCameraTest.js"></script>
+	<script data-src="/src/shaders/portal.vertex" type="x-shader/x-vertex" id="vertexShader"></script>
+	<script data-src="/src/shaders/portal.frag" type="x-shader/x-fragment" id="fragmentShader"></script>
 	<link rel="stylesheet" href="./css/demo_base.css">
 </head>
 
 <body>
-	<script id="vertexShader" type="x-shader/x-vertex">
-
-		varying vec2 vUv;
-
-		void main()
-		{
-			vUv = uv;
-			vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-			gl_Position = projectionMatrix * mvPosition;
-		}
-
-	
-	</script>
-	<script id="fragmentShader" type="x-shader/x-fragment">
-		uniform float time;
-		uniform float scaleX;
-		uniform float scaleY;
-		varying vec2 vUv;
-		uniform sampler2D internalSceneTexture;
-
-		vec4 texture2DInterp( sampler2D sam, vec2 uv )
-{
-	vec2 res = vec2(textureSize( sam , 0).x, textureSize( sam , 0).y);
-	//int vec2 res = textureSize( sam , 0);
-
-    vec2 st = uv*res - 0.5;
-
-    vec2 iuv = floor( st );
-    vec2 fuv = fract( st );
-
-    vec4 a = texture2D( sam, (iuv+vec2(0.5,0.5))/res );
-    vec4 b = texture2D( sam, (iuv+vec2(1.5,0.5))/res );
-    vec4 c = texture2D( sam, (iuv+vec2(0.5,1.5))/res );
-    vec4 d = texture2D( sam, (iuv+vec2(1.5,1.5))/res );
-
-    return mix( mix( a, b, fuv.x),
-                mix( c, d, fuv.x), fuv.y );
-}
-void main() {
-	//gl_FragColor = texture2D(internalSceneTexture, vUv);
-gl_FragColor = texture2DInterp(internalSceneTexture, gl_FragCoord.xy / vec2(scaleX, scaleY));
-}
-		
-	</script>
 	<div id="info">Perspective Camera Test<br>Press &lt;space&gt; to show textures, F to freeze/unfreeze</div>
 	<div id="debug_uvs" style="display: none;"></div>
+
+	<script type="module">
+		import { Utils } from '/examples/js/Utils.js';
+		import { PerspectiveCameraTest } from '/examples/js/PerspectiveCameraTest.js';
+
+
+		$(document).ready(function () {
+			Utils.loadShaders(function () {
+				var page = new PerspectiveCameraTest();
+				page.render();
+			});
+		});
+	</script>
 </body>
 
 </html>

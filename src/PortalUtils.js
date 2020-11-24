@@ -1,4 +1,8 @@
-class Utils {
+/**
+ * A set of geometry utilies.
+ */
+
+class PortalUtils {
     static genId() {
         Math.random().toString(36).substring(7);
     }
@@ -53,10 +57,7 @@ class Utils {
         debugger;
         return geometries[0];
     }
-
-
-
-
+    
 }
 
-export { Utils }
+export { PortalUtils }

@@ -20,9 +20,9 @@ class PerspectiveCameraTest {
     scene.add(new THREE.AmbientLight(0xffffff));
     this.scene = scene;
 
-    var camera = new THREE.PerspectiveCamera(45, width/height, 1, 1000);
+    var camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
     //var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
-    
+
     camera.position.set(11, 11, 11);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     this.camera = camera;
@@ -35,8 +35,8 @@ class PerspectiveCameraTest {
       cube_scenes.push(new RandomGeometryScene({ "size": 5 }));
     }
 
-    const portal_render_resolution = 1048 *  window.devicePixelRatio;
-    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10, resolution_height: portal_render_resolution, resolution_height: portal_render_resolution,  debug_height: 256, debug_width: 256 });
+    const portal_render_resolution = 1048 * window.devicePixelRatio;
+    var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10, resolution_height: portal_render_resolution, resolution_height: portal_render_resolution, debug_height: 256, debug_width: 256 });
     scene.add(portal_cube);
     scene.add(portal_cube.wireGeometry());
     this.portal = portal_cube;
@@ -62,5 +62,4 @@ class PerspectiveCameraTest {
   }
 }
 
-var page = new PerspectiveCameraTest();
-page.render();
+export { PerspectiveCameraTest }

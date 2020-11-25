@@ -50,8 +50,8 @@ class PortalMaterial extends THREE.ShaderMaterial {
 
     let uniforms = {
       "time": { value: 1.0 },
-      "scaleX": { value: resolution_width * (dims.x / resolution_width) },
-      "scaleY": { value: resolution_height * (dims.y / resolution_height) },
+      "dim_x": { value: dims.x },
+      "dim_y": { value: dims.y },
       "internalSceneTexture": { value: buffer_texture.texture },
     };
 
@@ -91,8 +91,8 @@ class PortalMaterial extends THREE.ShaderMaterial {
     let dims = new THREE.Vector2();
     this._renderer.getDrawingBufferSize(dims);
 
-    this.uniforms["scaleX"].value = this.resolution_width * (dims.x / this.resolution_width);
-    this.uniforms["scaleY"].value = this.resolution_height * (dims.y / this.resolution_height);
+    this.uniforms["dim_x"].value = dims.x;
+    this.uniforms["dim_y"].value = dims.y;
   }
 
   getScene() {

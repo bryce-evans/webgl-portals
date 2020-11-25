@@ -54,6 +54,14 @@ class Utils {
             callback();
         }
         
+        if (vertexShaders.length === 0) {
+            console.warn("Attempted to load shaders but no vertex shaders found.");
+        }
+
+        if (fragmentShaders.length === 0) {
+            console.warn("Attempted to load shaders but no fragment shaders found.");
+        }
+
         for (var i = 0; i < vertexShaders.length; i++){
             loadShader( vertexShaders[i], ShaderType.VERTEX );
         }

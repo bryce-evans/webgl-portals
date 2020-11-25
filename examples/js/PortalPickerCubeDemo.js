@@ -1,4 +1,4 @@
-import { ObjectPicker, Controls } from '/examples/js/Controls.js';
+import { ObjectPicker, Controls } from '/examples/js/utils/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
 import { PortalMesh } from '/src/PortalMesh.js';
 import { PortalMaterial } from '/src/PortalMaterial.js';

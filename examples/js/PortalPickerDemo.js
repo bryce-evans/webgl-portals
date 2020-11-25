@@ -1,4 +1,4 @@
-import { ObjectPicker, Controls } from '/examples/js/Controls.js';
+import { ObjectPicker, Controls } from '/examples/js/utils/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
 import { PortalMesh } from '/src/PortalMesh.js';
 import { PortalMaterial } from '/src/PortalMaterial.js';
@@ -84,10 +84,6 @@ class PortalPickerDemo {
       cube_scenes.push(miniscene);
     }
 
-    // var portal_cube = new CubePortalLayout(cube_scenes, camera, this.renderer, { size: 10, debug_height: 256, debug_width: 256 });
-    // scene.add(portal_cube);
-    // this.portal = portal_cube;
-
     var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
     var portal_mat = new PortalMaterial(cube_scenes[2], camera, this.renderer);
     this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 256, debug_width: 256 });
@@ -118,5 +114,4 @@ class PortalPickerDemo {
   }
 }
 
-var page = new PortalPickerDemo();
-page.render();
+export { PortalPickerDemo }

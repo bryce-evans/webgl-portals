@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<title>WebGL Portals | Portal Picker Cube Demo</title>
+	<title>WebGL Portals | Portal PickCube Demo</title>
 	<script type="text/javascript" src="/modules/jquery/build/jquery-3.5.1.min.js"></script>
 	<script type="text/javascript" src="/modules/three.js/build/three.js"></script>
 	<script type="module" src="js/PortalPickerCubeDemo.js"></script>
@@ -12,6 +12,19 @@
 <body>
 	<div id="info">[WIP] Portal Picker Cube Demo<br>Press &lt;space&gt; to show textures, F to freeze/unfreeze</div>
 	<div id="debug_uvs" style="display: none;"></div>
+
+	<script type="module">
+		import { Utils } from '/examples/js/utils/Utils.js';
+		import { PortalPickerCubeDemo } from '/examples/js/PortalPickerCubeDemo.js';
+
+
+		$(document).ready(function () {
+			Utils.loadShaders(function () {
+				var page = new PortalPickerCubeDemo();
+				page.render();
+			});
+		});
+	</script>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
-import { Controls } from '/examples/js/Controls.js';
+import { Controls } from '/examples/js/utils/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
-import { RandomGeometryScene } from '/examples/js/RandomGeometryScene.js';
+import { RandomGeometryScene } from '/examples/js/utils/RandomGeometryScene.js';
 
 
 class PerspectiveCameraTest {

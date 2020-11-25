@@ -1,6 +1,6 @@
-import { ObjectPicker, Controls } from '/examples/js/Controls.js';
+import { ObjectPicker, Controls } from '/examples/js/utils/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
-import { RandomGeometryScene } from '/examples/js/RandomGeometryScene.js';
+import { RandomGeometryScene } from '/examples/js/utils/RandomGeometryScene.js';
 
 
 class PortalCubeDemo {
@@ -63,5 +63,4 @@ class PortalCubeDemo {
   }
 }
 
-var page = new PortalCubeDemo();
-page.render();
+export { PortalCubeDemo };

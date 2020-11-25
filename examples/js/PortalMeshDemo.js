@@ -1,4 +1,4 @@
-import { Controls } from '/examples/js/Controls.js';
+import { Controls } from '/examples/js/utils/Controls.js';
 import { PortalMaterial } from '/src/PortalMaterial.js';
 import { PortalMesh } from '/src/PortalMesh.js';
 
@@ -69,5 +69,4 @@ class PortalMeshDemo {
   }
 }
 
-var page = new PortalMeshDemo();
-page.render();
+export { PortalMeshDemo }

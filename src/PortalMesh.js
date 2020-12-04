@@ -1,5 +1,6 @@
 import { Mesh } from '/modules/three.js/src/objects/Mesh.js';
 import { PortalMaterial } from './PortalMaterial.js';
+import { PortalSimpleMaterial } from './PortalSimpleMaterial.js';
 
 
 class PortalMesh extends Mesh {
@@ -24,7 +25,7 @@ class PortalMesh extends Mesh {
      */
 
     console.assert(geometry instanceof THREE.Geometry, "geometry is not an instance of THREE.Geometry");
-    console.assert(portal_material instanceof PortalMaterial, "portal_material is not an instance of PortalMaterial");
+    console.assert(portal_material instanceof PortalMaterial || portal_material instanceof PortalSimpleMaterial, "portal_material is not an instance of PortalMaterial");
 
     super(geometry, portal_material);
 
@@ -114,10 +115,14 @@ class PortalMesh extends Mesh {
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
     if (window._FREEZE_ALL_PORTALS) {
-      this.material.uniforms["frozen"].value = true;
+      if (this.material instanceof PortalMaterial) {
+        this.material.uniforms["frozen"].value = true;
+      }
       return;
-    } 
-    this.material.uniforms["frozen"].value = false;
+    }
+    if (this.material instanceof PortalMaterial) {
+      this.material.uniforms["frozen"].value = false;
+    }
 
     this.update();
 

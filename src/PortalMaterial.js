@@ -43,7 +43,7 @@ class PortalMaterial extends THREE.ShaderMaterial {
 
     let dims = new THREE.Vector2();
     renderer.getDrawingBufferSize(dims);
-    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setPixelRatio(window.devicePixelRatio);
 
     let uniforms = {
       "frozen": { value: false },
@@ -51,6 +51,7 @@ class PortalMaterial extends THREE.ShaderMaterial {
       "dim_x": { value: dims.x },
       "dim_y": { value: dims.y },
       "internalSceneTexture": { value: buffer_texture.texture },
+      "textureSize": { value: new THREE.Vector2(buffer_texture.texture.image.width, buffer_texture.texture.image.height) },
     };
 
     super({

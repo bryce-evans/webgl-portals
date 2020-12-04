@@ -7,6 +7,7 @@
 
 // Texture of the portal scene to render.
 uniform sampler2D internalSceneTexture;
+uniform vec2 textureSize;
 
 // Dimensions of the rendered view.
 uniform float dim_x;
@@ -17,19 +18,16 @@ uniform bool frozen;
 
 
 // Bilinear Interpolation.
-vec4 texture2DInterp( sampler2D sam, vec2 uv ) {
-    // Manually construct a vector to allow for int to float cast per element.
-	vec2 res = vec2(textureSize( sam , 0).x, textureSize( sam , 0).y);
-
-    vec2 st = uv * res - 0.5;
+vec4 texture2DInterp( sampler2D sam, vec2 sam_size, vec2 uv ) {
+    vec2 st = uv * sam_size - 0.5;
 
     vec2 iuv = floor(st);
     vec2 fuv = fract(st);
 
-    vec4 a = texture2D(sam, (iuv + vec2(0.5, 0.5)) / res);
-    vec4 b = texture2D(sam, (iuv + vec2(1.5, 0.5)) / res);
-    vec4 c = texture2D(sam, (iuv + vec2(0.5, 1.5)) / res);
-    vec4 d = texture2D(sam, (iuv + vec2(1.5, 1.5)) / res);
+    vec4 a = texture2D(sam, (iuv + vec2(0.5, 0.5)) / sam_size);
+    vec4 b = texture2D(sam, (iuv + vec2(1.5, 0.5)) / sam_size);
+    vec4 c = texture2D(sam, (iuv + vec2(0.5, 1.5)) / sam_size);
+    vec4 d = texture2D(sam, (iuv + vec2(1.5, 1.5)) / sam_size);
 
     return mix(mix(a, b, fuv.x), mix(c, d, fuv.x), fuv.y);
 }
@@ -37,8 +35,8 @@ vec4 texture2DInterp( sampler2D sam, vec2 uv ) {
 
 void main() {
     if (frozen){
-        gl_FragColor = texture2DInterp(internalSceneTexture, vUv);
+        gl_FragColor = texture2DInterp(internalSceneTexture, textureSize, vUv);
     } else {
-        gl_FragColor = texture2DInterp(internalSceneTexture, gl_FragCoord.xy / vec2(dim_x, dim_y));
+        gl_FragColor = texture2DInterp(internalSceneTexture, textureSize, gl_FragCoord.xy / vec2(dim_x, dim_y));
     }
 }

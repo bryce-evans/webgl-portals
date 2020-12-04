@@ -6,11 +6,11 @@ import { PortalMaterial } from '/src/PortalMaterial.js';
 
 class PortalPickerDemo {
   constructor() {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setClearColor(0x222222, 1);
-
     var show_uv_debug = true;
 
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.setClearColor(0x222222, 1);
+    this.renderer.setPixelRatio( window.devicePixelRatio );
     var width = window.innerWidth;
     var height = window.innerHeight;
     this.renderer.setSize(width, height);
@@ -83,6 +83,11 @@ class PortalPickerDemo {
       }
       cube_scenes.push(miniscene);
     }
+
+    // Separate renderers don't work?...
+    // var portal_renderer = new THREE.WebGLRenderer({ antialias: true });
+    // portal_renderer.setSize(width , height);
+    // portal_renderer.setPixelRatio( window.devicePixelRatio );
 
     var portal_geo = new THREE.CircleGeometry(5, 64);
     portal_geo.scale(1, 2, 1);

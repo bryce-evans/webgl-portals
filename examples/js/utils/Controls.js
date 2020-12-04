@@ -125,7 +125,7 @@ class ObjectPicker {
   pick(scene, camera, time) {
 
     // restore the color if there is a picked object
-    if (this.pickedObject) {
+    if (this.pickedObject && this.pickedObject.material instanceof THREE.MeshPhongMaterial) {
       // We put this here to handle the case the click comes in the middle of executing this fn.
       if (this.clicked) {
         this.pickedObject.material.emissive.setHex(0xFFFFFF);
@@ -167,7 +167,7 @@ class ObjectPicker {
         continue handle_intersected;
       }
 
-      if (pickedObject && !pickedObject.clicked) {
+      if (pickedObject && !pickedObject.clicked && pickedObject.material instanceof THREE.MeshPhongMaterial) {
         // save its color
         this.pickedObjectSavedColor = pickedObject.material.emissive.getHex();
 

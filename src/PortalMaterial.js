@@ -20,10 +20,10 @@
  *      Height and width resolution of the render. Should usually be the same as the main window.
  */
 class PortalMaterial extends THREE.ShaderMaterial {
-  constructor(scene, camera, _renderer, options = {}) {
+  constructor(scene, camera, renderer, options = {}) {
     console.assert(scene instanceof THREE.Scene, "scene is not instance of THREE.Scene.");
     console.assert(camera instanceof THREE.Camera, "camera is not instance of THREE.Camera");
-    console.assert(_renderer instanceof THREE.WebGLRenderer, "renderer is not an instance of THREE.WebGLRenderer");
+    console.assert(renderer instanceof THREE.WebGLRenderer, "renderer is not an instance of THREE.WebGLRenderer");
 
     let name = options.name || "";
 
@@ -41,12 +41,9 @@ class PortalMaterial extends THREE.ShaderMaterial {
     buffer_texture.name = name;
     buffer_texture.texture.image.name = name;
 
-    var renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(resolution_width, resolution_height);
-    renderer.setRenderTarget(buffer_texture);
-
     let dims = new THREE.Vector2();
-    _renderer.getDrawingBufferSize(dims);
+    renderer.getDrawingBufferSize(dims);
+    renderer.setPixelRatio( window.devicePixelRatio );
 
     let uniforms = {
       "frozen": { value: false },
@@ -70,8 +67,6 @@ class PortalMaterial extends THREE.ShaderMaterial {
     this.scene = scene;
     this.camera = camera;
     this.renderer = renderer;
-    this._renderer = _renderer;
-
 
     // XXX TODO.
     this.transform = this.transform;
@@ -90,7 +85,7 @@ class PortalMaterial extends THREE.ShaderMaterial {
 
   onWindowResize() {
     let dims = new THREE.Vector2();
-    this._renderer.getDrawingBufferSize(dims);
+    this.renderer.getDrawingBufferSize(dims);
 
     this.uniforms["dim_x"].value = dims.x;
     this.uniforms["dim_y"].value = dims.y;
@@ -134,19 +129,19 @@ class PortalMaterial extends THREE.ShaderMaterial {
    *    The group this portal belongs to (if any).
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
-    var initial = this._renderer.getRenderTarget();
-    this._renderer.setRenderTarget(this.buffer_texture);
+    var initial = this.renderer.getRenderTarget();
+    this.renderer.setRenderTarget(this.buffer_texture);
     var dims = new THREE.Vector2();
 
-    //this._renderer.getDrawingBufferSize(dims);
+    //this.renderer.getDrawingBufferSize(dims);
 
-    //this._renderer.setSize(this.resolution_width, this.resolution_height);
+    //this.renderer.setSize(this.resolution_width, this.resolution_height);
 
-    this._renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
     this.buffer_texture.texture.needsUpdate = false;
 
-    this._renderer.setRenderTarget(initial);
-    //this._renderer.setSize(dims);
+    this.renderer.setRenderTarget(initial);
+    //this.renderer.setSize(dims);
   }
 }
 

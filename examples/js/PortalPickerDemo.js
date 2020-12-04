@@ -22,8 +22,8 @@ class PortalPickerDemo {
     this.scene = scene;
 
     var camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-    camera.position.set(11, 11, 11);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    camera.position.set(0, 0, 40);
+    camera.lookAt(new THREE.Vector3(-3, -3, 60));
     this.camera = camera;
 
     this.controls = new Controls(camera, this.renderer);

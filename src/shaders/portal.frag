@@ -13,6 +13,7 @@ uniform vec2 textureSize;
 uniform float dim_x;
 uniform float dim_y;
 
+// If "frozen," draws the texture to UVs, otherwise pull from screen coordinates.
 varying vec2 vUv;
 uniform bool frozen;
 

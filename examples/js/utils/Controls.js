@@ -61,18 +61,27 @@ class ObjectPicker {
     this.mousedown = false;
     this.dragged = false;
 
+
+    // Mobile.
+    domElement.addEventListener('touchstart', this.pointerDown.bind(this));
+    domElement.addEventListener('touchstart', this.setPickPosition.bind(this));
+    domElement.addEventListener('touchend', this.clickHandler.bind(this));
+
+    // Desktop.
     domElement.addEventListener('pointerdown', this.pointerDown.bind(this));
-    domElement.addEventListener('mousemove', this.mouseMove.bind(this));
+    domElement.addEventListener('pointerdown', this.pointerDown.bind(this));
+    domElement.addEventListener('pointerup', this.clickHandler.bind(this));
+
+    domElement.addEventListener('mousemove', this.setPickPosition.bind(this));
     domElement.addEventListener('mouseout', this.clearPickPosition.bind(this));
     domElement.addEventListener('mouseleave', this.clearPickPosition.bind(this));
-    domElement.addEventListener('pointerup', this.clickHandler.bind(this));
-    //$(domElement).on('mousedown', this.clickHandler.bind(this));
 
     this.pickPosition = { x: 0, y: 0 };
     this.clearPickPosition();
   }
 
   pointerDown(event) {
+    console.log("pointer down");
     this.clicked = true;
     this.dragged = false;
     this.mousedown = true;
@@ -81,6 +90,12 @@ class ObjectPicker {
 
   getCanvasRelativePosition(event) {
     const rect = this.domElement.getBoundingClientRect();
+
+    // Mobile handling.
+    if (event.touches) {
+      event = event.touches[0];
+    }
+
     return {
       x: (event.clientX - rect.left) * this.domElement.width / rect.width,
       y: (event.clientY - rect.top) * this.domElement.height / rect.height,
@@ -106,7 +121,7 @@ class ObjectPicker {
    * Set picked object, mark mouse moved.
    * @param {Event} event
    */
-  mouseMove(event) {
+  setPickPosition(event) {
     const pos = this.getCanvasRelativePosition(event);
     this.pickPosition.x = (pos.x / this.domElement.width) * 2 - 1;
     this.pickPosition.y = (pos.y / this.domElement.height) * -2 + 1;  // note we flip Y
@@ -122,41 +137,32 @@ class ObjectPicker {
     //console.log(this.pickPosition);
   }
 
-  pick(scene, camera, time) {
-
-    // restore the color if there is a picked object
-    if (this.pickedObject && this.pickedObject.material instanceof THREE.MeshPhongMaterial) {
-      // We put this here to handle the case the click comes in the middle of executing this fn.
-      if (this.clicked) {
-        this.pickedObject.material.emissive.setHex(0xFFFFFF);
-        this.pickedObject.clicked = true;
-        this.pickedObjectSavedColor = 0xFFFFFF;
-      }
-
-
-      this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
-      this.pickedObject = undefined;
-    }
-    this.clicked = false;
-
-
-    if (this.mousedown) {
-      //Reset any color changes if mouse down and don't do more picks.
-      if (this.pickedObject) {
-        this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
-      }
+  getEmissive(obj) {
+    if (!(obj.material instanceof THREE.MeshPhongMaterial)) {
       return;
     }
+    obj.material.emissive.getHex();
+  }
+
+  setEmissive(obj, color) {
+    if (!(obj.material instanceof THREE.MeshPhongMaterial)) {
+      return;
+    }
+    obj.material.emissive.setHex(color);
+  }
+
+  pick(scene, camera, time) {
+    // Store previous data for restoring color.
+    this.prevPicked = this.pickedObject;
+    this.prevColor = this.pickedObjectSavedColor;
 
     var normalizedPosition = this.pickPosition;
 
-
-    // cast a ray through the frustum
     this.raycaster.setFromCamera(normalizedPosition, camera);
-    // get the list of objects the ray intersected
     var intersectedObjects = this.raycaster.intersectObjects(scene.children);
+
     var max_jumps = -1;
-    handle_intersected: while (intersectedObjects.length && max_jumps !== 0) {
+    while (intersectedObjects.length && max_jumps !== 0) {
       // pick the first object. It's the closest one
       var pickedObject = intersectedObjects[0].object;
       if (pickedObject instanceof PortalMesh) {
@@ -164,27 +170,49 @@ class ObjectPicker {
         //this.raycaster.setFromCamera(intersectedObjects[0].uv, pickedObject.material.camera);
         intersectedObjects = this.raycaster.intersectObjects(pickedObject.material.scene.children);
         max_jumps--;
-        continue handle_intersected;
+      } else {
+        break;
       }
-
-      if (pickedObject && !pickedObject.clicked && pickedObject.material instanceof THREE.MeshPhongMaterial) {
-        // save its color
-        this.pickedObjectSavedColor = pickedObject.material.emissive.getHex();
-
-        // Set its emissive color to flashing red/yellow:
-
-        // Blink.
-        //pickedObject.material.emissive.setHex((time * 1000) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
-
-        // Smooth transition between red and orange.
-        pickedObject.material.emissive.setHex(0xFF0000 + ((((Math.cos(time * 2000) + 1) / 2) * 0xFF) << 8));
-        this.pickedObject = pickedObject;
-      }
-      break;
     }
 
+    // New valid picked object.
+    this.pickedObject = pickedObject;
+    if (pickedObject && !pickedObject.clicked) {
+      if (pickedObject !== this.prevPicked) {
+        this.pickedObjectSavedColor = this.getEmissive(pickedObject);
+      }
+
+      // Set its emissive color to flashing red/yellow:
+
+      // Blink.
+      //pickedObject.material.emissive.setHex((time * 1000) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
+
+      // Highlight on hover only.
+      if (!this.mousedown) {
+        // Smooth transition between red and orange.
+        this.setEmissive(pickedObject, (0xFF0000 + ((((Math.cos(time * 2000) + 1) / 2) * 0xFF) << 8)));
+      }
+    }
+
+    // Handle click events.
+    // We put this here to handle the case the click comes in the middle of executing this fn.
+
+    // If there's a click, set to white no matter what.
+    if (this.clicked && this.pickedObject) {
+      this.setEmissive(this.pickedObject, 0xFFFFFF);
+      this.pickedObject.clicked = true;
+      this.pickedObjectSavedColor = 0xFFFFFF;
+    }
+    this.clicked = false;
+
+    // No picked object, reset the color of the last touched item.
+    if (this.prevPicked && this.prevPicked !=  pickedObject && !this.prevPicked.clicked) {
+      this.setEmissive(this.prevPicked, this.prevColor);
+    }
   }
+
   clickHandler(e) {
+    console.log("pointer up");
     this.mousedown = false;
     //mouse is up, reset down position
     this.mousedownPosition = { x: -1, y: -1 };

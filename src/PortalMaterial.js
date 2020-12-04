@@ -49,6 +49,7 @@ class PortalMaterial extends THREE.ShaderMaterial {
     _renderer.getDrawingBufferSize(dims);
 
     let uniforms = {
+      "frozen": { value: false },
       "time": { value: 1.0 },
       "dim_x": { value: dims.x },
       "dim_y": { value: dims.y },
@@ -136,6 +137,7 @@ class PortalMaterial extends THREE.ShaderMaterial {
     var initial = this._renderer.getRenderTarget();
     this._renderer.setRenderTarget(this.buffer_texture);
     var dims = new THREE.Vector2();
+
     //this._renderer.getDrawingBufferSize(dims);
 
     //this._renderer.setSize(this.resolution_width, this.resolution_height);

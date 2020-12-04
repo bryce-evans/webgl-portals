@@ -114,8 +114,10 @@ class PortalMesh extends Mesh {
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
     if (window._FREEZE_ALL_PORTALS) {
+      this.material.uniforms["frozen"].value = true;
       return;
-    }
+    } 
+    this.material.uniforms["frozen"].value = false;
 
     this.update();
 

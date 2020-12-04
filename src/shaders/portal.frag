@@ -12,6 +12,9 @@ uniform sampler2D internalSceneTexture;
 uniform float dim_x;
 uniform float dim_y;
 
+varying vec2 vUv;
+uniform bool frozen;
+
 
 // Bilinear Interpolation.
 vec4 texture2DInterp( sampler2D sam, vec2 uv ) {
@@ -33,5 +36,9 @@ vec4 texture2DInterp( sampler2D sam, vec2 uv ) {
 
 
 void main() {
-    gl_FragColor = texture2DInterp(internalSceneTexture, gl_FragCoord.xy / vec2(dim_x, dim_y));
+    if (frozen){
+        gl_FragColor = texture2DInterp(internalSceneTexture, vUv);
+    } else {
+        gl_FragColor = texture2DInterp(internalSceneTexture, gl_FragCoord.xy / vec2(dim_x, dim_y));
+    }
 }

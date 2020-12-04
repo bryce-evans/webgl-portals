@@ -77,7 +77,6 @@ class ObjectPicker {
     this.dragged = false;
     this.mousedown = true;
     this.mousedownPosition = { x: event.clientX, y: event.clientY };
-    console.log(this.mousedownPosition);
   }
 
   getCanvasRelativePosition(event) {
@@ -108,14 +107,11 @@ class ObjectPicker {
    * @param {Event} event
    */
   mouseMove(event) {
-    console.log("mousemove");
-
     const pos = this.getCanvasRelativePosition(event);
-
     this.pickPosition.x = (pos.x / this.domElement.width) * 2 - 1;
     this.pickPosition.y = (pos.y / this.domElement.height) * -2 + 1;  // note we flip Y
-    //console.log(this.pickPosition);
   }
+
   clearPickPosition() {
     // unlike the mouse which always has a position
     // if the user stops touching the screen we want
@@ -132,7 +128,6 @@ class ObjectPicker {
     if (this.pickedObject) {
       // We put this here to handle the case the click comes in the middle of executing this fn.
       if (this.clicked) {
-        console.log(this.pickedObject.material.color);
         this.pickedObject.material.emissive.setHex(0xFFFFFF);
         this.pickedObject.clicked = true;
         this.pickedObjectSavedColor = 0xFFFFFF;
@@ -175,8 +170,9 @@ class ObjectPicker {
       if (pickedObject && !pickedObject.clicked) {
         // save its color
         this.pickedObjectSavedColor = pickedObject.material.emissive.getHex();
-        // set its emissive color to flashing red/yellow
-        console.log(((Math.cos(time * 1000) + 1) / 2) * 0xFF);
+
+        // Set its emissive color to flashing red/yellow:
+
         // Blink.
         //pickedObject.material.emissive.setHex((time * 1000) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
 

@@ -9,10 +9,51 @@
 	<script data-src="/src/shaders/portal.frag" type="x-shader/x-fragment" id="fragmentShader"></script>
 	<script type="module" src="js/PortalPickerDemo.js"></script>
 	<link rel="stylesheet" href="./css/demo_base.css">
+	<style>
+		.tooltip {
+			position: relative;
+			display: inline-block;
+			border-bottom: 1px dotted black;
+		}
+
+		.tooltip .tooltiptext {
+			visibility: hidden;
+			width: 120px;
+			background-color: black;
+			color: #fff;
+			text-align: center;
+			border-radius: 6px;
+			padding: 5px 0;
+			position: absolute;
+			z-index: 1;
+			top: -5px;
+			right: 110%;
+		}
+
+		.tooltip .tooltiptext::after {
+			content: " ";
+			position: absolute;
+			bottom: 100%;
+			/* At the top of the tooltip */
+			left: 50%;
+			margin-left: -5px;
+			border-width: 5px;
+			border-style: solid;
+			border-color: transparent transparent black transparent;
+		}
+
+		.tooltip:hover .tooltiptext {
+			visibility: visible;
+		}
+	</style>
 </head>
 
 <body>
-	<div id="info">Portal Picker Demo<br>Press &lt;space&gt; to show textures, F to freeze/unfreeze</div>
+	<div id="info">Portal Picker Demo<br>Press &lt;space&gt; to show textures, F to freeze/unfreeze <span
+			class="tooltip" style="font-weight: 900; font-style: italic;">(i)<span class="tooltiptext"
+				style="width: 600px; font-weight: 400; font-style: normal;">Draw the scene on the current UVs and don't
+				redraw again. Causes distortion due to a double affine correction (only correctable by using screen
+				coordinates, not UV coordinates).</span></span></div>
 	<div id="debug_uvs" style="display: none;"></div>
 
 	<script type="module">

@@ -59,31 +59,32 @@ class ObjectPicker {
 
     this.mousedownPosition = { x: -1, y: -1 };
     this.mousedown = false;
-    this.dragged = false;
+    this.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+    if (this.mobile) {
+      // Mobile.
+      domElement.addEventListener('touchstart', this.pointerDown.bind(this));
+      domElement.addEventListener('touchstart', this.setPickPosition.bind(this));
+      domElement.addEventListener('touchend', this.clickHandler.bind(this));
+      domElement.addEventListener('touchmove', this.touchMove.bind(this));
 
-    // Mobile.
-    domElement.addEventListener('touchstart', this.pointerDown.bind(this));
-    domElement.addEventListener('touchstart', this.setPickPosition.bind(this));
-    domElement.addEventListener('touchend', this.clickHandler.bind(this));
+    } else {
+      // Desktop.
+      domElement.addEventListener('pointerdown', this.pointerDown.bind(this));
+      domElement.addEventListener('pointerdown', this.pointerDown.bind(this));
+      domElement.addEventListener('pointerup', this.clickHandler.bind(this));
 
-    // Desktop.
-    domElement.addEventListener('pointerdown', this.pointerDown.bind(this));
-    domElement.addEventListener('pointerdown', this.pointerDown.bind(this));
-    domElement.addEventListener('pointerup', this.clickHandler.bind(this));
-
-    domElement.addEventListener('mousemove', this.setPickPosition.bind(this));
-    domElement.addEventListener('mouseout', this.clearPickPosition.bind(this));
-    domElement.addEventListener('mouseleave', this.clearPickPosition.bind(this));
+      domElement.addEventListener('mousemove', this.setPickPosition.bind(this));
+      domElement.addEventListener('mouseout', this.clearPickPosition.bind(this));
+      domElement.addEventListener('mouseleave', this.clearPickPosition.bind(this));
+    }
 
     this.pickPosition = { x: 0, y: 0 };
     this.clearPickPosition();
   }
 
   pointerDown(event) {
-    console.log("pointer down");
     this.clicked = true;
-    this.dragged = false;
     this.mousedown = true;
     this.mousedownPosition = { x: event.clientX, y: event.clientY };
   }
@@ -115,6 +116,9 @@ class ObjectPicker {
       console.log("dragged!");
       this.dragged = true;
     }
+  }
+
+  touchMove(event) {
   }
 
   /**
@@ -188,7 +192,7 @@ class ObjectPicker {
       //pickedObject.material.emissive.setHex((time * 1000) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
 
       // Highlight on hover only.
-      if (!this.mousedown) {
+      if (!this.mousedown && !this.mobile) {
         // Smooth transition between red and orange.
         this.setEmissive(pickedObject, (0xFF0000 + ((((Math.cos(time * 2000) + 1) / 2) * 0xFF) << 8)));
       }
@@ -206,13 +210,12 @@ class ObjectPicker {
     this.clicked = false;
 
     // No picked object, reset the color of the last touched item.
-    if (this.prevPicked && this.prevPicked !=  pickedObject && !this.prevPicked.clicked) {
+    if (this.prevPicked && this.prevPicked != pickedObject && !this.prevPicked.clicked) {
       this.setEmissive(this.prevPicked, this.prevColor);
     }
   }
 
   clickHandler(e) {
-    console.log("pointer up");
     this.mousedown = false;
     //mouse is up, reset down position
     this.mousedownPosition = { x: -1, y: -1 };

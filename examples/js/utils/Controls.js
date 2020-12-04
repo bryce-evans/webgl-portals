@@ -57,14 +57,27 @@ class ObjectPicker {
     this.pickedObject = null;
     this.pickedObjectSavedColor = 0;
 
-    domElement.addEventListener('mousemove', this.setPickPosition.bind(this));
+    this.mousedownPosition = { x: -1, y: -1 };
+    this.mousedown = false;
+    this.dragged = false;
+
+    domElement.addEventListener('pointerdown', this.pointerDown.bind(this));
+    domElement.addEventListener('mousemove', this.mouseMove.bind(this));
     domElement.addEventListener('mouseout', this.clearPickPosition.bind(this));
     domElement.addEventListener('mouseleave', this.clearPickPosition.bind(this));
-    domElement.addEventListener('click', this.clickHandler.bind(this));
+    domElement.addEventListener('pointerup', this.clickHandler.bind(this));
     //$(domElement).on('mousedown', this.clickHandler.bind(this));
 
     this.pickPosition = { x: 0, y: 0 };
     this.clearPickPosition();
+  }
+
+  pointerDown(event) {
+    this.clicked = true;
+    this.dragged = false;
+    this.mousedown = true;
+    this.mousedownPosition = { x: event.clientX, y: event.clientY };
+    console.log(this.mousedownPosition);
   }
 
   getCanvasRelativePosition(event) {
@@ -75,8 +88,30 @@ class ObjectPicker {
     };
   }
 
-  setPickPosition(event) {
+  /**
+   * Unused. TODO: fix this.
+   * @param {*} event
+   */
+  onDrag(event) {
+    console.log("mouse drag");
     const pos = this.getCanvasRelativePosition(event);
+    const del_x = pos.x - this.mousedownPosition.x;
+    const del_y = pos.y - this.mousedownPosition.y;
+    if (del_x * del_x + del_y * del_y > 10) {
+      console.log("dragged!");
+      this.dragged = true;
+    }
+  }
+
+  /**
+   * Set picked object, mark mouse moved.
+   * @param {Event} event
+   */
+  mouseMove(event) {
+    console.log("mousemove");
+
+    const pos = this.getCanvasRelativePosition(event);
+
     this.pickPosition.x = (pos.x / this.domElement.width) * 2 - 1;
     this.pickPosition.y = (pos.y / this.domElement.height) * -2 + 1;  // note we flip Y
     //console.log(this.pickPosition);
@@ -92,7 +127,6 @@ class ObjectPicker {
   }
 
   pick(scene, camera, time) {
-    var normalizedPosition = this.pickPosition;
 
     // restore the color if there is a picked object
     if (this.pickedObject) {
@@ -102,13 +136,25 @@ class ObjectPicker {
         this.pickedObject.material.emissive.setHex(0xFFFFFF);
         this.pickedObject.clicked = true;
         this.pickedObjectSavedColor = 0xFFFFFF;
-
-        this.clicked = false;
       }
+
 
       this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
       this.pickedObject = undefined;
     }
+    this.clicked = false;
+
+
+    if (this.mousedown) {
+      //Reset any color changes if mouse down and don't do more picks.
+      if (this.pickedObject) {
+        this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+      }
+      return;
+    }
+
+    var normalizedPosition = this.pickPosition;
+
 
     // cast a ray through the frustum
     this.raycaster.setFromCamera(normalizedPosition, camera);
@@ -126,11 +172,16 @@ class ObjectPicker {
         continue handle_intersected;
       }
 
-      if (!pickedObject.clicked) {
+      if (pickedObject && !pickedObject.clicked) {
         // save its color
         this.pickedObjectSavedColor = pickedObject.material.emissive.getHex();
         // set its emissive color to flashing red/yellow
-        pickedObject.material.emissive.setHex((time * 8) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
+        console.log(((Math.cos(time * 1000) + 1) / 2) * 0xFF);
+        // Blink.
+        //pickedObject.material.emissive.setHex((time * 1000) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
+
+        // Smooth transition between red and orange.
+        pickedObject.material.emissive.setHex(0xFF0000 + ((((Math.cos(time * 2000) + 1) / 2) * 0xFF) << 8));
         this.pickedObject = pickedObject;
       }
       break;
@@ -138,7 +189,9 @@ class ObjectPicker {
 
   }
   clickHandler(e) {
-    this.clicked = true;
+    this.mousedown = false;
+    //mouse is up, reset down position
+    this.mousedownPosition = { x: -1, y: -1 };
   }
 }
 

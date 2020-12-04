@@ -21,7 +21,7 @@ class PortalPickerDemo {
     scene.add(new THREE.DirectionalLight(0xffffff, 1));
     this.scene = scene;
 
-    var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, .1, 100);
+    var camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
     camera.position.set(11, 11, 11);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     this.camera = camera;
@@ -76,7 +76,7 @@ class PortalPickerDemo {
         });
 
         const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(rand(-5, 5), rand(-5, 5), rand(-2, -10));
+        cube.position.set(rand(-10, 10), rand(-10, 10), rand(-2, -20));
         cube.rotation.set(rand(Math.PI), rand(Math.PI), 0);
         cube.scale.set(rand(1, 3), rand(1, 3), rand(1, 3));
         miniscene.add(cube);
@@ -84,10 +84,19 @@ class PortalPickerDemo {
       cube_scenes.push(miniscene);
     }
 
-    var portal_geo = new THREE.PlaneGeometry(10, 10, 1);
+    var portal_geo = new THREE.CircleGeometry(5, 64);
+    portal_geo.scale(1, 2, 1);
     var portal_mat = new PortalMaterial(cube_scenes[2], camera, this.renderer);
     this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 256, debug_width: 256 });
     scene.add(this.portal);
+
+    var ring_geo = new THREE.RingGeometry(4.9, 5, 128);
+    ring_geo.scale(1, 2, 1);
+    var ring_mat = new THREE.MeshBasicMaterial({ color: 0xff8800, side: THREE.DoubleSide });
+    var ring = new THREE.Mesh(ring_geo, ring_mat);
+    // prevent z-fighting.
+    ring.position.set(0, 0, 0.001);
+    scene.add(ring);
 
     if (show_uv_debug) {
       this.portal.renderDebugUVs(true);

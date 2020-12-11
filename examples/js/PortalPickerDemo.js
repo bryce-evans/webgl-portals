@@ -116,13 +116,18 @@ class PortalPickerDemo {
     var obj_picker = this.obj_picker;
     var time = 0.0;
     function render_loop() {
+      window.PORTAL_STATS.begin()
+
       time += 0.0001;
       controls.update();
-      requestAnimationFrame(render_loop)
 
       portal.onBeforeRender();
       obj_picker.pick(scene, camera, time);
       renderer.render(scene, camera);
+      
+      window.PORTAL_STATS.end();
+
+      requestAnimationFrame(render_loop)
     }
     render_loop();
   }

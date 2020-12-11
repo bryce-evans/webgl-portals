@@ -8,6 +8,13 @@ const ShaderType = {
     FRAGMENT: "fragment",
 }
 
+const StatsDisplay = {
+    FPS: 0,
+    MS: 1,
+    MB: 2,
+  }
+
+  
 class Utils {
     static genId() {
         Math.random().toString(36).substring(7);
@@ -73,4 +80,4 @@ class Utils {
 
 }
 
-export { Utils }
+export { Utils, StatsDisplay }

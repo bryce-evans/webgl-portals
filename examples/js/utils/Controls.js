@@ -7,6 +7,7 @@
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 import { PortalMesh } from '/src/PortalMesh.js';
 
+
 class Controls {
   constructor(camera, renderer) {
     this.orbit_controls = new OrbitControls(camera, renderer.domElement);

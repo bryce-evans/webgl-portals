@@ -5,9 +5,9 @@
 	<title>WebGL Portals | Portal Picker Demo</title>
 	<script type="text/javascript" src="/modules/jquery/build/jquery-3.5.1.min.js"></script>
 	<script type="text/javascript" src="/modules/three.js/build/three.js"></script>
+	<script src="/modules/stats.js/build/stats.min.js"></script>
 	<script data-src="/src/shaders/portal.vertex" type="x-shader/x-vertex" id="vertexShader"></script>
 	<script data-src="/src/shaders/portal.frag" type="x-shader/x-fragment" id="fragmentShader"></script>
-	<script type="module" src="js/PortalPickerDemo.js"></script>
 	<link rel="stylesheet" href="./css/demo_base.css">
 	<style>
 		.tooltip {
@@ -57,12 +57,15 @@
 	<div id="debug_uvs" style="display: none;"></div>
 
 	<script type="module">
-		import { Utils } from '/examples/js/utils/Utils.js';
+		import { Utils, StatsDisplay } from '/examples/js/utils/Utils.js';
 		import { PortalPickerDemo } from '/examples/js/PortalPickerDemo.js';
-
 
 		$(document).ready(function () {
 			Utils.loadShaders(function () {
+				window.PORTAL_STATS = new Stats();
+				window.PORTAL_STATS.showPanel( StatsDisplay.FPS );
+				document.body.appendChild( window.PORTAL_STATS.dom );
+
 				var page = new PortalPickerDemo();
 				page.render();
 			});

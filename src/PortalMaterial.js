@@ -96,24 +96,23 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
   update() {
   }
 
-  overrideMapFrag(fragmentShader, renderer) {
-
+  /**
+   * @override
+   * Removes affine correction (already applied when rendering internal portal scene).
+   */
+  onBeforeCompile(shader, renderer) {
     let dims = new THREE.Vector2();
     renderer.getDrawingBufferSize(dims);
     renderer.setPixelRatio(window.devicePixelRatio);
 
-    // remove affine correction.
-    fragmentShader =
-      fragmentShader.replace(
+    // TODO: Input dimensions as uniforms for screen resizing.
+    shader.fragmentShader =
+    shader.fragmentShader.replace(
         '#include <map_fragment>',
-        `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) );  texelColor = mapTexelToLinear( texelColor ); diffuseColor *= texelColor;`
+        `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) ); \
+        texelColor = mapTexelToLinear( texelColor ); \
+        diffuseColor *= texelColor;`
       );
-
-    return fragmentShader;
-  }
-
-  onBeforeCompile(shader, renderer) {
-    shader.fragmentShader = this.overrideMapFrag(shader.fragmentShader, renderer);
   }
 
   /**

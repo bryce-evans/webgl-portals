@@ -4,7 +4,7 @@
  */
 
 
-import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '/modules/three.js/examples/jsm/controls/OrbitControls.js';
 import { PortalMesh } from '/src/PortalMesh.js';
 
 

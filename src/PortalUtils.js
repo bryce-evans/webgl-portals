@@ -2,6 +2,9 @@
  * A set of geometry utilies.
  */
 
+import { PortalMesh } from "/src/PortalMesh.js";
+import { PortalMaterial } from "/src/PortalMaterial.js";
+
 class PortalUtils {
     static genId() {
         Math.random().toString(36).substring(7);
@@ -57,7 +60,37 @@ class PortalUtils {
         debugger;
         return geometries[0];
     }
-    
+
+    /**
+     * Adds a bidirectional portal to each scene. 
+     * scene1 can be equivalent to scene2 (for a portal from one position in the scene to another).
+     * @param {THREE.Geometry} p_geo: geometry to use for the portal. Should be planar.
+     * @param {THREE.Scene} scene1
+     * @param {THREE.Vector3} pos1: Position in the scene to place the geometry 
+     * @param {THREE.Scene} scene2 
+     * @param {THREE.Vector3} pos2: Position in the scene to place the geometry 
+     * @param {THREE.Camera} camera 
+     */
+    static AddBiDiPortal(p_geo, scene1, pos1, scene2, pos2, camera, renderer) {
+        var clip1 = new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ));
+        var p_mat1 = new PortalMaterial(scene2, camera, renderer, {clipping_plane: clip1});
+        var p_mesh1 = new PortalMesh(p_geo, p_mat1);
+        p_mesh1.is_planar = true;
+        pmesh1.position = pos1;
+
+        var clip2 = new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ));
+        var p_mat2 = new PortalMaterial(scene1, camera, renderer, {clipping_plane: clip2});
+        var p_mesh2 = new PortalMesh(p_geo, p_mat2);
+        p_mesh2.is_planar = true;
+        p_mesh2.position = pos2;
+
+        p_mesh1.linkTwin(p_mesh2);
+        p_mesh2.linkTwin(p_mesh1);
+
+        scene1.add(pmesh1);
+        scene2.add(p_mesh2);
+    }
+
 }
 
 export { PortalUtils }

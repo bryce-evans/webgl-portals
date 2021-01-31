@@ -19,7 +19,7 @@
  * resolution_height: int
  *      Height and width resolution of the render. Should usually be the same as the main window.
  */
-class PortalMaterial extends THREE.ShaderMaterial {
+class PortalMaterial extends THREE.MeshBasicMaterial {
   constructor(scene, camera, renderer, options = {}) {
     console.assert(scene instanceof THREE.Scene, "scene is not instance of THREE.Scene.");
     console.assert(camera instanceof THREE.Camera, "camera is not instance of THREE.Camera");
@@ -27,6 +27,7 @@ class PortalMaterial extends THREE.ShaderMaterial {
 
     let name = options.name || "";
 
+    super();
     // TODO: load shaders from file.
     // var loader = new THREE.FileLoader();
     // loader.load('shaders/portal.frag',function ( data ) {fShader =  data;},);
@@ -41,29 +42,17 @@ class PortalMaterial extends THREE.ShaderMaterial {
     buffer_texture.name = name;
     buffer_texture.texture.image.name = name;
 
+    let alpha_buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
+    alpha_buffer_texture.name = name;
+    alpha_buffer_texture.texture.image.name = name;
+
     let dims = new THREE.Vector2();
     renderer.getDrawingBufferSize(dims);
     renderer.setPixelRatio(window.devicePixelRatio);
-
-    let uniforms = {
-      "frozen": { value: false },
-      "time": { value: 1.0 },
-      "dim_x": { value: dims.x },
-      "dim_y": { value: dims.y },
-      "internalSceneTexture": { value: buffer_texture.texture },
-      "textureSize": { value: new THREE.Vector2(buffer_texture.texture.image.width, buffer_texture.texture.image.height) },
-    };
-
-    super({
-      uniforms: uniforms,
-      vertexShader: document.getElementById('vertexShader').textContent,
-      fragmentShader: document.getElementById('fragmentShader').textContent,
-      name: name,
-    });
+    renderer.alpha = true;
 
     this.name = name;
     this.clock = clock;
-    this.uniforms = uniforms;
 
     this.scene = scene;
     this.camera = camera;
@@ -80,6 +69,9 @@ class PortalMaterial extends THREE.ShaderMaterial {
 
     // @super member variables
     this.map = this.buffer_texture.texture;
+    this.alphaMap = alpha_buffer_texture.texture
+    this.clippingPlanes = options.clipping_plane ? [options.clipping_plane] : [];
+    this.clipShadows = options.clip_shadows | false;
 
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
   }
@@ -87,9 +79,6 @@ class PortalMaterial extends THREE.ShaderMaterial {
   onWindowResize() {
     let dims = new THREE.Vector2();
     this.renderer.getDrawingBufferSize(dims);
-
-    this.uniforms["dim_x"].value = dims.x;
-    this.uniforms["dim_y"].value = dims.y;
   }
 
   getScene() {
@@ -105,8 +94,26 @@ class PortalMaterial extends THREE.ShaderMaterial {
   }
 
   update() {
-    const delta = this.clock.getDelta();
-    this.uniforms["time"].value += delta * 5;
+  }
+
+  overrideMapFrag(fragmentShader, renderer) {
+
+    let dims = new THREE.Vector2();
+    renderer.getDrawingBufferSize(dims);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // remove affine correction.
+    fragmentShader =
+      fragmentShader.replace(
+        '#include <map_fragment>',
+        `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) );  texelColor = mapTexelToLinear( texelColor ); diffuseColor *= texelColor;`
+      );
+
+    return fragmentShader;
+  }
+
+  onBeforeCompile(shader, renderer) {
+    shader.fragmentShader = this.overrideMapFrag(shader.fragmentShader, renderer);
   }
 
   /**
@@ -132,7 +139,7 @@ class PortalMaterial extends THREE.ShaderMaterial {
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
     var initial = this.renderer.getRenderTarget();
     this.renderer.setRenderTarget(this.buffer_texture);
-    var dims = new THREE.Vector2();
+    this.alphaMap = this.buffer_texture;
 
     //this.renderer.getDrawingBufferSize(dims);
 

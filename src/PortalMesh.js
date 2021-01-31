@@ -1,6 +1,5 @@
 import { Mesh } from '/modules/three.js/src/objects/Mesh.js';
 import { PortalMaterial } from './PortalMaterial.js';
-import { PortalSimpleMaterial } from './PortalSimpleMaterial.js';
 
 
 class PortalMesh extends Mesh {
@@ -25,7 +24,7 @@ class PortalMesh extends Mesh {
      */
 
     console.assert(geometry instanceof THREE.Geometry, "geometry is not an instance of THREE.Geometry");
-    console.assert(portal_material instanceof PortalMaterial || portal_material instanceof PortalSimpleMaterial, "portal_material is not an instance of PortalMaterial");
+    console.assert(portal_material instanceof PortalMaterial, "portal_material is not an instance of PortalMaterial");
 
     super(geometry, portal_material);
 
@@ -43,6 +42,9 @@ class PortalMesh extends Mesh {
 
     // A wireframe showing the geometry.
     this.wire = null;
+
+    // TODO: compute this properly.
+    this.is_planar = false;
   }
 
   wireGeometry() {
@@ -75,8 +77,12 @@ class PortalMesh extends Mesh {
     return this.portal_material.getBufferImage();
   }
 
+  linkTwin(twin_p_mesh) {
+    this.twin = twin_p_mesh;
+  }
+
   /**
-   * Returns true if any face is visible. Used in optimization.
+   * Returns true if any face is visible. Used for optimization.
    */
   isVisible() {
     // TODO: implement.
@@ -91,7 +97,7 @@ class PortalMesh extends Mesh {
    */
   isPlanar() {
     console.warn("isPlanar not implemented.");
-    return false;
+    return this.is_planar;
   }
 
   /**
@@ -114,15 +120,16 @@ class PortalMesh extends Mesh {
    *    The group this portal belongs to (if any).
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
-    if (window._FREEZE_ALL_PORTALS) {
-      if (this.material instanceof PortalMaterial) {
-        this.material.uniforms["frozen"].value = true;
-      }
-      return;
-    }
-    if (this.material instanceof PortalMaterial) {
-      this.material.uniforms["frozen"].value = false;
-    }
+    // TODO: disabled temporarily.
+    // if (window._FREEZE_ALL_PORTALS) {
+    //   if (this.material instanceof PortalMaterial) {
+    //     this.material.uniforms["frozen"].value = true;
+    //   }
+    //   return;
+    // }
+    // if (this.material instanceof PortalMaterial) {
+    //   this.material.uniforms["frozen"].value = false;
+    // }
 
     this.update();
 

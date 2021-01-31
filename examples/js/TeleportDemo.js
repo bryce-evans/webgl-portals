@@ -4,13 +4,13 @@ import { PortalMesh } from '/src/PortalMesh.js';
 import { PortalSimpleMaterial } from '/src/PortalSimpleMaterial.js';
 
 
-class PortalPickerDemo {
+class TeleportDemo {
   constructor() {
     var show_uv_debug = true;
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true});
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setClearColor(0x222222, 0);
-    this.renderer.setPixelRatio( window.devicePixelRatio );
+    this.renderer.setPixelRatio(window.devicePixelRatio);
     var width = window.innerWidth;
     var height = window.innerHeight;
     this.renderer.setSize(width, height);
@@ -54,7 +54,7 @@ class PortalPickerDemo {
       return `hsl(180, 0%, ${rand(min_lum, max_lum) | 0}%)`;
     }
 
-    for (let i = 0; i < 20; ++i) {
+    for (let i = 0; i < 10; ++i) {
       const material = new THREE.MeshPhongMaterial({
         color: randomGray(20, 60),
       });
@@ -66,24 +66,20 @@ class PortalPickerDemo {
       scene.add(cube);
     }
 
-    var cube_scenes = [];
-    for (var i = 0; i < CubePortalLayout.maxScenes(); i++) {
-      var miniscene = new THREE.Scene();
-      miniscene.add(new THREE.AmbientLight(0x888888));
-      miniscene.add(new THREE.DirectionalLight(0xffffff, 1));
-      const numObjects = 50;
-      for (let j = 0; j < numObjects; ++j) {
-        const material = new THREE.MeshPhongMaterial({
-          color: randomColor(i * 80, i * 80 + 30),
-        });
+    var innerscene = new THREE.Scene();
+    innerscene.add(new THREE.AmbientLight(0x888888));
+    innerscene.add(new THREE.DirectionalLight(0xffffff, 1));
+    const numObjects = 20;
+    for (let j = 0; j < numObjects; ++j) {
+      const material = new THREE.MeshPhongMaterial({
+        color: randomColor(160, 160 + 30),
+      });
 
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(rand(-10, 10), rand(-10, 10), rand(-2, -20));
-        cube.rotation.set(rand(Math.PI), rand(Math.PI), 0);
-        cube.scale.set(rand(1, 3), rand(1, 3), rand(1, 3));
-        miniscene.add(cube);
-      }
-      cube_scenes.push(miniscene);
+      const cube = new THREE.Mesh(geometry, material);
+      cube.position.set(rand(-20, 20), rand(-20, 20), rand(-2, -40));
+      cube.rotation.set(rand(Math.PI), rand(Math.PI), 0);
+      cube.scale.set(rand(1, 3), rand(1, 3), rand(1, 3));
+      innerscene.add(cube);
     }
 
     // Separate renderers don't work?...
@@ -91,9 +87,11 @@ class PortalPickerDemo {
     // portal_renderer.setSize(width , height);
     // portal_renderer.setPixelRatio( window.devicePixelRatio );
 
-    var portal_geo = new THREE.SphereGeometry( 5, 32, 32, 0, Math.PI, 0, Math.PI );
+    var portal_geo = new THREE.CircleGeometry(5, 64);
+    // Testing non-planar geometry.
+    // new THREE.SphereGeometry( 5, 32, 32, 0, Math.PI, 0, Math.PI );
     portal_geo.scale(1, 2, 1);
-    var portal_mat = new PortalSimpleMaterial(cube_scenes[2], camera, this.renderer);
+    var portal_mat = new PortalSimpleMaterial(innerscene, camera, this.renderer);
     this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 256, debug_width: 256 });
     scene.add(this.portal);
 
@@ -130,4 +128,4 @@ class PortalPickerDemo {
   }
 }
 
-export { PortalPickerDemo }
+export { TeleportDemo }

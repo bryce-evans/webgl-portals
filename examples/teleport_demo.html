@@ -7,7 +7,7 @@
 	<script type="text/javascript" src="/modules/three.js/build/three.js"></script>
 	<script data-src="/src/shaders/portal.vertex" type="x-shader/x-vertex" id="vertexShader"></script>
 	<script data-src="/src/shaders/portal.frag" type="x-shader/x-fragment" id="fragmentShader"></script>
-	<script type="module" src="js/PortalPickerDemo.js"></script>
+	<script type="module" src="js/TeleportDemo.js"></script>
 	<link rel="stylesheet" href="./css/demo_base.css">
 	<style>
 		.tooltip {
@@ -58,12 +58,12 @@
 
 	<script type="module">
 		import { Utils } from '/examples/js/utils/Utils.js';
-		import { PortalPickerDemo } from '/examples/js/TeleportExample.js';
+		import { TeleportDemo } from '/examples/js/TeleportDemo.js';
 
 
 		$(document).ready(function () {
 			Utils.loadShaders(function () {
-				var page = new PortalPickerDemo();
+				var page = new TeleportDemo();
 				page.render();
 			});
 		});

@@ -57,6 +57,7 @@ class PortalUtils {
     /** Merges a list of geometries into a single Geometry object.
      */
     static mergeGeometries(geometries) {
+        console.warn("Not implemented.");
         debugger;
         return geometries[0];
     }
@@ -72,25 +73,33 @@ class PortalUtils {
      * @param {THREE.Camera} camera 
      */
     static AddBiDiPortal(p_geo, scene1, pos1, scene2, pos2, camera, renderer) {
-        var clip1 = new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ));
+        var clip1 = new THREE.Plane( new THREE.Vector3( 0, -1, 0 ));
         var p_mat1 = new PortalMaterial(scene2, camera, renderer, {clipping_plane: clip1});
         var p_mesh1 = new PortalMesh(p_geo, p_mat1);
         p_mesh1.is_planar = true;
-        pmesh1.position = pos1;
+        p_mesh1.position.set(pos1);
 
-        var clip2 = new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ));
+        var clip2 = new THREE.Plane( new THREE.Vector3( 0, -1, 0 ));
         var p_mat2 = new PortalMaterial(scene1, camera, renderer, {clipping_plane: clip2});
         var p_mesh2 = new PortalMesh(p_geo, p_mat2);
         p_mesh2.is_planar = true;
-        p_mesh2.position = pos2;
+        p_mesh2.position.set(pos2);
 
         p_mesh1.linkTwin(p_mesh2);
         p_mesh2.linkTwin(p_mesh1);
 
-        scene1.add(pmesh1);
+        scene1.add(p_mesh1);
         scene2.add(p_mesh2);
+
+        return [p_mesh1, p_mesh2];
     }
 
+    /**
+     * Links an object between two scenes, adding it to both relative to the portals so crossing between them is seemless.
+     */
+    static LinkMeshBetweenScenes(mesh, incoming_scene, incoming_portal, outgoing_scene, outgoing_portal) {
+
+    }
 }
 
 export { PortalUtils }

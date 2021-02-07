@@ -1,0 +1,31 @@
+<!DOCTYPE>
+<html>
+
+<head>
+	<title>WebGL Portals | Clipping Planes Test</title>
+	<script type="text/javascript" src="/modules/jquery/build/jquery-3.5.1.min.js"></script>
+	<script type="text/javascript" src="/modules/three.js/build/three.js"></script>
+	<script data-src="/src/shaders/portal.vertex" type="x-shader/x-vertex" id="vertexShader"></script>
+	<script data-src="/src/shaders/portal.frag" type="x-shader/x-fragment" id="fragmentShader"></script>
+	<link rel="stylesheet" href="./css/demo_base.css">
+</head>
+
+<body>
+	<div id="info">Clipping Planes Test<br>Press &lt;space&gt; to show textures, F to freeze/unfreeze</div>
+	<div id="debug_uvs" style="display: none;"></div>
+
+	<script type="module">
+		import { Utils } from '/examples/js/utils/Utils.js';
+		import { ClippingPlanesDemo } from '/examples/js/ClippingPlanesDemo.js';
+
+
+		$(document).ready(function () {
+			Utils.loadShaders(function () {
+				var page = new ClippingPlanesDemo();
+				page.render();
+			});
+		});
+	</script>
+</body>
+
+</html>

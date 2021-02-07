@@ -96,14 +96,30 @@ class PortalMesh extends Mesh {
    * Allows for optimizations in rendering.
    */
   isPlanar() {
-    console.warn("isPlanar not implemented.");
+    // TODO: Allow this to be computed instead of manually set.
     return this.is_planar;
+  }
+
+  getClippingPlane() {
+    if (!this.isPlanar) {
+      console.warn("Generating single clipping plane for non-planar geometry.")
+    }
+    let tri = this.geometry.faces[0];
+    let verts = this.geometry.vertices;
+    let pts = [verts[tri.a], verts[tri.b], verts[tri.c]];
+    let a = new THREE.Vector3(pts[0].x, pts[0].y, pts[0].z);
+    let b = new THREE.Vector3(pts[1].x, pts[1].y, pts[1].z);
+    let c = new THREE.Vector3(pts[2].x, pts[2].y, pts[2].z);
+    let ab = b.sub(a);
+    let ac = c.sub(a);
+    let cross = ab.cross(ac).normalize();
+    return new THREE.Plane(cross, -(a.x * cross.x + a.y * cross.y + a.z * cross.z));
   }
 
   /**
    * Render the internal portal scene to this Mesh.
    * This function is called implicitly by THREE.js.
-   * It should be noted that the input args here are the args of the full scene,
+   * Input args are for the full scene,
    *  **not** the args to the portal scene we are renderering.
    * 
    * @param {THREE.WebGLRenderer} renderer
@@ -182,6 +198,10 @@ class PortalMesh extends Mesh {
     this.geometry.uvsNeedUpdate = true;
   }
 
+  /**
+   * Draws a 2D triangle on a canvas.
+   * Used in debugging portal UVs.
+   */
   _drawTriangle(canvas, a, b, c) {
     if (!canvas.getContext) {
       console.error("cannot get context for ", canvas);

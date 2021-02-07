@@ -54,6 +54,9 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     this.name = name;
     this.clock = clock;
 
+    this.max_depth = 1;
+    this.depth_remaining = this.max_depth;
+
     this.scene = scene;
     this.camera = camera;
     this.renderer = renderer;
@@ -107,7 +110,7 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
 
     // TODO: Input dimensions as uniforms for screen resizing.
     shader.fragmentShader =
-    shader.fragmentShader.replace(
+      shader.fragmentShader.replace(
         '#include <map_fragment>',
         `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) ); \
         texelColor = mapTexelToLinear( texelColor ); \
@@ -136,6 +139,13 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
    *    The group this portal belongs to (if any).
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
+    if (scene) {
+      if (scene.max_depth < 0) {
+        return;
+      }
+      scene.max_depth--;
+    }
+
     var initial = this.renderer.getRenderTarget();
     this.renderer.setRenderTarget(this.buffer_texture);
     this.alphaMap = this.buffer_texture;
@@ -144,6 +154,9 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
 
     //this.renderer.setSize(this.resolution_width, this.resolution_height);
 
+    if (!this.scene.max_depth) {
+      this.scene.max_depth = this.max_depth - 1;
+    }
     this.renderer.render(this.scene, this.camera);
     this.buffer_texture.texture.needsUpdate = false;
 

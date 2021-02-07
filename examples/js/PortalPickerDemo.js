@@ -82,13 +82,13 @@ class PortalPickerDemo {
 
     // Separate renderers don't work?...
     // var portal_renderer = new THREE.WebGLRenderer({ antialias: true });
-    // portal_renderer.setSize(width , height);
+    // portal_renderer.setSize(32,32);
     // portal_renderer.setPixelRatio( window.devicePixelRatio );
 
     var portal_geo = new THREE.CircleGeometry(5, 64);
     portal_geo.scale(1, 2, 1);
     var portal_mat = new PortalMaterial(innerscene, camera, this.renderer);
-    this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 256, debug_width: 256 });
+    this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 32, debug_width: 32 });
     scene.add(this.portal);
 
     var ring_geo = new THREE.RingGeometry(4.9, 5, 128);

@@ -43,12 +43,15 @@ class ClippingPlanesDemo {
     var portal_geo = new THREE.CircleGeometry(5, 64);
     portal_geo.scale(5, 5, 1);
     portal_geo.rotateX(portal_rot);
+    portal_geo.translate(0,0, 10);
     var portal_mat = new PortalMaterial(this.inner_scene, camera, this.renderer);
-    this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 32, debug_width: 32 });
+    this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 256, debug_width: 256 });
+    this.portal.renderDebugUVs(true);
 
     var ring_geo = new THREE.RingGeometry(4.9, 5, 128);
     ring_geo.scale(5, 5, 1);
     ring_geo.rotateX(portal_rot);
+    ring_geo.translate(0,0,10);
     var ring_mat = new THREE.MeshBasicMaterial({ color: 0xff8800, side: THREE.DoubleSide });
     var ring = new THREE.Mesh(ring_geo, ring_mat);
     // prevent z-fighting.
@@ -60,45 +63,69 @@ class ClippingPlanesDemo {
 
     const material = new THREE.MeshPhongMaterial({ color: 0x00ffff, clipShadows: true, clippingPlanes: [clip_plane] });
     const torusKnot = new THREE.Mesh(geometry, material);
+    torusKnot.position.z = 10;
     this.scene.add(torusKnot);
 
     const geometry2 = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
     const material2 = new THREE.MeshPhongMaterial({ color: 0x00ffff });
     const torusKnot2 = new THREE.Mesh(geometry2, material2);
+    torusKnot2.position.z = 10;
     this.inner_scene.add(torusKnot2);
 
     /// Add them all again
 
-    // portal_geo = new THREE.CircleGeometry(5, 64);
-    // portal_geo.scale(5, 5, 1);
-    // portal_geo.rotateX(Math.PI - portal_rot);
-    // portal_mat = new PortalMaterial(this.inner_scene, camera, this.renderer);
-    // this.portal2 = new PortalMesh(portal_geo, portal_mat, { debug_height: 32, debug_width: 32 });
+    var inner_scene2 = new THREE.Scene();
+    inner_scene2.add(new THREE.AmbientLight(0x444444));
+    var light3 = new THREE.DirectionalLight(0xffffff);
+    light3.position.set(0, 1, 1).normalize();
+    inner_scene2.add(light3);
+    this.inner_scene2 = inner_scene2;
 
-    // ring_geo = new THREE.RingGeometry(4.9, 5, 128);
-    // ring_geo.scale(5, 5, 1);
-    // ring_geo.rotateX(portal_rot);
-    // ring_mat = new THREE.MeshBasicMaterial({ color: 0x0088ff, side: THREE.DoubleSide });
-    // ring = new THREE.Mesh(ring_geo, ring_mat);
-    // // prevent z-fighting.
-    // ring.position.set(0, 0, 0.01);
-    // this.scene.add(ring);
+    portal_geo = new THREE.CircleGeometry(5, 64);
+    portal_geo.scale(5, 5, 1);
+    portal_geo.rotateX(Math.PI + portal_rot);
+    portal_geo.translate(0,0,-20);
+    portal_mat = new PortalMaterial(this.inner_scene, camera, this.renderer);
+    this.portal2 = new PortalMesh(portal_geo, portal_mat, { debug_height: 256, debug_width: 256 });
+    this.portal2.renderDebugUVs(true);
 
-    // clip_plane = this.portal2.getClippingPlane();
+    ring_geo = new THREE.RingGeometry(4.9, 5, 128);
+    ring_geo.scale(5, 5, 1);
+    ring_geo.rotateX(Math.PI + portal_rot);
+    ring_geo.translate(0,0,-20);
+    ring_mat = new THREE.MeshBasicMaterial({ color: 0x0088ff, side: THREE.DoubleSide });
+    ring = new THREE.Mesh(ring_geo, ring_mat);
+    // prevent z-fighting.
+    ring.position.set(0, 0, 0.01);
+    this.scene.add(ring);
 
-    // const material2 = new THREE.MeshPhongMaterial({ color: 0x00ffff, clipShadows: true, clippingPlanes: [clip_plane] });
-    // const torusKnot2 = new THREE.Mesh(geometry, material);
-    // this.scene.add(torusKnot);
+    let clip_plane2 = this.portal2.getClippingPlane();
 
-    // const geometry2 = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
-    // const material2 = new THREE.MeshPhongMaterial({ color: 0x00ffff });
-    // const torusKnot2 = new THREE.Mesh(geometry2, material2);
-    // this.inner_scene.add(torusKnot2);
+    const geometry3 = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
+    // geometry3.translate(0,0,-20);
+    const material3 = new THREE.MeshPhongMaterial({ color: 0x00ffff, clipShadows: true, clippingPlanes: [clip_plane2] });
+    const torusKnot3 = new THREE.Mesh(geometry3, material3);
+    torusKnot3.position.set(0,0,-20);
+    // this.moving = torusKnot3;
+    this.scene.add(torusKnot3);
+
+
+    var geometry4 = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
+    var material4 = new THREE.MeshPhongMaterial({ color: 0xffff00 });
+    var torusKnot4 = new THREE.Mesh(geometry4, material4);
+    torusKnot4.position.set(0,0,-20);
+    this.inner_scene.add(torusKnot4);
+
+    geometry4 = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
+    material4 = new THREE.MeshPhongMaterial({ color: 0xffff00 });
+    torusKnot4 = new THREE.Mesh(geometry4, material4);
+    torusKnot4.position.set(0,0,-20);
+    inner_scene2.add(torusKnot4);
 
     //////
 
-    const Empty = Object.freeze([]);
-    this.renderer.clippingPlanes = Empty; // GUI sets it to globalPlanes
+    //const Empty = Object.freeze([]);
+    //this.renderer.clippingPlanes = Empty; // GUI sets it to globalPlanes
     this.renderer.localClippingEnabled = true;
 
 
@@ -112,9 +139,13 @@ class ClippingPlanesDemo {
     var controls = this.controls;
     var scene = this.scene;
     var portal = this.portal;
+    var moving = this.moving;
     function render_loop() {
       controls.update();
       requestAnimationFrame(render_loop)
+
+      // moving.position.z -= 0.05;
+
 
       portal.onBeforeRender();
 

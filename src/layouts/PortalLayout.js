@@ -37,7 +37,7 @@ class PortalLayout extends THREE.Group {
 
         } else if (geometries instanceof THREE.Geometry) {
             for (var i = 0; i < scenes.length; i++) {
-                var portal_mat = new PortalSimpleMaterial(scenes[i], renderer, camera);
+                var portal_mat = new PortalMaterial(scenes[i], renderer, camera);
                 this.portal_materials.push(portal_mat);
             }
             var portal = new PortalMesh(geometries, this.portal_materials);

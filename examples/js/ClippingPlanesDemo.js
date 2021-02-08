@@ -15,19 +15,19 @@ class ClippingPlanesDemo {
     this.renderer.setSize(width, height);
     document.body.appendChild(this.renderer.domElement);
 
-    var incoming_scene = new THREE.Scene();
-    incoming_scene.add(new THREE.AmbientLight(0x444444));
+    var main_scene = new THREE.Scene();
+    main_scene.add(new THREE.AmbientLight(0x444444));
     var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 1, 1).normalize();
-    incoming_scene.add(light);
-    this.scene = incoming_scene;
+    main_scene.add(light);
+    this.scene = main_scene;
 
-    var outgoing_scene = new THREE.Scene();
-    outgoing_scene.add(new THREE.AmbientLight(0x444444));
+    var inner_orange_scene = new THREE.Scene();
+    inner_orange_scene.add(new THREE.AmbientLight(0x444444));
     var light2 = new THREE.DirectionalLight(0xffffff);
     light2.position.set(0, 1, 1).normalize();
-    outgoing_scene.add(light2);
-    this.inner_scene = outgoing_scene;
+    inner_orange_scene.add(light2);
+    this.inner_orange_scene = inner_orange_scene;
 
     var camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
 
@@ -44,7 +44,7 @@ class ClippingPlanesDemo {
     portal_geo.scale(5, 5, 1);
     portal_geo.rotateX(portal_rot);
     portal_geo.translate(0,0, 10);
-    var portal_mat = new PortalMaterial(this.inner_scene, camera, this.renderer);
+    var portal_mat = new PortalMaterial(this.inner_orange_scene, camera, this.renderer);
     this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 256, debug_width: 256 });
     this.portal.renderDebugUVs(true);
 
@@ -61,31 +61,33 @@ class ClippingPlanesDemo {
     let clip_plane = this.portal.getClippingPlane();
     const geometry = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
 
-    const material = new THREE.MeshPhongMaterial({ color: 0x00ffff, clipShadows: true, clippingPlanes: [clip_plane] });
+    const material = new THREE.MeshPhongMaterial({ color: 0x00ffff, clipShadows: true, clippingPlanes: [clip_plane],side: THREE.DoubleSide  });
     const torusKnot = new THREE.Mesh(geometry, material);
     torusKnot.position.z = 10;
     this.scene.add(torusKnot);
+    this.knot = torusKnot;
 
     const geometry2 = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
-    const material2 = new THREE.MeshPhongMaterial({ color: 0x00ffff });
+    const material2 = new THREE.MeshPhongMaterial({ color: 0x00ffff , side: THREE.DoubleSide });
     const torusKnot2 = new THREE.Mesh(geometry2, material2);
     torusKnot2.position.z = 10;
-    this.inner_scene.add(torusKnot2);
+    this.inner_orange_scene.add(torusKnot2);
+    this.knot2 = torusKnot2;
 
-    /// Add them all again
+    // Blue Portal on right side.
 
-    var inner_scene2 = new THREE.Scene();
-    inner_scene2.add(new THREE.AmbientLight(0x444444));
+    var inner_blue_scene = new THREE.Scene({background: new THREE.Color(0x0000ff)});
+    inner_blue_scene.add(new THREE.AmbientLight(0x444444));
     var light3 = new THREE.DirectionalLight(0xffffff);
     light3.position.set(0, 1, 1).normalize();
-    inner_scene2.add(light3);
-    this.inner_scene2 = inner_scene2;
+    inner_blue_scene.add(light3);
+    this.inner_blue_scene = inner_blue_scene; 
 
     portal_geo = new THREE.CircleGeometry(5, 64);
     portal_geo.scale(5, 5, 1);
     portal_geo.rotateX(Math.PI + portal_rot);
     portal_geo.translate(0,0,-20);
-    portal_mat = new PortalMaterial(this.inner_scene, camera, this.renderer);
+    portal_mat = new PortalMaterial(this.inner_blue_scene, camera, this.renderer);
     this.portal2 = new PortalMesh(portal_geo, portal_mat, { debug_height: 256, debug_width: 256 });
     this.portal2.renderDebugUVs(true);
 
@@ -96,31 +98,26 @@ class ClippingPlanesDemo {
     ring_mat = new THREE.MeshBasicMaterial({ color: 0x0088ff, side: THREE.DoubleSide });
     ring = new THREE.Mesh(ring_geo, ring_mat);
     // prevent z-fighting.
-    ring.position.set(0, 0, 0.01);
+    ring.position.set(0, 0, -0.01);
     this.scene.add(ring);
 
     let clip_plane2 = this.portal2.getClippingPlane();
 
     const geometry3 = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
     // geometry3.translate(0,0,-20);
-    const material3 = new THREE.MeshPhongMaterial({ color: 0x00ffff, clipShadows: true, clippingPlanes: [clip_plane2] });
+    const material3 = new THREE.MeshPhongMaterial({ color: 0x00ffff, clipShadows: true, clippingPlanes: [clip_plane2],side: THREE.DoubleSide  });
     const torusKnot3 = new THREE.Mesh(geometry3, material3);
     torusKnot3.position.set(0,0,-20);
     // this.moving = torusKnot3;
     this.scene.add(torusKnot3);
-
+    this.knot3 = torusKnot3
 
     var geometry4 = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
-    var material4 = new THREE.MeshPhongMaterial({ color: 0xffff00 });
+    var material4 = new THREE.MeshPhongMaterial({ color: 0x00ffff,side: THREE.DoubleSide  });
     var torusKnot4 = new THREE.Mesh(geometry4, material4);
     torusKnot4.position.set(0,0,-20);
-    this.inner_scene.add(torusKnot4);
-
-    geometry4 = new THREE.TorusKnotGeometry(10, 2.5, 300, 7, 1, 3);
-    material4 = new THREE.MeshPhongMaterial({ color: 0xffff00 });
-    torusKnot4 = new THREE.Mesh(geometry4, material4);
-    torusKnot4.position.set(0,0,-20);
-    inner_scene2.add(torusKnot4);
+    this.inner_blue_scene.add(torusKnot4);
+    this.knot4 = torusKnot4
 
     //////
 
@@ -128,9 +125,8 @@ class ClippingPlanesDemo {
     //this.renderer.clippingPlanes = Empty; // GUI sets it to globalPlanes
     this.renderer.localClippingEnabled = true;
 
-
-
     this.scene.add(this.portal);
+    this.scene.add(this.portal2);
   }
 
   render() {
@@ -139,15 +135,25 @@ class ClippingPlanesDemo {
     var controls = this.controls;
     var scene = this.scene;
     var portal = this.portal;
+    var portal2 = this.portal2;
     var moving = this.moving;
+    var _this = this;
+    let time = 0;
     function render_loop() {
       controls.update();
       requestAnimationFrame(render_loop)
 
-      // moving.position.z -= 0.05;
+      time += 0.01;
 
+      // moving.position.z -= 0.05;
+      let delta = Math.cos(time) * 0.1;
+      _this.knot.position.z += delta
+      _this.knot2.position.z += delta
+      _this.knot3.position.z += delta
+      _this.knot4.position.z += delta
 
       portal.onBeforeRender();
+      portal2.onBeforeRender();
 
       renderer.render(scene, camera);
     }

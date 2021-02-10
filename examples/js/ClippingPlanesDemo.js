@@ -145,7 +145,6 @@ class ClippingPlanesDemo {
 
       time += 0.01;
 
-      // moving.position.z -= 0.05;
       let delta = Math.cos(time) * 0.1;
       _this.knot.position.z += delta
       _this.knot2.position.z += delta

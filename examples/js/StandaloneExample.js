@@ -4,8 +4,8 @@
  */
 
 
-import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from '/modules/three.js/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from '/modules/three.js/examples/jsm/loaders/GLTFLoader.js';
 
 function main() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });

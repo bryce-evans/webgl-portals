@@ -72,3 +72,7 @@ A collection of tutorials and demos whose concepts and/or techniques are integra
 * Physics Engine: Ammo.js demo
   http://kripken.github.io/ammo.js/examples/webgl_demo/ammo.html
   https://github.com/schteppe/ammo.js-demos
+
+* Shaders
+  * Fire https://www.shadertoy.com/view/MdKfDh
+  * Water http://glslsandbox.com/e#39055.2

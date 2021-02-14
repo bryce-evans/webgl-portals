@@ -101,17 +101,19 @@
 				scene.add( plane );
 
                 mesh2 = new THREE.Mesh( geometry, material );
-                mesh2.position.z = -500;
+                
 				mesh2.rotation.y = Math.PI;
+				mesh2.position.z = -500;
 				scene.add( mesh2 );
 
 				var plane2 = new THREE.Mesh( plane_geo, plane_mat );
-                plane2.position.z=-500;
-				mesh2.rotation.y = Math.PI;
+                
+				plane2.rotation.y = Math.PI;
+				plane2.position.z=-500;
 				scene.add( plane2 );
 
 				control.attach( mesh2 );
-                //control2.attach( mesh );
+                //control.attach( plane2 );
 				scene.add( control );
                 scene.add( control2 );
 
@@ -233,8 +235,10 @@
 
 					// var origin_to_portal2 = new THREE.Matrix4();
 					// origin_to_portal2.multiplyMatrices(mesh.matrixWorld.invert(), plane.matrixWorld);
-					var flip_y = new THREE.Matrix4().identity();
+					var flip_y = new THREE.Matrix4().identity().makeRotationAxis ( new THREE.Vector3(0,1,0), Math.PI );
+					flip_y.elements[0] *= -1;
 					flip_y.elements[5] *= -1;
+					flip_y.elements[10] *= -1;
 
 
 

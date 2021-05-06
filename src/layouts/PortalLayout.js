@@ -1,5 +1,5 @@
-import { PortalMaterial } from "/src/PortalMaterial.js";
-import { PortalMesh } from "/src/PortalMesh.js";
+import { PortalMaterial } from "../PortalMaterial.js";
+import { PortalMesh } from "../PortalMesh.js";
 
 class PortalLayout extends THREE.Group {
     constructor(options = {}) {
@@ -28,7 +28,8 @@ class PortalLayout extends THREE.Group {
             console.assert(geometries.length === scenes.length, "Input geometries and scenes don't match.");
 
             for (var i = 0; i < scenes.length; i++) {
-                var portal_mat = new PortalMaterial(scenes[i], camera, renderer, {"name":`${this.name}__p${i}`
+                var portal_mat = new PortalMaterial(scenes[i], camera, renderer, {
+                    "name": `${this.name}__p${i}`
                 });
                 var portal = new PortalMesh(geometries[i], portal_mat, this.options);
                 this.portal_materials.push(portal_mat);
@@ -58,7 +59,7 @@ class PortalLayout extends THREE.Group {
     }
 
     getScenes() {
-        return this.fold_portals(function (e, acc) { acc.push(e.scene()); return acc; }, []);
+        return this.fold_portals(function(e, acc) { acc.push(e.scene()); return acc; }, []);
     }
 
     static maxScenes() {
@@ -79,7 +80,7 @@ class PortalLayout extends THREE.Group {
 
     wireGeometry() {
         var group = new THREE.Group();
-        this.foreachPortal(function (p) { group.add(p.wireGeometry()); });
+        this.foreachPortal(function(p) { group.add(p.wireGeometry()); });
         return group;
     }
 
@@ -96,7 +97,7 @@ class PortalLayout extends THREE.Group {
      */
     isFullyPlanar() {
         var planar = true;
-        this.foreach_portal(function (p) { return planar && p.isPlanar() });
+        this.foreach_portal(function(p) { return planar && p.isPlanar() });
         return planar;
     }
 
@@ -118,20 +119,20 @@ class PortalLayout extends THREE.Group {
         }
     }
 
-    raycast(raycaster, intersects) { 
+    raycast(raycaster, intersects) {
         intersects = intersects.concat(raycaster.intersectObjects(this.portals));
         return intersects;
     }
 
     update() {
-        this.foreachPortal(p=>{p.update()});
+        this.foreachPortal(p => { p.update() });
     }
 
-    renderDebugUVs(show = true) {
-        console.assert(show !== undefined && typeof (show) == "boolean",
+    renderDebugUVs(show = true, container = undefined) {
+        console.assert(show !== undefined && typeof(show) == "boolean",
             "showDebugUVs takes boolean input."
         );
-        this.foreachPortal(function (p) { p.renderDebugUVs(show); });
+        this.foreachPortal(function(p) { p.renderDebugUVs(show, container); });
     }
 }
 

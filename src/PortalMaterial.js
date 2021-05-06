@@ -49,7 +49,7 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     let dims = new THREE.Vector2();
     renderer.getDrawingBufferSize(dims);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.alpha = true;
+    // renderer.alpha = true;
 
     this.name = name;
     this.clock = clock;
@@ -72,7 +72,7 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
 
     // @super member variables
     this.map = this.buffer_texture.texture;
-    this.alphaMap = alpha_buffer_texture.texture
+    // this.alphaMap = alpha_buffer_texture.texture
     this.clippingPlanes = options.clipping_plane ? [options.clipping_plane] : [];
     this.clipShadows = options.clip_shadows | false;
 
@@ -148,7 +148,7 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
 
     var initial = this.renderer.getRenderTarget();
     this.renderer.setRenderTarget(this.buffer_texture);
-    this.alphaMap = this.buffer_texture;
+    // this.alphaMap = this.buffer_texture;
 
     //this.renderer.getDrawingBufferSize(dims);
 

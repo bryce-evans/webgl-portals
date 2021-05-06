@@ -1,5 +1,5 @@
-import { PortalLayout } from './PortalLayout.js'
-import { PortalUtils } from '/src/PortalUtils.js'
+import { PortalLayout } from '../layouts/PortalLayout.js'
+import { PortalUtils } from '../PortalUtils.js'
 
 var MAX_SCENES = 6;
 

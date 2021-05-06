@@ -1,14 +1,13 @@
-import { PortalLayout } from "./PortalLayout.js"
+import {PortalLayout} from './PortalLayout.js';
 
 class DodecahedronLayout extends PortalWindowLayout {
-    constructor(scene) {
-        console.log("DodecahedronLayout not implemented.")
+  constructor(scene) {
+    console.log('DodecahedronLayout not implemented.');
 
-        this.scene = scene;
-    }
+    this.scene = scene;
+  }
 
-    showFrame() {
-        console.error("showFrame() not implemented");
-    }
-
+  showFrame() {
+    console.error('showFrame() not implemented');
+  }
 }

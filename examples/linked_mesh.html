@@ -78,7 +78,7 @@
                 
 				control2 = new TransformControls( currentCamera, renderer.domElement );
 				control2.addEventListener( 'change', render );
-
+				control2.setSpace( "local" );
 				control2.addEventListener( 'dragging-changed', function ( event ) {
 
 					orbit.enabled = ! event.value;
@@ -116,7 +116,8 @@
 					return new THREE.Plane(cross, -(a.x * cross.x + a.y * cross.y + a.z * cross.z));
 				}
 
-				const material = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes: [clip_from_mesh(plane)]} );
+				var clip1 = clip_from_mesh(plane);
+				const material = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes: [clip1]} );
 				mesh = new THREE.Mesh( geometry, material );
 				mesh.matrixAutoUpdate  = false;
 				
@@ -136,21 +137,28 @@
 				scene.add( plane2 );
 
 
-				const material2 = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes:  [clip_from_mesh(plane2)]} );
+				var clip2 = clip_from_mesh(plane2);
+				const material2 = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes:  [clip2]} );
                 mesh2 = new THREE.Mesh( geometry, material2 );
 				mesh2.position.z = -500;
 				scene.add( mesh2 );
 
-				control.attach( mesh2 );
-                //control.attach( plane2 );
+				control.attach( mesh );
+                control2.attach( mesh2 );
 				scene.add( control );
                 scene.add( control2 );
 
+				window.THREE = THREE;
                 window.scene = scene;
                 window.mesh = mesh;
                 window.mesh2 = mesh2;   
 				window.plane = plane;
 				window.plane2 = plane2;
+				window.clip1 = clip1;
+				window.clip2 = clip2;
+				window.control = control;
+				window.control2 = control2;
+				// scene.children[7].traverseVisible(function(c) {if (c && c.material){c.material.clippingPlanes = clip1;}})
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
@@ -160,18 +168,22 @@
 
 						case 81: // Q
 							control.setSpace( control.space === "local" ? "world" : "local" );
+							control2.setSpace( control.space === "local" ? "world" : "local" );
 							break;
 
 						case 87: // W
 							control.setMode( "translate" );
+							control2.setMode( "translate" );
 							break;
 
 						case 69: // E
 							control.setMode( "rotate" );
+							control2.setMode( "rotate" );
 							break;
 
 						case 82: // R
 							control.setMode( "scale" );
+							control2.setMode( "scale" );
 							break;
 
 						case 67: // C
@@ -260,13 +272,26 @@
 					var portal_to_origin = new THREE.Matrix4();
 					portal_to_origin.multiplyMatrices(plane2.matrixWorld.invert(), mesh2.matrixWorld);
 
-					var flip_y = new THREE.Matrix4().identity();
-					flip_y.elements[0] *= -1;
-					flip_y.elements[10] *= -1;
+					var flip_xz = new THREE.Matrix4().identity();
+					flip_xz.elements[0] *= -1;
+					flip_xz.elements[10] *= -1;
 
 					// mesh.matrix.multiplyMatrices(portal_to_origin, origin_to_portal2);
-					mesh.matrix.multiplyMatrices(flip_y, portal_to_origin);
-					//mesh.matrixWorldNeedsUpdate = true;
+					mesh.matrix.multiplyMatrices(flip_xz, portal_to_origin);
+					
+					// Mesh.position isn't used when we turn auto-update to false.
+					// If we want to keep it current, we need to manually set it from the matrix.
+					mesh.position.setFromMatrixPosition(mesh.matrix);
+
+					var out_of_portal = mesh.position.dot(clip1.normal) + clip1.constant > 0;
+					control.visible = out_of_portal;
+
+					out_of_portal = mesh2.position.dot(clip2.normal) + clip2.constant >= 0;
+					control2.visible = out_of_portal;
+
+
+					mesh.matrixWorldNeedsUpdate = true;
+					// console.log(mesh.position);
 				}
 
 				renderer.render( scene, currentCamera );

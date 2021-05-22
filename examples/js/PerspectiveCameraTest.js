@@ -5,15 +5,16 @@ import { RandomGeometryScene } from './utils/RandomGeometryScene.js';
 
 class PerspectiveCameraTest {
     constructor(target) {
-        var width = 1024; //window.innerWidth;
-        var height = 1024; //window.innerHeight;
+        target = target || document.body;
+        var width = target.offsetWidth;
+        var height = target.offsetHeight;
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setClearColor(0x222222, 1);
+        this.renderer.setClearColor(0xffffff, 1);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(width, height);
-        target = target | document.body;
-        document.body.appendChild(this.renderer.domElement);
+        
+        target.appendChild(this.renderer.domElement);
 
         var show_uv_debug = true;
 

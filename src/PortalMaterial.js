@@ -1,12 +1,12 @@
 /** Represents an animated material derived from rendering an offscreen scene.
- *  
+ *
  * Params:
- * 
+ *
  * scene: THREE.Scene
  *      Scene to render inside the window.
  * renderer: THREE.Renderer
  *      Renderer to use for rendering the scene.
- * 
+ *
  * Options:
  *
  * transform: THREE.Euler
@@ -14,42 +14,42 @@
  *
  * antialias: boolean (default=true)
  *      Renders with anti-aliasing if true
- * 
+ *
  * resolution_width: int
  * resolution_height: int
  *      Height and width resolution of the render. Should usually be the same as the main window.
  */
 class PortalMaterial extends THREE.MeshBasicMaterial {
   constructor(scene, camera, renderer, options = {}) {
-    console.assert(scene instanceof THREE.Scene, "scene is not instance of THREE.Scene.");
-    console.assert(camera instanceof THREE.Camera, "camera is not instance of THREE.Camera");
-    console.assert(renderer instanceof THREE.WebGLRenderer, "renderer is not an instance of THREE.WebGLRenderer");
+    console.assert(scene instanceof THREE.Scene, 'scene is not instance of THREE.Scene.');
+    console.assert(camera instanceof THREE.Camera, 'camera is not instance of THREE.Camera');
+    console.assert(renderer instanceof THREE.WebGLRenderer, 'renderer is not an instance of THREE.WebGLRenderer');
 
-    let name = options.name || "";
+    const name = options.name || '';
 
     super();
     // TODO: load shaders from file.
     // var loader = new THREE.FileLoader();
     // loader.load('shaders/portal.frag',function ( data ) {fShader =  data;},);
     // loader.load('shaders/portal.vertex',function ( data ) {vShader =  data;},);
-    let clock = new THREE.Clock();
+    const clock = new THREE.Clock();
 
-    let antialias = options.antialias || false;
-    let resolution_width = options.resolution_width || 1024;
-    let resolution_height = options.resolution_height || 1024;
+    const antialias = options.antialias || false;
+    const resolution_width = options.resolution_width || 1024;
+    const resolution_height = options.resolution_height || 1024;
 
-    let buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
+    const buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, {minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
     buffer_texture.name = name;
     buffer_texture.texture.image.name = name;
 
-    let alpha_buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
+    const alpha_buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, {minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
     alpha_buffer_texture.name = name;
     alpha_buffer_texture.texture.image.name = name;
 
-    let dims = new THREE.Vector2();
+    const dims = new THREE.Vector2();
     renderer.getDrawingBufferSize(dims);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.alpha = true;
+    // renderer.alpha = true;
 
     this.name = name;
     this.clock = clock;
@@ -72,7 +72,7 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
 
     // @super member variables
     this.map = this.buffer_texture.texture;
-    this.alphaMap = alpha_buffer_texture.texture
+    // this.alphaMap = alpha_buffer_texture.texture
     this.clippingPlanes = options.clipping_plane ? [options.clipping_plane] : [];
     this.clipShadows = options.clip_shadows | false;
 
@@ -80,7 +80,7 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
   }
 
   onWindowResize() {
-    let dims = new THREE.Vector2();
+    const dims = new THREE.Vector2();
     this.renderer.getDrawingBufferSize(dims);
   }
 
@@ -104,36 +104,36 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
    * Removes affine correction (already applied when rendering internal portal scene).
    */
   onBeforeCompile(shader, renderer) {
-    let dims = new THREE.Vector2();
+    const dims = new THREE.Vector2();
     renderer.getDrawingBufferSize(dims);
     renderer.setPixelRatio(window.devicePixelRatio);
 
     // TODO: Input dimensions as uniforms for screen resizing.
     shader.fragmentShader =
       shader.fragmentShader.replace(
-        '#include <map_fragment>',
-        `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) ); \
+          '#include <map_fragment>',
+          `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) ); \
         texelColor = mapTexelToLinear( texelColor ); \
-        diffuseColor *= texelColor;`
+        diffuseColor *= texelColor;`,
       );
   }
 
   /**
    * Render the internal portal scene to this material's buffer texture map.
-   * Signature follows the same as THREE's onBeforeRender, which is implicitly 
+   * Signature follows the same as THREE's onBeforeRender, which is implicitly
    * invoked in PortalMesh. PortalMesh calls onBeforeRender to its material here.
    * It should be noted that the args input are the args of the full scene,
    *  **not** the args of the internal portal scene we are renderering.
-   * 
+   *
    * @param {THREE.WebGLRenderer} renderer
    *    The renderer of the full scene (not the internal portal scene).
    * @param {THREE.Scene} scene
    *    The full scene being rendered that this is part of.
    * @param {THREE.Camera} camera
    *    Main camera of the scene.
-   * @param {THREE.Geometry} geometry 
+   * @param {THREE.Geometry} geometry
    *    The geometry of the portal mesh.
-   * @param {THREE.Material} material 
+   * @param {THREE.Material} material
    *    The material of the rendered object (this).
    * @param {THREE.Group} group
    *    The group this portal belongs to (if any).
@@ -146,13 +146,13 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
       scene.max_depth--;
     }
 
-    var initial = this.renderer.getRenderTarget();
+    const initial = this.renderer.getRenderTarget();
     this.renderer.setRenderTarget(this.buffer_texture);
-    this.alphaMap = this.buffer_texture;
+    // this.alphaMap = this.buffer_texture;
 
-    //this.renderer.getDrawingBufferSize(dims);
+    // this.renderer.getDrawingBufferSize(dims);
 
-    //this.renderer.setSize(this.resolution_width, this.resolution_height);
+    // this.renderer.setSize(this.resolution_width, this.resolution_height);
 
     if (!this.scene.max_depth) {
       this.scene.max_depth = this.max_depth - 1;
@@ -161,8 +161,8 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     this.buffer_texture.texture.needsUpdate = false;
 
     this.renderer.setRenderTarget(initial);
-    //this.renderer.setSize(dims);
+    // this.renderer.setSize(dims);
   }
 }
 
-export { PortalMaterial };
+export {PortalMaterial};

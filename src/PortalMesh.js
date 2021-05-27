@@ -84,10 +84,13 @@ class PortalMesh extends Mesh {
   /**
      * Returns true if any face is visible. Used for optimization.
      */
-  isVisible() {
-    // TODO: implement.
-    console.warn('isVisible not implemented');
-    return true;
+  isVisible(camera) {
+    let cam_vec = new THREE.Vector3();
+    camera.getWorldDirection(cam_vec);
+
+    // assume true: if (this.isPlanar()) {
+    let geo_vec = this.geometry.faces[0].normal;
+    return cam_vec.dot(geo_vec) < 0;
   }
 
   /**

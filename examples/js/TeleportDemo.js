@@ -1,7 +1,7 @@
 import { ObjectPicker, Controls } from '/examples/js/utils/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
 import { PortalMesh } from '/src/PortalMesh.js';
-import { PortalSimpleMaterial } from '/src/PortalSimpleMaterial.js';
+import { PortalMaterial } from '/src/PortalMaterial.js';
 
 
 class TeleportDemo {
@@ -22,8 +22,8 @@ class TeleportDemo {
     scene.add(new THREE.DirectionalLight(0xffffff, 1));
     this.scene = scene;
 
-    //var camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-    var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
+    var camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
+    //var camera = new THREE.OrthographicCamera(width / -80, width / 80, height / 80, height / -80, 1, 1000);
     camera.position.set(0, 0, 40);
     camera.lookAt(new THREE.Vector3(-3, -3, 60));
     this.camera = camera;
@@ -91,7 +91,7 @@ class TeleportDemo {
     // Testing non-planar geometry.
     // new THREE.SphereGeometry( 5, 32, 32, 0, Math.PI, 0, Math.PI );
     portal_geo.scale(1, 2, 1);
-    var portal_mat = new PortalSimpleMaterial(innerscene, camera, this.renderer);
+    var portal_mat = new PortalMaterial(innerscene, camera, this.renderer);
     this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 256, debug_width: 256 });
     scene.add(this.portal);
 
@@ -104,7 +104,7 @@ class TeleportDemo {
     scene.add(ring);
 
     if (show_uv_debug) {
-      this.portal.renderDebugUVs(true);
+      this.portal.renderDebugUVs(true, $("#debug_uvs"));
     }
   }
   render() {

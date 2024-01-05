@@ -220,7 +220,10 @@ class PortalMesh extends Mesh {
     ctx.stroke();
   }
 
-  renderDebugUVs(show = true, container = undefined) {
+  renderDebugUVs(show=true, container=undefined) {
+    if (container === undefined) {
+      container = $("body");
+    }
     console.assert(show !== undefined && typeof(show) == 'boolean',
         'showDebugUVs takes boolean input.',
     );

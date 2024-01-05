@@ -111,8 +111,8 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     // TODO: Input dimensions as uniforms for screen resizing.
     shader.fragmentShader =
       shader.fragmentShader.replace(
-          '#include <map_fragment>',
-          `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) ); \
+        '#include <map_fragment>',
+        `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) ); \
         texelColor = mapTexelToLinear( texelColor ); \
         diffuseColor *= texelColor;`,
       );

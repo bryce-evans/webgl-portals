@@ -88,7 +88,7 @@ class PortalPickerDemo {
     var portal_geo = new THREE.CircleGeometry(5, 64);
     portal_geo.scale(1, 2, 1);
     var portal_mat = new PortalMaterial(innerscene, camera, this.renderer);
-    this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 32, debug_width: 32 });
+    this.portal = new PortalMesh(portal_geo, portal_mat, { debug_height: 128, debug_width: 128 });
     scene.add(this.portal);
 
     var ring_geo = new THREE.RingGeometry(4.9, 5, 128);
@@ -100,7 +100,7 @@ class PortalPickerDemo {
     scene.add(ring);
 
     if (show_uv_debug) {
-      this.portal.renderDebugUVs(true);
+      this.portal.renderDebugUVs(true, $("#debug_uvs"));
     }
   }
   render() {

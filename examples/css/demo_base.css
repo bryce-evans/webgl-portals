@@ -15,6 +15,13 @@ body {
     color: white;
 }
 
+#stats_container>div{
+    position: fixed;
+    top: 0 !important;
+    right: 0 !important;
+    left: initial !important;
+}
+
 #c {
     position: absolute;
     left: 0;

@@ -100,7 +100,7 @@ class PortalPickerDemo {
     scene.add(ring);
 
     if (show_uv_debug) {
-      this.portal.renderDebugUVs(true, $("#debug_uvs"));
+      this.portal.renderDebugUVs(true, container=$("#debug_uvs"));
     }
   }
   render() {

@@ -11,13 +11,12 @@
 </head>
 
 <body>
-	<div id="info">Perspective Camera Test<br>Press &lt;space&gt; to show textures, F to freeze/unfreeze</div>
+	<div id="info">Perspective Camera Test<br>Uncorrected (affine transformation) on left, Corrected perspective on right.</div>
 	<div id="debug_uvs" style="display: none;"></div>
 
 	<script type="module">
 		import { Utils } from '/examples/js/utils/Utils.js';
 		import { PerspectiveCameraTest } from '/examples/js/PerspectiveCameraTest.js';
-
 
 		$(document).ready(function () {
 			Utils.loadShaders(function () {

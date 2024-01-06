@@ -21,6 +21,7 @@ class Controls {
     update() {
         this.orbit_controls.update();
     }
+    
     addListeners() {
         function onWindowResize() {
             this.camera.aspect = window.innerWidth / window.innerHeight;

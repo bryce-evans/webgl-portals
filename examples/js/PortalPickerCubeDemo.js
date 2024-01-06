@@ -66,6 +66,7 @@ class PortalPickerCubeDemo {
     var cube_scenes = [];
     for (var i = 0; i < CubePortalLayout.maxScenes(); i++) {
       var miniscene = new THREE.Scene();
+      miniscene.background = new THREE.Color(0x444444);
       miniscene.add(new THREE.AmbientLight(0xffffff));
       const numObjects = 20;
       for (let j = 0; j < numObjects; ++j) {
@@ -92,7 +93,7 @@ class PortalPickerCubeDemo {
     scene.add(this.portal);
 
     if (show_uv_debug) {
-      this.portal.renderDebugUVs(true);
+      this.portal.renderDebugUVs(true, $("#debug_uvs"));
     }
     //this.renderer.domElement.addEventListener('click', function(e) {this.obj_picker.pick(scene, camera, 0)}.bind(this));
   }
@@ -117,5 +118,4 @@ class PortalPickerCubeDemo {
   }
 }
 
-var page = new PortalPickerCubeDemo();
-page.render();
+export { PortalPickerCubeDemo }

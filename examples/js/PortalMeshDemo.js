@@ -42,7 +42,7 @@ class PortalMeshDemo {
     this.buffer_texture = portal_mat.buffer_texture;
 
     var portal = new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
-    portal.renderDebugUVs(true);
+    portal.renderDebugUVs(true, $("#debug_uvs"));
     scene.add(portal);
 
     this.camera = camera;

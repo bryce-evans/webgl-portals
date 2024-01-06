@@ -221,9 +221,7 @@ class PortalMesh extends Mesh {
   }
 
   renderDebugUVs(show=true, container=undefined) {
-    if (container === undefined) {
-      container = $("body");
-    }
+    console.assert(container !== undefined, "No container provided for renderDebugUVs");
     console.assert(show !== undefined && typeof(show) == 'boolean',
         'showDebugUVs takes boolean input.',
     );

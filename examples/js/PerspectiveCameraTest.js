@@ -1,4 +1,4 @@
-import { CubePortalLayout } from '../../src/layouts/CubePortalLayout.js';
+import { CubePortalLayout } from '../../examples/js/layouts/CubePortalLayout.js';
 import { RandomGeometryScene } from './utils/RandomGeometryScene.js';
 import { OrbitControls } from '../../../modules/three.js/examples/jsm/controls/OrbitControls.js';
 

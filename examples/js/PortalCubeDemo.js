@@ -1,5 +1,5 @@
 import { ObjectPicker, Controls } from '/examples/js/utils/Controls.js';
-import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
+import { CubePortalLayout } from '/examples/js/layouts/CubePortalLayout.js';
 import { RandomGeometryScene } from '/examples/js/utils/RandomGeometryScene.js';
 
 

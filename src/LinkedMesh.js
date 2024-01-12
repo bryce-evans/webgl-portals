@@ -4,24 +4,26 @@ import {PortalMaterial} from './PortalMaterial.js';
 
 class LinkedMesh extends Mesh {
   constructor(geometry, portal_material, options = {}) {
-    /** Renders as the scene associated with input portal_material.
-         * Gives the appearance of the mesh acting as a portal.
-         *
-         * Params:
-         * ----------
-         * geometry: THREE.Geometry
-         *      Geometry that scene render gets projected to
-         * portal_material: PortalMaterial
-         *      Portal material to be rendered to this Mesh.
-         *
-         * Options:
-         * -----------
-         * show_wire_geometry: boolean (default=false)
-         *      Shows a wireframe alongside the mesh to show the geometry of the portal area.
-         * debug_width: int
-         * debug_height: int
-         *      Height and width of debug info to be rendered to.
-         */
+    /** Class to handle Meshes that are midway through a portal and may appear in two locations.
+      *  Adds a second dummy mesh on the other side that linked to movement and used for
+      *  visualization until the base mesh passes through, at which point the base mesh takes the
+      *  position of the dummy and the dummy is destroyed.
+      *
+      * Params:
+      * ----------
+      * geometry: THREE.Geometry
+      *      Geometry that scene render gets projected to
+      * portal_material: PortalMaterial
+      *      Portal material to be rendered to this Mesh.
+      *
+      * Options:
+      * -----------
+      * show_wire_geometry: boolean (default=false)
+      *      Shows a wireframe alongside the mesh to show the geometry of the portal area.
+      * debug_width: int
+      * debug_height: int
+      *      Height and width of debug info to be rendered to.
+      */
 
     console.assert(geometry instanceof THREE.Geometry, 'geometry is not an instance of THREE.Geometry');
     console.assert(portal_material instanceof PortalMaterial, 'portal_material is not an instance of PortalMaterial');
@@ -62,7 +64,7 @@ class LinkedMesh extends Mesh {
   }
 
   isPortal() {
-    return true;
+    return false;
   }
 
   getScene() {

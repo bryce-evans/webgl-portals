@@ -1,305 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>three.js webgl - transform controls</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="/modules/three.js/examples/main.css">
-	</head>
-	<body>
+    <head>
+        <title>three.js webgl - transform controls</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="/modules/three.js/examples/main.css">
+    </head>
+    <body>
 
-		<div id="info">
-			"W" translate | "E" rotate | "R" scale | "+/-" adjust size<br />
-			"Q" toggle world/local space |  "Shift" snap to grid<br />
-			"X" toggle X | "Y" toggle Y | "Z" toggle Z | "Spacebar" toggle enabled<br />
-			"C" toggle camera | "V" random zoom
-		</div>
+        <div id="info">
+            "W" translate | "E" rotate | "R" scale | "+/-" adjust size<br />
+            "Q" toggle world/local space |  "Shift" snap to grid<br />
+            "X" toggle X | "Y" toggle Y | "Z" toggle Z | "Spacebar" toggle enabled<br />
+            "C" toggle camera | "V" random zoom
+        </div>
 
-		<script type="module">
+        <script type="module">
 
-			import * as THREE from '/modules/three.js/build/three.module.js';
+            import * as THREE from '/modules/three.js/build/three.module.js';
 
-			import { OrbitControls } from '/modules/three.js/examples/jsm/controls/OrbitControls.js';
-			import { TransformControls } from '/modules/three.js/examples/jsm/controls/TransformControls.js';
+            import { OrbitControls } from '/modules/three.js/examples/jsm/controls/OrbitControls.js';
+            import { TransformControls } from '/modules/three.js/examples/jsm/controls/TransformControls.js';
 
-			let cameraPersp, cameraOrtho, currentCamera;
-			let scene, renderer, control, control2, orbit, mesh, mesh2;
-
-
-			init();
-			render();
-
-			function init() {
-
-				renderer = new THREE.WebGLRenderer();
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.localClippingEnabled = true;
-				document.body.appendChild( renderer.domElement );
-
-				const aspect = window.innerWidth / window.innerHeight;
-
-				cameraPersp = new THREE.PerspectiveCamera( 50, aspect, 1, 3000 );
-				cameraOrtho = new THREE.OrthographicCamera( - 600 * aspect, 600 * aspect, 600, - 600, 0.01, 30000 );
-				currentCamera = cameraPersp;
-
-				currentCamera.position.set( 1000, 500, 1000 );
-				currentCamera.lookAt( 0, 200, 0 );
-
-				scene = new THREE.Scene();
-				//scene.autoUpdate = false;
-				scene.add( new THREE.GridHelper( 1000, 10, 0x888888, 0x444444 ) );
-
-				var light = new THREE.DirectionalLight( 0xffffff, 2 );
-				light.position.set( 1, 1, 1 );
-				scene.add( light );
-
-				light = new THREE.AmbientLight( 0x444444 );
-				scene.add( light );
+            let cameraPersp, cameraOrtho, currentCamera;
+            let scene, renderer, control, control2, orbit, mesh, mesh2;
 
 
-				const texture = new THREE.TextureLoader().load( '/modules/three.js/examples/textures/crate.gif', render );
-				texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            init();
+            render();
 
-				orbit = new OrbitControls( currentCamera, renderer.domElement );
-				orbit.update();
-				orbit.addEventListener( 'change', render );
+            function init() {
 
-				control = new TransformControls( currentCamera, renderer.domElement );
-				control.addEventListener( 'change', render );
-				control.setSpace( "local" );
+                renderer = new THREE.WebGLRenderer();
+                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.localClippingEnabled = true;
+                document.body.appendChild( renderer.domElement );
 
-				control.addEventListener( 'dragging-changed', function ( event ) {
+                const aspect = window.innerWidth / window.innerHeight;
 
-					orbit.enabled = ! event.value;
+                cameraPersp = new THREE.PerspectiveCamera( 50, aspect, 1, 3000 );
+                cameraOrtho = new THREE.OrthographicCamera( - 600 * aspect, 600 * aspect, 600, - 600, 0.01, 30000 );
+                currentCamera = cameraPersp;
 
-				} );
+                currentCamera.position.set( 1000, 500, 1000 );
+                currentCamera.lookAt( 0, 200, 0 );
 
-                
-				control2 = new TransformControls( currentCamera, renderer.domElement );
-				control2.addEventListener( 'change', render );
-				control2.setSpace( "local" );
-				control2.addEventListener( 'dragging-changed', function ( event ) {
+                scene = new THREE.Scene();
+                scene.add( new THREE.GridHelper( 1000, 10, 0x888888, 0x444444 ) );
 
-					orbit.enabled = ! event.value;
+                var light = new THREE.DirectionalLight( 0xffffff, 1 );
+                light.position.set( 1, 1, 1 );
+                scene.add( light );
 
-				} );
+                light = new THREE.AmbientLight( 0x444444 );
+                scene.add( light );
 
 
-				
-				const plane_geo = new THREE.PlaneGeometry( 300, 300 );
-				const plane_mat = new THREE.MeshLambertMaterial( { color: 'blue', side:THREE.DoubleSide } );
-				var plane = new THREE.Mesh( plane_geo, plane_mat );
-				plane.updateMatrix();
-                // plane.position.x=100;
-				// plane.position.y=100;
-				// plane.position.z=100;
-				scene.add( plane );
+                const texture = new THREE.TextureLoader().load( '/examples/rsc/textures/uv_test_map.jpeg', render );
 
-				
-				const geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
+                orbit = new OrbitControls( currentCamera, renderer.domElement );
+                orbit.update();
+                orbit.addEventListener( 'change', render );
 
-				
-				function clip_from_mesh(mesh) {
-					let tri = mesh.geometry.faces[0];
-					let verts = mesh.geometry.vertices;
-					let pts = [verts[tri.a], verts[tri.b], verts[tri.c]];
-					for (var i = 0; i < pts.length; i++){
-						pts[i] = pts[i].clone().applyMatrix4( mesh.matrix );
-					}
-					let a = new THREE.Vector3(pts[0].x, pts[0].y, pts[0].z);
-					let b = new THREE.Vector3(pts[1].x, pts[1].y, pts[1].z);
-					let c = new THREE.Vector3(pts[2].x, pts[2].y, pts[2].z);
-					let ab = b.sub(a);
-					let ac = c.sub(a);
-					let cross = ab.cross(ac).normalize();
-					return new THREE.Plane(cross, -(a.x * cross.x + a.y * cross.y + a.z * cross.z));
-				}
+                control = new TransformControls( currentCamera, renderer.domElement );
+                control.addEventListener( 'change', render );
+                control.setSpace( "local" );
 
-				var clip1 = clip_from_mesh(plane);
-				const material = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes: [clip1]} );
-				mesh = new THREE.Mesh( geometry, material );
-				mesh.matrixAutoUpdate  = false;
-				
-                // mesh.position.x=100;
-				// mesh.position.y=100;
-				// mesh.position.z=100;
-				
-				scene.add( mesh );
+                control.addEventListener( 'dragging-changed', function ( event ) {
+                    orbit.enabled = ! event.value;
+                });
 
-			
+                control2 = new TransformControls( currentCamera, renderer.domElement );
+                control2.addEventListener( 'change', render );
+                control2.setSpace( "local" );
+                control2.addEventListener( 'dragging-changed', function ( event ) {
+                    orbit.enabled = ! event.value;
+                } );
 
-				var plane2 = new THREE.Mesh( plane_geo, plane_mat );
+                const plane_geo = new THREE.PlaneGeometry( 300, 300 );
+                const plane_mat = new THREE.MeshLambertMaterial( { color: 0x00aa88, side:THREE.DoubleSide } );
+                var plane = new THREE.Mesh( plane_geo, plane_mat );
+                plane.updateMatrix();
+                scene.add( plane );
+
+                const geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
+
+                function clip_from_mesh(mesh) {
+                    let tri = mesh.geometry.faces[0];
+                    let verts = mesh.geometry.vertices;
+                    let pts = [verts[tri.a], verts[tri.b], verts[tri.c]];
+                    for (var i = 0; i < pts.length; i++){
+                        pts[i] = pts[i].clone().applyMatrix4( mesh.matrix );
+                    }
+                    let a = new THREE.Vector3(pts[0].x, pts[0].y, pts[0].z);
+                    let b = new THREE.Vector3(pts[1].x, pts[1].y, pts[1].z);
+                    let c = new THREE.Vector3(pts[2].x, pts[2].y, pts[2].z);
+                    let ab = b.sub(a);
+                    let ac = c.sub(a);
+                    let cross = ab.cross(ac).normalize();
+                    return new THREE.Plane(cross, -(a.x * cross.x + a.y * cross.y + a.z * cross.z));
+                }
+
+                var clip1 = clip_from_mesh(plane);
+                const material = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes: [clip1]} );
+                mesh = new THREE.Mesh( geometry, material );
+                mesh.matrixAutoUpdate  = false;
             
-				plane2.rotation.y = Math.PI + Math.PI / 6;
-				plane2.position.z=-500;
-				plane2.updateMatrix();
-				scene.add( plane2 );
+                
+                scene.add( mesh );
 
+                var plane2 = new THREE.Mesh( plane_geo, plane_mat );
+            
+                plane2.rotation.y = Math.PI + Math.PI / 6;
+                plane2.position.z=-500;
+                plane2.updateMatrix();
+                scene.add( plane2 );
 
-				var clip2 = clip_from_mesh(plane2);
-				const material2 = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes:  [clip2]} );
+                var clip2 = clip_from_mesh(plane2);
+                const material2 = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes:  [clip2]} );
                 mesh2 = new THREE.Mesh( geometry, material2 );
-				mesh2.position.z = -500;
-				scene.add( mesh2 );
+                mesh2.position.z = -500;
+                scene.add( mesh2 );
 
-				control.attach( mesh );
+                control.attach( mesh );
                 control2.attach( mesh2 );
-				scene.add( control );
+                scene.add( control );
                 scene.add( control2 );
 
-				window.THREE = THREE;
+                window.THREE = THREE;
                 window.scene = scene;
                 window.mesh = mesh;
                 window.mesh2 = mesh2;   
-				window.plane = plane;
-				window.plane2 = plane2;
-				window.clip1 = clip1;
-				window.clip2 = clip2;
-				window.control = control;
-				window.control2 = control2;
-				// scene.children[7].traverseVisible(function(c) {if (c && c.material){c.material.clippingPlanes = clip1;}})
+                window.plane = plane;
+                window.plane2 = plane2;
+                window.clip1 = clip1;
+                window.clip2 = clip2;
+                window.control = control;
+                window.control2 = control2;
+                // scene.children[7].traverseVisible(function(c) {if (c && c.material){c.material.clippingPlanes = clip1;}})
 
-				window.addEventListener( 'resize', onWindowResize, false );
+                window.addEventListener( 'resize', onWindowResize, false );
 
-				window.addEventListener( 'keydown', function ( event ) {
+                window.addEventListener( 'keydown', function ( event ) {
 
-					switch ( event.keyCode ) {
+                    switch ( event.keyCode ) {
 
-						case 81: // Q
-							control.setSpace( control.space === "local" ? "world" : "local" );
-							control2.setSpace( control.space === "local" ? "world" : "local" );
-							break;
+                        case 81: // Q
+                            control.setSpace( control.space === "local" ? "world" : "local" );
+                            control2.setSpace( control.space === "local" ? "world" : "local" );
+                            break;
 
-						case 87: // W
-							control.setMode( "translate" );
-							control2.setMode( "translate" );
-							break;
+                        case 87: // W
+                            control.setMode( "translate" );
+                            control2.setMode( "translate" );
+                            break;
 
-						case 69: // E
-							control.setMode( "rotate" );
-							control2.setMode( "rotate" );
-							break;
+                        case 69: // E
+                            control.setMode( "rotate" );
+                            control2.setMode( "rotate" );
+                            break;
 
-						case 82: // R
-							control.setMode( "scale" );
-							control2.setMode( "scale" );
-							break;
+                        case 82: // R
+                            control.setMode( "scale" );
+                            control2.setMode( "scale" );
+                            break;
 
-						case 67: // C
-							const position = currentCamera.position.clone();
+                        case 67: // C
+                            const position = currentCamera.position.clone();
 
-							currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
-							currentCamera.position.copy( position );
+                            currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
+                            currentCamera.position.copy( position );
 
-							orbit.object = currentCamera;
-							control.camera = currentCamera;
+                            orbit.object = currentCamera;
+                            control.camera = currentCamera;
 
-							currentCamera.lookAt( orbit.target.x, orbit.target.y, orbit.target.z );
-							onWindowResize();
-							break;
+                            currentCamera.lookAt( orbit.target.x, orbit.target.y, orbit.target.z );
+                            onWindowResize();
+                            break;
 
-						case 86: // V
-							const randomFoV = Math.random() + 0.1;
-							const randomZoom = Math.random() + 0.1;
+                        case 86: // V
+                            const randomFoV = Math.random() + 0.1;
+                            const randomZoom = Math.random() + 0.1;
 
-							cameraPersp.fov = randomFoV * 160;
-							cameraOrtho.bottom = - randomFoV * 500;
-							cameraOrtho.top = randomFoV * 500;
+                            cameraPersp.fov = randomFoV * 160;
+                            cameraOrtho.bottom = - randomFoV * 500;
+                            cameraOrtho.top = randomFoV * 500;
 
-							cameraPersp.zoom = randomZoom * 5;
-							cameraOrtho.zoom = randomZoom * 5;
-							onWindowResize();
-							break;
+                            cameraPersp.zoom = randomZoom * 5;
+                            cameraOrtho.zoom = randomZoom * 5;
+                            onWindowResize();
+                            break;
 
-						case 187:
-						case 107: // +, =, num+
-							control.setSize( control.size + 0.1 );
-							break;
+                        case 187:
+                        case 107: // +, =, num+
+                            control.setSize( control.size + 0.1 );
+                            break;
 
-						case 189:
-						case 109: // -, _, num-
-							control.setSize( Math.max( control.size - 0.1, 0.1 ) );
-							break;
+                        case 189:
+                        case 109: // -, _, num-
+                            control.setSize( Math.max( control.size - 0.1, 0.1 ) );
+                            break;
 
-						case 88: // X
-							control.showX = ! control.showX;
-							break;
+                        case 88: // X
+                            control.showX = ! control.showX;
+                            break;
 
-						case 89: // Y
-							control.showY = ! control.showY;
-							break;
+                        case 89: // Y
+                            control.showY = ! control.showY;
+                            break;
 
-						case 90: // Z
-							control.showZ = ! control.showZ;
-							break;
+                        case 90: // Z
+                            control.showZ = ! control.showZ;
+                            break;
 
-						case 32: // Spacebar
-							control.enabled = ! control.enabled;
-							break;
+                        case 32: // Spacebar
+                            control.enabled = ! control.enabled;
+                            break;
 
-					}
+                    }
 
-				} );
+                } );
 
-			}
+            }
 
-			function onWindowResize() {
+            function onWindowResize() {
 
-				const aspect = window.innerWidth / window.innerHeight;
+                const aspect = window.innerWidth / window.innerHeight;
 
-				cameraPersp.aspect = aspect;
-				cameraPersp.updateProjectionMatrix();
+                cameraPersp.aspect = aspect;
+                cameraPersp.updateProjectionMatrix();
 
-				cameraOrtho.left = cameraOrtho.bottom * aspect;
-				cameraOrtho.right = cameraOrtho.top * aspect;
-				cameraOrtho.updateProjectionMatrix();
+                cameraOrtho.left = cameraOrtho.bottom * aspect;
+                cameraOrtho.right = cameraOrtho.top * aspect;
+                cameraOrtho.updateProjectionMatrix();
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.setSize( window.innerWidth, window.innerHeight );
 
-				render();
+                render();
 
-			}
+            }
 
-			function render() {
-				if (window.mesh) {
-					let plane2 = window.plane2;
-					let mesh = window.mesh;
-					let mesh2 = window.mesh2;
+            function render() {
+                if (window.mesh) {
+                    let plane2 = window.plane2;
+                    let mesh = window.mesh;
+                    let mesh2 = window.mesh2;
 
-					mesh.matrixAutoUpdate  = false;
-				
-					var portal_to_origin = new THREE.Matrix4();
-					portal_to_origin.multiplyMatrices(plane2.matrixWorld.invert(), mesh2.matrixWorld);
+                    mesh.matrixAutoUpdate  = false;
+                
+                    var portal_to_origin = new THREE.Matrix4();
+                    portal_to_origin.multiplyMatrices(plane2.matrixWorld.invert(), mesh2.matrixWorld);
 
-					var flip_xz = new THREE.Matrix4().identity();
-					flip_xz.elements[0] *= -1;
-					flip_xz.elements[10] *= -1;
+                    var flip_xz = new THREE.Matrix4().identity();
+                    flip_xz.elements[0] *= -1;
+                    flip_xz.elements[10] *= -1;
+                    mesh.matrix.multiplyMatrices(flip_xz, portal_to_origin);
+                    
+                    // Mesh.position isn't used when we turn auto-update to false.
+                    // If we want to keep it current, we need to manually set it from the matrix.
+                    mesh.position.setFromMatrixPosition(mesh.matrix);
 
-					// mesh.matrix.multiplyMatrices(portal_to_origin, origin_to_portal2);
-					mesh.matrix.multiplyMatrices(flip_xz, portal_to_origin);
-					
-					// Mesh.position isn't used when we turn auto-update to false.
-					// If we want to keep it current, we need to manually set it from the matrix.
-					mesh.position.setFromMatrixPosition(mesh.matrix);
+                    var out_of_portal = mesh.position.dot(clip1.normal) + clip1.constant > 0;
+                    control.visible = out_of_portal;
 
-					var out_of_portal = mesh.position.dot(clip1.normal) + clip1.constant > 0;
-					control.visible = out_of_portal;
+                    out_of_portal = mesh2.position.dot(clip2.normal) + clip2.constant >= 0;
+                    control2.visible = out_of_portal;
 
-					out_of_portal = mesh2.position.dot(clip2.normal) + clip2.constant >= 0;
-					control2.visible = out_of_portal;
+                    mesh.matrixWorldNeedsUpdate = true;
+                }
 
+                renderer.render( scene, currentCamera );
 
-					mesh.matrixWorldNeedsUpdate = true;
-					// console.log(mesh.position);
-				}
-
-				renderer.render( scene, currentCamera );
-
-			}
+            }
             window.render = render;
 
-		</script>
+        </script>
 
-	</body>
+    </body>
 </html>

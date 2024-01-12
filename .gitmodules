@@ -1,9 +1,9 @@
-[submodule "modules/three.js"]
-	path = modules/three.js
-	url = https://github.com/mrdoob/three.js.git
+# [submodule "modules/three.js"]
+# 	path = modules/three.js
+# 	url = git://github.com/mrdoob/three.js
 [submodule "modules/jquery"]
 	path = modules/jquery
-	url = git://github.com/jquery/jquery.git
+	url = git://github.com/jquery/jquery
 [submodule "stats.js"]
 	path = modules/stats.js
-	url = https://github.com/mrdoob/stats.js/
+	url = git://github.com/mrdoob/stats.js

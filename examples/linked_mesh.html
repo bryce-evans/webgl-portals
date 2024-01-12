@@ -25,7 +25,6 @@
             let cameraPersp, cameraOrtho, currentCamera;
             let scene, renderer, control, control2, orbit, mesh, mesh2;
 
-
             init();
             render();
 
@@ -106,19 +105,16 @@
                 const material = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes: [clip1]} );
                 mesh = new THREE.Mesh( geometry, material );
                 mesh.matrixAutoUpdate  = false;
-            
-                
                 scene.add( mesh );
 
                 var plane2 = new THREE.Mesh( plane_geo, plane_mat );
-            
                 plane2.rotation.y = Math.PI + Math.PI / 6;
-                plane2.position.z=-500;
+                plane2.position.z = -500;
                 plane2.updateMatrix();
                 scene.add( plane2 );
 
                 var clip2 = clip_from_mesh(plane2);
-                const material2 = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes:  [clip2]} );
+                const material2 = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes: [clip2]} );
                 mesh2 = new THREE.Mesh( geometry, material2 );
                 mesh2.position.z = -500;
                 scene.add( mesh2 );
@@ -138,14 +134,11 @@
                 window.clip2 = clip2;
                 window.control = control;
                 window.control2 = control2;
-                // scene.children[7].traverseVisible(function(c) {if (c && c.material){c.material.clippingPlanes = clip1;}})
 
                 window.addEventListener( 'resize', onWindowResize, false );
-
                 window.addEventListener( 'keydown', function ( event ) {
 
                     switch ( event.keyCode ) {
-
                         case 81: // Q
                             control.setSpace( control.space === "local" ? "world" : "local" );
                             control2.setSpace( control.space === "local" ? "world" : "local" );
@@ -217,11 +210,8 @@
                         case 32: // Spacebar
                             control.enabled = ! control.enabled;
                             break;
-
                     }
-
                 } );
-
             }
 
             function onWindowResize() {
@@ -238,7 +228,6 @@
                 renderer.setSize( window.innerWidth, window.innerHeight );
 
                 render();
-
             }
 
             function render() {
@@ -276,6 +265,5 @@
             window.render = render;
 
         </script>
-
     </body>
 </html>

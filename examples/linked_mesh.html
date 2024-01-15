@@ -240,90 +240,34 @@
 
                     mesh.matrixAutoUpdate  = false;
 				
-					var portal_to_origin = new THREE.Matrix4();
-					portal_to_origin.multiplyMatrices(plane2.matrixWorld.invert(), mesh2.matrixWorld);
+                    // Transforms to handle "in-out" behavior. For object going into A and out B:
+                    // Flip Z: As you go in A, you come out B
+                    // Flip X: Required to maintain right-hand rule.    
+                    
+                    //                       A                  B
+                    //                           (+Y)    (+Y)
+                    //                             |      |
+                    //                             |      |
+                    //                             |      |
+                    //  OBJECT ->     (+Z) - - - - o      o - - - - (+Z)     -> OBJECT
+                    //                            /        \
+                    //                           /          \
+                    //                        (+X)          (-X)
+
+					var obj_to_in = new THREE.Matrix4();
+					obj_to_in.multiplyMatrices(plane2.matrixWorld.invert(), mesh2.matrixWorld);
 
 					var flip_xz = new THREE.Matrix4().identity();
 					flip_xz.elements[0] *= -1;
 					flip_xz.elements[10] *= -1;
 
-					// mesh.matrix.multiplyMatrices(portal_to_origin, origin_to_portal2);
-                    // let relative_to_out = new THREE.Matrix4();
-                    // relative_to_out.multiplyMatrices(portal_to_origin, mesh.matrix);
+                    let obj_to_out = new THREE.Matrix4().multiplyMatrices(flip_xz, obj_to_in);
+                    mesh.matrix.multiplyMatrices(plane.matrixWorld, obj_to_out);
 
-					mesh.matrix.multiplyMatrices(flip_xz, portal_to_origin);
-                    mesh.matrix.multiplyMatrices(plane.matrixWorld.invert(), mesh.matrix);
-
-					
 					// Mesh.position isn't used when we turn auto-update to false.
 					// If we want to keep it current, we need to manually set it from the matrix.
 					mesh.position.setFromMatrixPosition(mesh.matrix);
                     mesh.matrixWorldNeedsUpdate = true;
-
-
-
-    //                 mesh2.matrixAutoUpdate = false;
-                
-    //                 // const in_port_to_origin = plane.matrixWorld.invert();
-    //                 // const obj_relative_to_in_port = in_port_to_origin.multiply()
-
-    //                 let mesh_relative_to_in_port = new THREE.Matrix4();
-    //                 mesh_relative_to_in_port.multiplyMatrices(plane.matrixWorld.invert(), mesh.matrixWorld);
-
-    //                 // The front face of the portal mesh is where objects come in and go out.
-    //                 // Therefore, for an object to go the same direction and skip a gap, the portal is rotated 180deg.
-    //                 // x-> O     O x-> 
-            
-
-    //                 // Transforms to handle "in-out" behavior. For object going into A and out B:
-    //                 // Flip Z: As you go in A, you come out B
-    //                 // Flip X: Required to maintain right-hand rule.    
-                    
-    // //                           A                  B
-    // //                               (+Y)    (+Y)
-    // //                                 |      |
-    // //                                 |      |
-    // //                                 |      |
-    // //  OBJECT ->         (+Z) - - - - o      o - - - - (+Z)        -> OBJECT
-    // //                                /        \
-    // //                               /          \
-    // //                            (+X)          (-X)
-
-                    
-    //                 let flip_xz = new THREE.Matrix4().identity();
-    //                 flip_xz.elements[0] *= -1;
-    //                 flip_xz.elements[10] *= -1;
-
-    //                 // flip_xz.multiply(portal_to_origin);
-    //                 // mesh2.matrix.set(flip_xz);
-                    
-
-    //                 // flip_xz.multiply(portal_to_origin);
-
-    //                 // mesh2.matrixWorld.multiply(portal_to_origin);
-    //                 // mesh2.matrixWorld.multiply(flip_xz);
-                    
-    //                 let relative_transform = new THREE.Matrix4().multiplyMatrices(flip_xz, mesh_relative_to_in_port);
-    //                 // flip it back
-    //                 // relative_transform.multiplyMatrices(relative_transform, flip_xz);
-    //                 mesh2.matrix.multiplyMatrices( relative_transform, plane2.matrix);
-                    
-    //                 // Mesh.position isn't used when we turn auto-update to false.
-    //                 // If we want to keep it current, we need to manually set it from the matrix.
-    //                 mesh2.position.setFromMatrixPosition(mesh2.matrix);
-
-    //                 // var out_of_portal = mesh.position.dot(clip1.normal) + clip1.constant > 0;
-    //                 // Mesh is considered inside the portal now, so we need to swap places with the dummy.
-    //                 // if (!out_of_portal) {
-    //                 //     [mesh.matrix, mesh2.matrix] = [mesh2.matrix, mesh.matrix];
-    //                 //     mesh.position.setFromMatrixPosition(mesh.matrix);
-    //                 //     mesh2.position.setFromMatrixPosition(mesh2.matrix);
-    //                 // }
-
-    //                 //out_of_portal = mesh2.position.dot(clip2.normal) + clip2.constant >= 0;
-    //                 // control2.visible = out_of_portal;
-
-    //                 mesh2.matrixWorldNeedsUpdate = true;
                 }
 
                 renderer.render( scene, currentCamera );

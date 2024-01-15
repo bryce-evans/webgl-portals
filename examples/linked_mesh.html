@@ -96,6 +96,8 @@
                 
                 // Meshes for portal.
                 let plane = new THREE.Mesh( plane_geo, plane_mat );
+                plane.rotation.y = - Math.PI / 6;
+                plane.position.z = 1;
                 plane.updateMatrix();
                 scene.add( plane );
 
@@ -231,6 +233,7 @@
 
             function render() {
                 if (window.mesh) {
+                    let plane = window.plane;
                     let plane2 = window.plane2;
                     let mesh = window.mesh;
                     let mesh2 = window.mesh2;
@@ -245,7 +248,12 @@
 					flip_xz.elements[10] *= -1;
 
 					// mesh.matrix.multiplyMatrices(portal_to_origin, origin_to_portal2);
+                    // let relative_to_out = new THREE.Matrix4();
+                    // relative_to_out.multiplyMatrices(portal_to_origin, mesh.matrix);
+
 					mesh.matrix.multiplyMatrices(flip_xz, portal_to_origin);
+                    mesh.matrix.multiplyMatrices(plane.matrixWorld.invert(), mesh.matrix);
+
 					
 					// Mesh.position isn't used when we turn auto-update to false.
 					// If we want to keep it current, we need to manually set it from the matrix.

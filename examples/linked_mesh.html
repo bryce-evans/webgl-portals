@@ -11,10 +11,9 @@
     <body>
 
         <div id="info">
-            "W" translate | "E" rotate | "R" scale | "+/-" adjust size<br />
-            "Q" toggle world/local space |  "Shift" snap to grid<br />
-            "X" toggle X | "Y" toggle Y | "Z" toggle Z | "Spacebar" toggle enabled<br />
-            "C" toggle camera | "V" random zoom
+            "Q" toggle world/local space <br />
+            "W" translate | "E" rotate | "R" scale<br />
+            "C" toggle camera 
         </div>
 
         <script type="module">
@@ -25,7 +24,7 @@
             import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 
             let cameraPersp, cameraOrtho, currentCamera;
-            let scene, renderer, control, orbit, mesh, mesh2;
+            let scene, renderer, control, dummy_control, orbit, mesh, linked_mesh;
 
             init();
             render();
@@ -41,7 +40,7 @@
                 const aspect = window.innerWidth / window.innerHeight;
 
                 cameraPersp = new THREE.PerspectiveCamera( 50, aspect, 1, 3000 );
-                cameraOrtho = new THREE.OrthographicCamera( - 600 * aspect, 600 * aspect, 600, - 600, 0.01, 30000 );
+                cameraOrtho = new THREE.OrthographicCamera( - 6 * aspect, 6 * aspect, 6, - 6, 0.01, 300 );
                 currentCamera = cameraPersp;
 
                 currentCamera.position.set( 7, 11, 7 );
@@ -57,7 +56,6 @@
                 light = new THREE.AmbientLight( 0x444444 );
                 scene.add( light );
 
-
                 const texture = new THREE.TextureLoader().load( '/examples/rsc/textures/uv_test_map.jpeg', render );
 
                 orbit = new OrbitControls( currentCamera, renderer.domElement );
@@ -69,10 +67,34 @@
                 control.setSpace( 'local' );
 
                 control.addEventListener( 'dragging-changed', function ( event ) {
+                    console.log(window.flip_linked_meshes);
+                    if (window.flip_linked_meshes) {
+                        window.control.detach(window.mesh);
+                        [window.mesh, window.linked_mesh] = [window.linked_mesh, window.mesh];
+                        [window.plane, window.plane2] = [window.plane2, window.plane];
+                        [window.clip1, window.clip2] = [window.clip2, window.clip1];
+
+                        let mat = window.mesh.matrixWorld.clone();
+                        window.control.attach(window.mesh);
+
+                        window.control.object.position.setFromMatrixPosition(mat);
+                        window.control.object.rotation.setFromRotationMatrix(mat);
+
+                        window.mesh.matrixAutoUpdate  = true;
+                        window.linked_mesh.matrixAutoUpdate  = false;
+                    }
                     orbit.enabled = !event.value;
                 });
 
-                // Assumes 
+                dummy_control = new TransformControls( currentCamera, renderer.domElement );
+				dummy_control.addEventListener( 'change', render );
+				dummy_control.setSpace( "local" );
+                dummy_control.visible = false;
+				dummy_control.addEventListener( 'dragging-changed', function ( event ) {
+					orbit.enabled = ! event.value;
+				} );
+
+                // Assumes fully planar geometry.
                 function clip_from_mesh(mesh) {
                     const vert_data = mesh.geometry.attributes.position.array;
                     let pts = [];
@@ -96,14 +118,14 @@
                 
                 // Meshes for portal.
                 let plane = new THREE.Mesh( plane_geo, plane_mat );
-                plane.rotation.y = - Math.PI / 6;
+                plane.rotation.y = - Math.PI / 12;
                 plane.position.z = 1;
                 plane.updateMatrix();
                 scene.add( plane );
 
                 // Mesh for second portal.
                 let plane2 = new THREE.Mesh( plane_geo, plane_mat );
-                plane2.rotation.y = 2 * Math.PI / 6;
+                plane2.rotation.y =  Math.PI / 4;
                 plane2.position.z = -5;
                 plane2.updateMatrix();
                 scene.add( plane2 );
@@ -118,28 +140,29 @@
                 // Main cube.
                 const material = new THREE.MeshLambertMaterial( { map: texture, clippingPlanes: [clip1]} );
                 mesh = new THREE.Mesh( geometry, material );
-                mesh.position.z = 1;
+                mesh.position.z = 1.3;
                 scene.add( mesh );
 
                 // Linked dummy cube.
                 const material2 = new THREE.MeshLambertMaterial( { map: texture, clippingPlanes: [clip2]} );
-                // const material2 = new THREE.MeshLambertMaterial( { map: texture });//  , clippingPlanes: [clip2]} );
-                mesh2 = new THREE.Mesh( geometry, material2 );
+                linked_mesh = new THREE.Mesh( geometry, material2 );
 
-                scene.add( mesh2 );
+                scene.add( linked_mesh );
 
                 control.attach( mesh );
+                dummy_control.attach( linked_mesh );
                 scene.add( control );
 
                 window.THREE = THREE;
                 window.scene = scene;
                 window.mesh = mesh;
-                window.mesh2 = mesh2;   
+                window.linked_mesh = linked_mesh;   
                 window.plane = plane;
                 window.plane2 = plane2;
                 window.clip1 = clip1;
                 window.clip2 = clip2;
                 window.control = control;
+                window.dummy_control = dummy_control;
 
                 window.addEventListener( 'resize', onWindowResize, false );
                 window.addEventListener( 'keydown', function ( event ) {
@@ -173,45 +196,6 @@
                             currentCamera.lookAt( orbit.target.x, orbit.target.y, orbit.target.z );
                             onWindowResize();
                             break;
-
-                        case 86: // V
-                            const randomFoV = Math.random() + 0.1;
-                            const randomZoom = Math.random() + 0.1;
-
-                            cameraPersp.fov = randomFoV * 160;
-                            cameraOrtho.bottom = - randomFoV * 500;
-                            cameraOrtho.top = randomFoV * 500;
-
-                            cameraPersp.zoom = randomZoom * 5;
-                            cameraOrtho.zoom = randomZoom * 5;
-                            onWindowResize();
-                            break;
-
-                        case 187:
-                        case 107: // +, =, num+
-                            control.setSize( control.size + 0.1 );
-                            break;
-
-                        case 189:
-                        case 109: // -, _, num-
-                            control.setSize( Math.max( control.size - 0.1, 0.1 ) );
-                            break;
-
-                        case 88: // X
-                            control.showX = ! control.showX;
-                            break;
-
-                        case 89: // Y
-                            control.showY = ! control.showY;
-                            break;
-
-                        case 90: // Z
-                            control.showZ = ! control.showZ;
-                            break;
-
-                        case 32: // Spacebar
-                            control.enabled = ! control.enabled;
-                            break;
                     }
                 } );
             }
@@ -236,9 +220,14 @@
                 if (window.mesh) {
                     let in_portal = window.plane;
                     let out_portal = window.plane2;
+                    let clip1 = window.clip1;
+				    let clip2 = window.clip2;
 
                     let mesh = window.mesh;
-                    let linked_mesh = window.mesh2;
+                    let linked_mesh = window.linked_mesh;
+
+                    let control = window.control;
+                    let dummy_control = window.dummy_control;
 
                     linked_mesh.matrixAutoUpdate  = false;
 				
@@ -265,6 +254,10 @@
 
                     let obj_to_out = new THREE.Matrix4().multiplyMatrices(flip_xz, obj_to_in);
                     linked_mesh.matrix.multiplyMatrices(out_portal.matrixWorld, obj_to_out);
+
+                    // flag to flip the dummy and real when controls are released.
+                    let inside = mesh.position.dot(clip1.normal) + clip1.constant < 0;
+                    window.flip_linked_meshes = inside;
 
 					// Mesh.position isn't used when we turn auto-update to false.
 					// If we want to keep it current, we need to manually set it from the matrix.

@@ -44,7 +44,7 @@
                 cameraOrtho = new THREE.OrthographicCamera( - 600 * aspect, 600 * aspect, 600, - 600, 0.01, 30000 );
                 currentCamera = cameraPersp;
 
-                currentCamera.position.set( 10, 5, 10 );
+                currentCamera.position.set( 7, 11, 7 );
                 currentCamera.lookAt( 0, 20, 0 );
 
                 scene = new THREE.Scene();
@@ -103,7 +103,7 @@
 
                 // Mesh for second portal.
                 let plane2 = new THREE.Mesh( plane_geo, plane_mat );
-                plane2.rotation.y = Math.PI + Math.PI / 6;
+                plane2.rotation.y = 2 * Math.PI / 6;
                 plane2.position.z = -5;
                 plane2.updateMatrix();
                 scene.add( plane2 );
@@ -118,16 +118,17 @@
                 // Main cube.
                 const material = new THREE.MeshLambertMaterial( { map: texture, clippingPlanes: [clip1]} );
                 mesh = new THREE.Mesh( geometry, material );
+                mesh.position.z = 1;
                 scene.add( mesh );
 
                 // Linked dummy cube.
-                // const material2 = new THREE.MeshLambertMaterial( { map: texture, clippingPlanes: [clip2]} );
-                const material2 = new THREE.MeshLambertMaterial( { map: texture });//  , clippingPlanes: [clip2]} );
+                const material2 = new THREE.MeshLambertMaterial( { map: texture, clippingPlanes: [clip2]} );
+                // const material2 = new THREE.MeshLambertMaterial( { map: texture });//  , clippingPlanes: [clip2]} );
                 mesh2 = new THREE.Mesh( geometry, material2 );
-                mesh2.position.z = -5;
+
                 scene.add( mesh2 );
 
-                control.attach( mesh2 );
+                control.attach( mesh );
                 scene.add( control );
 
                 window.THREE = THREE;
@@ -233,12 +234,13 @@
 
             function render() {
                 if (window.mesh) {
-                    let plane = window.plane;
-                    let plane2 = window.plane2;
-                    let mesh = window.mesh;
-                    let mesh2 = window.mesh2;
+                    let in_portal = window.plane;
+                    let out_portal = window.plane2;
 
-                    mesh.matrixAutoUpdate  = false;
+                    let mesh = window.mesh;
+                    let linked_mesh = window.mesh2;
+
+                    linked_mesh.matrixAutoUpdate  = false;
 				
                     // Transforms to handle "in-out" behavior. For object going into A and out B:
                     // Flip Z: As you go in A, you come out B
@@ -255,19 +257,19 @@
                     //                        (+X)          (-X)
 
 					var obj_to_in = new THREE.Matrix4();
-					obj_to_in.multiplyMatrices(plane2.matrixWorld.invert(), mesh2.matrixWorld);
+					obj_to_in.multiplyMatrices(in_portal.matrixWorld.invert(), mesh.matrixWorld);
 
 					var flip_xz = new THREE.Matrix4().identity();
 					flip_xz.elements[0] *= -1;
 					flip_xz.elements[10] *= -1;
 
                     let obj_to_out = new THREE.Matrix4().multiplyMatrices(flip_xz, obj_to_in);
-                    mesh.matrix.multiplyMatrices(plane.matrixWorld, obj_to_out);
+                    linked_mesh.matrix.multiplyMatrices(out_portal.matrixWorld, obj_to_out);
 
 					// Mesh.position isn't used when we turn auto-update to false.
 					// If we want to keep it current, we need to manually set it from the matrix.
-					mesh.position.setFromMatrixPosition(mesh.matrix);
-                    mesh.matrixWorldNeedsUpdate = true;
+					linked_mesh.position.setFromMatrixPosition(linked_mesh.matrix);
+                    linked_mesh.matrixWorldNeedsUpdate = true;
                 }
 
                 renderer.render( scene, currentCamera );

@@ -4,7 +4,9 @@
         <title>three.js webgl - transform controls</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <link type="text/css" rel="stylesheet" href="/modules/three.js/examples/main.css">
+        <script type="module" src="/modules/three.js/build/three.module.js"></script>
+
+        <link rel="stylesheet" href="/examples/css/demo_base.css">
     </head>
     <body>
 
@@ -17,13 +19,13 @@
 
         <script type="module">
 
-            import * as THREE from '/modules/three.js/build/three.module.js';
+            import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 
-            import { OrbitControls } from '/modules/three.js/examples/jsm/controls/OrbitControls.js';
-            import { TransformControls } from '/modules/three.js/examples/jsm/controls/TransformControls.js';
+            import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
+            import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 
             let cameraPersp, cameraOrtho, currentCamera;
-            let scene, renderer, control, control2, orbit, mesh, mesh2;
+            let scene, renderer, control, orbit, mesh, mesh2;
 
             init();
             render();
@@ -42,11 +44,11 @@
                 cameraOrtho = new THREE.OrthographicCamera( - 600 * aspect, 600 * aspect, 600, - 600, 0.01, 30000 );
                 currentCamera = cameraPersp;
 
-                currentCamera.position.set( 1000, 500, 1000 );
-                currentCamera.lookAt( 0, 200, 0 );
+                currentCamera.position.set( 10, 5, 10 );
+                currentCamera.lookAt( 0, 20, 0 );
 
                 scene = new THREE.Scene();
-                scene.add( new THREE.GridHelper( 1000, 10, 0x888888, 0x444444 ) );
+                scene.add( new THREE.GridHelper( 10, 10, 0x888888, 0x444444 ) );
 
                 var light = new THREE.DirectionalLight( 0xffffff, 1 );
                 light.position.set( 1, 1, 1 );
@@ -64,65 +66,67 @@
 
                 control = new TransformControls( currentCamera, renderer.domElement );
                 control.addEventListener( 'change', render );
-                control.setSpace( "local" );
+                control.setSpace( 'local' );
 
                 control.addEventListener( 'dragging-changed', function ( event ) {
-                    orbit.enabled = ! event.value;
+                    orbit.enabled = !event.value;
                 });
 
-                control2 = new TransformControls( currentCamera, renderer.domElement );
-                control2.addEventListener( 'change', render );
-                control2.setSpace( "local" );
-                control2.addEventListener( 'dragging-changed', function ( event ) {
-                    orbit.enabled = ! event.value;
-                } );
-
-                const plane_geo = new THREE.PlaneGeometry( 300, 300 );
-                const plane_mat = new THREE.MeshLambertMaterial( { color: 0x00aa88, side:THREE.DoubleSide } );
-                var plane = new THREE.Mesh( plane_geo, plane_mat );
-                plane.updateMatrix();
-                scene.add( plane );
-
-                const geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
-
+                // Assumes 
                 function clip_from_mesh(mesh) {
-                    let tri = mesh.geometry.faces[0];
-                    let verts = mesh.geometry.vertices;
-                    let pts = [verts[tri.a], verts[tri.b], verts[tri.c]];
-                    for (var i = 0; i < pts.length; i++){
-                        pts[i] = pts[i].clone().applyMatrix4( mesh.matrix );
+                    const vert_data = mesh.geometry.attributes.position.array;
+                    let pts = [];
+                    for (let i = 0; i < vert_data.length; i += 3) {
+                        let pt = new THREE.Vector3(vert_data[i], vert_data[i+1], vert_data[i+2]);
+                        pt.applyMatrix4( mesh.matrix );
+                        pts.push(pt);
                     }
-                    let a = new THREE.Vector3(pts[0].x, pts[0].y, pts[0].z);
-                    let b = new THREE.Vector3(pts[1].x, pts[1].y, pts[1].z);
-                    let c = new THREE.Vector3(pts[2].x, pts[2].y, pts[2].z);
-                    let ab = b.sub(a);
-                    let ac = c.sub(a);
-                    let cross = ab.cross(ac).normalize();
+
+                    const a = pts[0];
+                    const b = pts[2];
+                    const c = pts[1];
+                    const ab = b.sub(a);
+                    const ac = c.sub(a);
+                    const cross = ab.cross(ac).normalize();
                     return new THREE.Plane(cross, -(a.x * cross.x + a.y * cross.y + a.z * cross.z));
                 }
 
-                var clip1 = clip_from_mesh(plane);
-                const material = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes: [clip1]} );
-                mesh = new THREE.Mesh( geometry, material );
-                mesh.matrixAutoUpdate  = false;
-                scene.add( mesh );
+                const plane_geo = new THREE.PlaneGeometry( 3, 3 );
+                const plane_mat = new THREE.MeshLambertMaterial( { color: 0x00aa88, side:THREE.DoubleSide } );
+                
+                // Meshes for portal.
+                let plane = new THREE.Mesh( plane_geo, plane_mat );
+                plane.updateMatrix();
+                scene.add( plane );
 
-                var plane2 = new THREE.Mesh( plane_geo, plane_mat );
+                // Mesh for second portal.
+                let plane2 = new THREE.Mesh( plane_geo, plane_mat );
                 plane2.rotation.y = Math.PI + Math.PI / 6;
-                plane2.position.z = -500;
+                plane2.position.z = -5;
                 plane2.updateMatrix();
                 scene.add( plane2 );
 
-                var clip2 = clip_from_mesh(plane2);
-                const material2 = new THREE.MeshLambertMaterial( { map: texture, transparent: true, clippingPlanes: [clip2]} );
+                // Clipping planes from portals.
+                const clip1 = clip_from_mesh(plane);
+                const clip2 = clip_from_mesh(plane2);
+
+                // Cube geometry.
+                const geometry = new THREE.BoxBufferGeometry( 2, 2, 2 );
+
+                // Main cube.
+                const material = new THREE.MeshLambertMaterial( { map: texture, clippingPlanes: [clip1]} );
+                mesh = new THREE.Mesh( geometry, material );
+                scene.add( mesh );
+
+                // Linked dummy cube.
+                // const material2 = new THREE.MeshLambertMaterial( { map: texture, clippingPlanes: [clip2]} );
+                const material2 = new THREE.MeshLambertMaterial( { map: texture });//  , clippingPlanes: [clip2]} );
                 mesh2 = new THREE.Mesh( geometry, material2 );
-                mesh2.position.z = -500;
+                mesh2.position.z = -5;
                 scene.add( mesh2 );
 
-                control.attach( mesh );
-                control2.attach( mesh2 );
+                control.attach( mesh2 );
                 scene.add( control );
-                scene.add( control2 );
 
                 window.THREE = THREE;
                 window.scene = scene;
@@ -133,7 +137,6 @@
                 window.clip1 = clip1;
                 window.clip2 = clip2;
                 window.control = control;
-                window.control2 = control2;
 
                 window.addEventListener( 'resize', onWindowResize, false );
                 window.addEventListener( 'keydown', function ( event ) {
@@ -141,22 +144,18 @@
                     switch ( event.keyCode ) {
                         case 81: // Q
                             control.setSpace( control.space === "local" ? "world" : "local" );
-                            control2.setSpace( control.space === "local" ? "world" : "local" );
                             break;
 
                         case 87: // W
                             control.setMode( "translate" );
-                            control2.setMode( "translate" );
                             break;
 
                         case 69: // E
                             control.setMode( "rotate" );
-                            control2.setMode( "rotate" );
                             break;
 
                         case 82: // R
                             control.setMode( "scale" );
-                            control2.setMode( "scale" );
                             break;
 
                         case 67: // C
@@ -237,26 +236,86 @@
                     let mesh2 = window.mesh2;
 
                     mesh.matrixAutoUpdate  = false;
-                
-                    var portal_to_origin = new THREE.Matrix4();
-                    portal_to_origin.multiplyMatrices(plane2.matrixWorld.invert(), mesh2.matrixWorld);
+				
+					var portal_to_origin = new THREE.Matrix4();
+					portal_to_origin.multiplyMatrices(plane2.matrixWorld.invert(), mesh2.matrixWorld);
 
-                    var flip_xz = new THREE.Matrix4().identity();
-                    flip_xz.elements[0] *= -1;
-                    flip_xz.elements[10] *= -1;
-                    mesh.matrix.multiplyMatrices(flip_xz, portal_to_origin);
-                    
-                    // Mesh.position isn't used when we turn auto-update to false.
-                    // If we want to keep it current, we need to manually set it from the matrix.
-                    mesh.position.setFromMatrixPosition(mesh.matrix);
+					var flip_xz = new THREE.Matrix4().identity();
+					flip_xz.elements[0] *= -1;
+					flip_xz.elements[10] *= -1;
 
-                    var out_of_portal = mesh.position.dot(clip1.normal) + clip1.constant > 0;
-                    control.visible = out_of_portal;
-
-                    out_of_portal = mesh2.position.dot(clip2.normal) + clip2.constant >= 0;
-                    control2.visible = out_of_portal;
-
+					// mesh.matrix.multiplyMatrices(portal_to_origin, origin_to_portal2);
+					mesh.matrix.multiplyMatrices(flip_xz, portal_to_origin);
+					
+					// Mesh.position isn't used when we turn auto-update to false.
+					// If we want to keep it current, we need to manually set it from the matrix.
+					mesh.position.setFromMatrixPosition(mesh.matrix);
                     mesh.matrixWorldNeedsUpdate = true;
+
+
+
+    //                 mesh2.matrixAutoUpdate = false;
+                
+    //                 // const in_port_to_origin = plane.matrixWorld.invert();
+    //                 // const obj_relative_to_in_port = in_port_to_origin.multiply()
+
+    //                 let mesh_relative_to_in_port = new THREE.Matrix4();
+    //                 mesh_relative_to_in_port.multiplyMatrices(plane.matrixWorld.invert(), mesh.matrixWorld);
+
+    //                 // The front face of the portal mesh is where objects come in and go out.
+    //                 // Therefore, for an object to go the same direction and skip a gap, the portal is rotated 180deg.
+    //                 // x-> O     O x-> 
+            
+
+    //                 // Transforms to handle "in-out" behavior. For object going into A and out B:
+    //                 // Flip Z: As you go in A, you come out B
+    //                 // Flip X: Required to maintain right-hand rule.    
+                    
+    // //                           A                  B
+    // //                               (+Y)    (+Y)
+    // //                                 |      |
+    // //                                 |      |
+    // //                                 |      |
+    // //  OBJECT ->         (+Z) - - - - o      o - - - - (+Z)        -> OBJECT
+    // //                                /        \
+    // //                               /          \
+    // //                            (+X)          (-X)
+
+                    
+    //                 let flip_xz = new THREE.Matrix4().identity();
+    //                 flip_xz.elements[0] *= -1;
+    //                 flip_xz.elements[10] *= -1;
+
+    //                 // flip_xz.multiply(portal_to_origin);
+    //                 // mesh2.matrix.set(flip_xz);
+                    
+
+    //                 // flip_xz.multiply(portal_to_origin);
+
+    //                 // mesh2.matrixWorld.multiply(portal_to_origin);
+    //                 // mesh2.matrixWorld.multiply(flip_xz);
+                    
+    //                 let relative_transform = new THREE.Matrix4().multiplyMatrices(flip_xz, mesh_relative_to_in_port);
+    //                 // flip it back
+    //                 // relative_transform.multiplyMatrices(relative_transform, flip_xz);
+    //                 mesh2.matrix.multiplyMatrices( relative_transform, plane2.matrix);
+                    
+    //                 // Mesh.position isn't used when we turn auto-update to false.
+    //                 // If we want to keep it current, we need to manually set it from the matrix.
+    //                 mesh2.position.setFromMatrixPosition(mesh2.matrix);
+
+    //                 // var out_of_portal = mesh.position.dot(clip1.normal) + clip1.constant > 0;
+    //                 // Mesh is considered inside the portal now, so we need to swap places with the dummy.
+    //                 // if (!out_of_portal) {
+    //                 //     [mesh.matrix, mesh2.matrix] = [mesh2.matrix, mesh.matrix];
+    //                 //     mesh.position.setFromMatrixPosition(mesh.matrix);
+    //                 //     mesh2.position.setFromMatrixPosition(mesh2.matrix);
+    //                 // }
+
+    //                 //out_of_portal = mesh2.position.dot(clip2.normal) + clip2.constant >= 0;
+    //                 // control2.visible = out_of_portal;
+
+    //                 mesh2.matrixWorldNeedsUpdate = true;
                 }
 
                 renderer.render( scene, currentCamera );

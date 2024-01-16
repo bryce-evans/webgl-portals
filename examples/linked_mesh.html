@@ -34,7 +34,7 @@
 
             function init() {
 
-                renderer = new THREE.WebGLRenderer();
+                renderer = new THREE.WebGLRenderer({antialias:true});
                 renderer.setPixelRatio( window.devicePixelRatio );
                 renderer.setSize( window.innerWidth, window.innerHeight );
                 renderer.localClippingEnabled = true;
@@ -306,21 +306,11 @@
                         linked_mesh.position.setFromMatrixPosition(linked_mesh.matrix);
                         linked_mesh.matrixWorldNeedsUpdate = true;
 
-
                         // Update Camera renderering
-                        // in_cam.matrix.multiplyMatrices(in_portal.matrixWorld.invert(), camera.matrixWorld);
-                        // in_cam.matrix.multiplyMatrices(flip, in_cam.matrix);
-                        // console.info(in_cam.matrix.elements);
-                        // in_cam.matrix.multiplyMatrices(out_portal.matrixWorld, in_cam.matrix);
-
                         let cam_to_in = new THREE.Matrix4();
                         cam_to_in.multiplyMatrices(in_portal.matrixWorld, camera.matrixWorld);
 
-                        let flip = new THREE.Matrix4().identity();
-                        flip.elements[0] *= -1;
-                        flip.elements[10] *= -1;
-
-                        let cam_to_out = in_cam.matrix.multiplyMatrices(flip, cam_to_in);
+                        let cam_to_out = in_cam.matrix.multiplyMatrices(flip_xz, cam_to_in);
                         in_cam.matrix.multiplyMatrices(out_portal.matrix, cam_to_out);
 
                         in_cam.position.setFromMatrixPosition(in_cam.matrix);

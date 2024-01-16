@@ -219,29 +219,6 @@ class LinkedMesh extends Mesh
     ctx.stroke();
   }
 
-  renderDebugUVs(show = true) {
-    console.assert(show !== undefined && typeof(show) == 'boolean',
-        'showDebugUVs takes boolean input.',
-    );
-    this.show_debug_uvs = show;
-
-    if (!this.debug_dom_el) {
-      if (!this.debug_height || !this.debug_width) {
-        console.error('Debugging window dimensions not set. Include debug_{height, width} in constructor options.');
-      }
-
-      const div = $('<div class="debug_container">');
-      div.append(this.debug_renderer.domElement);
-
-      const canvas = $(`<canvas height=${this.debug_height} width=${this.debug_width}></canvas>`);
-      canvas.addClass('overlay');
-      canvas.addClass('debug-portal-window');
-      this.debug_canvas2d = canvas[0];
-
-      div.append(canvas);
-      $('#debug_uvs').append(div);
-    }
-  }
 }
 
 export {LinkedMesh};

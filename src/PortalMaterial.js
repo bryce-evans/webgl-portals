@@ -141,11 +141,17 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
    *    The group this portal belongs to (if any).
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
+    console.assert(scene !== undefined, "No scene for portal material onBeforeRender");
+
+    // Default to depth 1 if not specified.
+    scene.depth = scene.depth || 1;
+
     if (scene) {
-      if (scene.max_depth < 0) {
+      if (scene.depth > scene.max_depth) {
+        scene.depth = 1;
         return;
       }
-      scene.max_depth--;
+      scene.depth++;
     }
 
     const initial = this.renderer.getRenderTarget();

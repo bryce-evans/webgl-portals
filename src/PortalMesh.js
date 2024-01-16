@@ -154,11 +154,12 @@ class PortalMesh extends THREE.Mesh {
     // Render the internal scene of the portal to this mesh's texture.
     this.material.onBeforeRender(renderer, scene, camera, geometry, material, group);
 
-    if (this.show_debug_uvs) {
-      const ctx = this.debug_canvas2d.getContext('2d');
-      ctx.clearRect(0, 0, this.debug_canvas2d.width, this.debug_canvas2d.height);
-      this.debug_renderer.render(this.material.scene, this.camera);
-    }
+    // XXX FIXME This is broken. Causing infinite recursion.
+    // if (this.show_debug_uvs) {
+    //   const ctx = this.debug_canvas2d.getContext('2d');
+    //   ctx.clearRect(0, 0, this.debug_canvas2d.width, this.debug_canvas2d.height);
+    //   this.debug_renderer.render(this.material.scene, this.camera);
+    // }
 
     // Compute UVs for where the mesh is on the screen.
     const face_uvs = this.geometry.getAttribute( 'uv' ).array;
@@ -223,8 +224,9 @@ class PortalMesh extends THREE.Mesh {
         'showDebugUVs takes boolean input.',
     );
 
-    if (container !== undefined) {
+    if (container === undefined) {
       console.warn("No container provided for renderDebugUVs. Appending to default 'debug_container'");
+      container = document.body;
     }
     this.show_debug_uvs = show;
 
@@ -233,16 +235,20 @@ class PortalMesh extends THREE.Mesh {
         console.error('Debugging window dimensions not set. Include debug_{height, width} in constructor options.');
       }
 
-      const div = $('<div class="debug_container">');
-      div.append(this.debug_renderer.domElement);
+    // Create container.
+    const div = document.createElement('div');
+    div.classList.add('debug_container');
+    div.appendChild(this.debug_renderer.domElement);
 
-      const canvas = $(`<canvas height=${this.debug_height} width=${this.debug_width}></canvas>`);
-      canvas.addClass('overlay');
-      canvas.addClass('debug-portal-window');
-      this.debug_canvas2d = canvas[0];
+    // Create a canvas element with the specified height and width.
+    const canvas = document.createElement('canvas');
+    canvas.setAttribute('height', this.debug_height);
+    canvas.setAttribute('width', this.debug_width);
+    canvas.classList.add('overlay', 'debug-portal-window');
+    this.debug_canvas2d = canvas;
 
-      div.append(canvas);
-      container.append(div);
+    div.appendChild(canvas);
+    container.appendChild(div);
     }
   }
 }

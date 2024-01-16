@@ -1,3 +1,5 @@
+import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+
 /** Represents an animated material derived from rendering an offscreen scene.
  *
  * Params:

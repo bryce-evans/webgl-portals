@@ -1,8 +1,7 @@
-import {Mesh} from '..//modules/three.js/src/objects/Mesh.js';
+import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import {PortalMaterial} from './PortalMaterial.js';
 
-
-class PortalMesh extends Mesh {
+class PortalMesh extends THREE.Mesh {
   constructor(geometry, portal_material, options = {}) {
     /** Renders as the scene associated with input portal_material.
          * Gives the appearance of the mesh acting as a portal.
@@ -23,7 +22,7 @@ class PortalMesh extends Mesh {
          *      Height and width of debug info to be rendered to.
          */
 
-    console.assert(geometry instanceof THREE.Geometry, 'geometry is not an instance of THREE.Geometry');
+    console.assert(geometry instanceof THREE.BufferGeometry, 'geometry is not an instance of THREE.Geometry');
     console.assert(portal_material instanceof PortalMaterial, 'portal_material is not an instance of PortalMaterial');
 
     super(geometry, portal_material);
@@ -162,22 +161,21 @@ class PortalMesh extends Mesh {
     }
 
     // Compute UVs for where the mesh is on the screen.
-    const face_uvs = this.geometry.faceVertexUvs[0];
-    const face_idx = this.geometry.faces;
-    const vertices = this.geometry.vertices;
+    const face_uvs = this.geometry.getAttribute( 'uv' ).array;
+    const face_idx = this.geometry.index.array;
+    const vertices = this.geometry.getAttribute('position').array;
 
+    // Process each tri:
     for (let i = 0; i < face_uvs.length; i++) {
-      // Tri Processing:
-      const tri_uvs = face_uvs[i];
-      const tri_vertices = face_idx[i];
-      const tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]];
-
+      const tri_vertices = face_idx.slice(i * 2, (i + 1) * 3);
+      const tri_geometry = [vertices[tri_vertices[0]], vertices[tri_vertices[1]], vertices[tri_vertices[2]]];
       const uvs = [];
-      for (let j = 0; j < tri_uvs.length; j++) {
-        // Vertex Processing:
+
+      // Process each vertex:
+      for (let j = 0; j < 3; j++) {
         // Project to camera.
-        const vertex = tri_geometry[j];
-        const projected = vertex.clone().project(this.camera);
+        const vertex = new THREE.Vector3().fromArray(tri_geometry.slice(j * 3, (j+1) * 3));
+        const projected = vertex.project(this.camera);
         projected.x = (projected.x + 1) / 2;
         projected.y = -(projected.y - 1) / 2;
 
@@ -187,9 +185,8 @@ class PortalMesh extends Mesh {
         }
 
         // Set the UVs.
-        const uv = tri_uvs[j];
-        uv.x = projected.x;
-        uv.y = 1 - projected.y;
+        face_uvs[2 * j] = projected.x;
+        face_uvs[2 *  + 1] = projected.y;
       }
 
       // Draw debug viz.
@@ -221,10 +218,14 @@ class PortalMesh extends Mesh {
   }
 
   renderDebugUVs(show=true, container=undefined) {
-    console.assert(container !== undefined, "No container provided for renderDebugUVs");
+    
     console.assert(show !== undefined && typeof(show) == 'boolean',
         'showDebugUVs takes boolean input.',
     );
+
+    if (container !== undefined) {
+      console.warn("No container provided for renderDebugUVs. Appending to default 'debug_container'");
+    }
     this.show_debug_uvs = show;
 
     if (!this.debug_dom_el) {

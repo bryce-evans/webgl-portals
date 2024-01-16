@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+import * as THREE from 'three';
 
 /** Represents an animated material derived from rendering an offscreen scene.
  *
@@ -56,8 +56,8 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     this.name = name;
     this.clock = clock;
 
-    this.max_depth = 1;
-    this.depth_remaining = this.max_depth;
+    this.depth = 1;
+    this.max_depth = options.max_depth || 2;
 
     this.scene = scene;
     this.camera = camera;
@@ -115,7 +115,6 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
       shader.fragmentShader.replace(
         '#include <map_fragment>',
         `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) ); \
-        texelColor = mapTexelToLinear( texelColor ); \
         diffuseColor *= texelColor;`,
       );
   }
@@ -141,35 +140,23 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
    *    The group this portal belongs to (if any).
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
-    console.assert(scene !== undefined, "No scene for portal material onBeforeRender");
+    // if (this.depth > this.max_depth) { 
+    //   this.depth = 0;
+    //   return;
+    // }
+    // this.depth += 1;
 
-    // Default to depth 1 if not specified.
-    scene.depth = scene.depth || 1;
-
-    if (scene) {
-      if (scene.depth > scene.max_depth) {
-        scene.depth = 1;
-        return;
-      }
-      scene.depth++;
-    }
+    console.assert(this.scene !== undefined, "No scene for portal material onBeforeRender");
 
     const initial = this.renderer.getRenderTarget();
     this.renderer.setRenderTarget(this.buffer_texture);
-    // this.alphaMap = this.buffer_texture;
-
-    // this.renderer.getDrawingBufferSize(dims);
-
-    // this.renderer.setSize(this.resolution_width, this.resolution_height);
-
-    if (!this.scene.max_depth) {
-      this.scene.max_depth = this.max_depth - 1;
+    if (this.renderer.renderStateStack && this.renderer.renderStateStack.length <= this.max_depth ){
+      this.renderer.render(this.scene, this.camera);
     }
-    this.renderer.render(this.scene, this.camera);
+    
     this.buffer_texture.texture.needsUpdate = false;
 
     this.renderer.setRenderTarget(initial);
-    // this.renderer.setSize(dims);
   }
 }
 

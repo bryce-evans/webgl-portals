@@ -1,0 +1,19 @@
+{
+  "name": "webgl-portals",
+  "version": "1.0.0",
+  "description": "A framework built ontop of Three.js for adding portals into a WebGL scene.",
+  "main": "Portals.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "^3.7.1",
+    "three": "^0.160.0"
+  }
+}

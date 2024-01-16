@@ -3,7 +3,8 @@
  * It shows that the entire construction of a 6 faced cube each with a different scene is possible in a few hundred lines.
  */
 
-
+import * as THREE from 'three';
+import $ from "jquery";
 import { OrbitControls } from '/modules/three.js/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from '/modules/three.js/examples/jsm/loaders/GLTFLoader.js';
 
@@ -27,14 +28,10 @@ function main() {
 
   ////// Listeners
   function onWindowResize() {
-
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
     renderer.setSize(window.innerWidth, window.innerHeight);
-
     render();
-
   }
 
   window.addEventListener('resize', onWindowResize, false);
@@ -56,6 +53,7 @@ function main() {
   });
 
   function drawTriangle(canvas, a, b, c) {
+    console.assert(canvas !== undefined, "Canvas not provided to drawTriangles.")
     if (!canvas.getContext) {
       console.error("cannot get context for ", canvas);
       return;
@@ -81,7 +79,7 @@ function main() {
   var canvas2ds = []
   var buffer_textures = []
   var buffer_scenes = []
-  var dummy_geos = [new THREE.BoxGeometry(size, size, size), new THREE.ConeGeometry(size, size, 6), new THREE.DodecahedronGeometry(size / 2), new THREE.IcosahedronBufferGeometry(size / 2), new THREE.TetrahedronBufferGeometry(size / 2), new THREE.TorusGeometry(size / 2, size / 4, 10, 10)];
+  var dummy_geos = [new THREE.BoxGeometry(size, size, size), new THREE.ConeGeometry(size, size, 6), new THREE.DodecahedronGeometry(size / 2), new THREE.IcosahedronGeometry(size / 2), new THREE.TetrahedronGeometry(size / 2), new THREE.TorusGeometry(size / 2, size / 4, 10, 10)];
   var dummy_objs = [];
   var dummy_bg_materials = []
   var dummy_bgs = []
@@ -188,9 +186,9 @@ function main() {
       }
     }
 
-    var face_uvs = mainBoxObject.geometry.faceVertexUvs[0];
-    var face_idx = mainBoxObject.geometry.faces;
-    var vertices = mainBoxObject.geometry.vertices;
+    const face_uvs = mainBoxObject.geometry.getAttribute( 'uv' ).array;
+    const face_idx = mainBoxObject.geometry.index.array;
+    const vertices = mainBoxObject.geometry.getAttribute('position').array;
 
     for (var idx in canvas2ds) {
       var canvas = canvas2ds[idx];
@@ -198,35 +196,34 @@ function main() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    for (var i = 0; i < face_uvs.length; i++) {
+    for (var i = 0; i < vertices.length/3; i++) {
       // per tri
-      var tri_uvs = face_uvs[i];
-      var tri_vertices = face_idx[i];
-      var tri_geometry = [vertices[tri_vertices['a']], vertices[tri_vertices['b']], vertices[tri_vertices['c']]]
+      const tri_vertices = face_idx.slice(i * 2, (i + 1) * 3);
+      const tri_geometry = [vertices[tri_vertices[0]], vertices[tri_vertices[1]], vertices[tri_vertices[2]]];
+      let uvs = [];
 
       // Get debug canvas to render UVs.
-      var canvas = canvas2ds[Math.floor(i / 2)];
+      let canvas = canvas2ds[Math.floor(i / 2)];
 
-      var uvs = [];
-      for (var j = 0; j < tri_uvs.length; j++) {
-        // per vertex
-
-        // project to camera
-        var vertex = tri_geometry[j];
-        var projected = vertex.clone().project(camera);
+      // Process each vertex:
+      for (let j = 0; j < 3; j++) {
+        // Project to camera.
+        const vertex = new THREE.Vector3().fromArray(tri_geometry.slice(j * 3, (j+1) * 3));
+        const projected = vertex.project(camera);
         projected.x = (projected.x + 1) / 2;
         projected.y = -(projected.y - 1) / 2;
 
-        // For drawing UVs in debugger tools.
-        uvs.push({ x: projected.x * width / 4, y: projected.y * height / 4 });
+        // Push point to debug viz.
+        uvs.push({x: projected.x * width / 4, y: projected.y * height / 4});
 
         // Set the UVs.
-        var uv = tri_uvs[j];
-        uv.x = projected.x;
-        uv.y = 1 - projected.y;
+        face_uvs[2 * j] = projected.x;
+        face_uvs[2 *  + 1] = projected.y;
       }
-      drawTriangle(canvas, uvs[0], uvs[1], uvs[2]);
-
+      if (canvas) {
+        drawTriangle(canvas, uvs[0], uvs[1], uvs[2]);
+      }
+      
     }
     mainBoxObject.geometry.uvsNeedUpdate = true;
 

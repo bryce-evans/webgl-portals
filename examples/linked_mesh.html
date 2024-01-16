@@ -18,10 +18,10 @@
 
         <script type="module">
 
-            import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+            import * as THREE from 'three';
 
-            import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
-            import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
+            import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+            import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
             
             import { PortalMesh } from '/src/PortalMesh.js';
             import { PortalMaterial } from '/src/PortalMaterial.js';
@@ -153,7 +153,7 @@
                 const clip2 = clip_from_mesh(plane2);
 
                 // Cube geometry.
-                const geometry = new THREE.BoxBufferGeometry( 2, 2, 2 );
+                const geometry = new THREE.BoxGeometry( 2, 2, 2 );
 
                 // Main cube.
                 const material = new THREE.MeshLambertMaterial( { map: texture, clippingPlanes: [clip1]} );

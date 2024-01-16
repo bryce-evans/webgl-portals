@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+import * as THREE from 'three';
 import {PortalMaterial} from './PortalMaterial.js';
 
 class PortalMesh extends THREE.Mesh {
@@ -167,7 +167,7 @@ class PortalMesh extends THREE.Mesh {
     const vertices = this.geometry.getAttribute('position').array;
 
     // Process each tri:
-    for (let i = 0; i < face_uvs.length; i++) {
+    for (let i = 0; i < vertices.length/3; i++) {
       const tri_vertices = face_idx.slice(i * 2, (i + 1) * 3);
       const tri_geometry = [vertices[tri_vertices[0]], vertices[tri_vertices[1]], vertices[tri_vertices[2]]];
       const uvs = [];

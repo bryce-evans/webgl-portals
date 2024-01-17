@@ -17,8 +17,6 @@
         </div>
 
         <script type="module">
-            import uvTexturePath from './rsc/textures/uv_test_map.jpeg';
-
             import * as THREE from 'three';
 
             import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -26,8 +24,10 @@
             
             import { PortalMesh } from '/src/PortalMesh.js';
             import { PortalMaterial } from '/src/PortalMaterial.js';
+            import { PortalRenderer } from '/src/PortalRenderer.js';
 
-            
+            import uvTexturePath from './rsc/textures/uv_test_map.jpeg';
+
 
             let cameraPersp, cameraOrtho, camera;
             let scene, renderer, control, dummy_control, orbit, mesh, linked_mesh;
@@ -36,10 +36,11 @@
             render();
 
             function init() {
-
                 renderer = new THREE.WebGLRenderer({antialias:true});
                 renderer.setPixelRatio( window.devicePixelRatio );
                 renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.depth = 1;
+                renderer.max_depth = 1;
                 renderer.localClippingEnabled = true;
 
                 THREE.ColorManagement.enabled = false;
@@ -142,14 +143,24 @@
                 block.position.z = 1.75;
                 scene.add( block );
 
-
                 // Mesh for second portal.
-                let plane2 = new THREE.Mesh( plane_geo, block_mat );
+                let out_cam = camera.clone();
+                in_cam.matrixAutoUpdate = false;
+                let out_portal_mat = new PortalMaterial(scene, out_cam, renderer);
+                let plane2 = new PortalMesh(plane_geo, out_portal_mat, { debug_height: 256, debug_width: 256 });
+                plane2.renderDebugUVs();
+
                 plane2.rotation.y =  Math.PI / 4;
                 plane2.position.z = -4;
                 plane2.position.x = -5;
                 plane2.updateMatrix();
                 scene.add( plane2 );
+
+                let block2 = new THREE.Mesh(block_geo, block_mat);
+                block2.rotation.y =  Math.PI / 4;
+                block2.position.z = -4.25;
+                block2.position.x = -5.25;
+                // scene.add( block2 );
 
                 // Clipping planes from portals.
                 const clip1 = clip_from_mesh(plane);
@@ -220,91 +231,94 @@
                             scene.add(mesh1);
                             scene.add(mesh2);
                             break
-
                     }
                 } );
             }
 
             function onWindowResize() {
-
                 const aspect = window.innerWidth / window.innerHeight;
-
-                cameraPersp.aspect = aspect;
-                cameraPersp.updateProjectionMatrix();
-
+                camera.aspect = aspect;
+                camera.updateProjectionMatrix();
                 renderer.setSize( window.innerWidth, window.innerHeight );
-
                 render();
             }
 
             function render() {
-                    if (window.mesh) {
-                        let camera = window.camera;
-                        let in_cam = window.in_cam;
+                if (window.mesh) {
+                    let renderer = window.renderer;
 
-                        let in_portal = window.plane;
-                        let out_portal = window.plane2;
-                        let clip1 = window.clip1;
-                        let clip2 = window.clip2;
-
-                        let mesh = window.mesh;
-                        let linked_mesh = window.linked_mesh;
-
-                        let control = window.control;
-                        let dummy_control = window.dummy_control;
-
-                        linked_mesh.matrixAutoUpdate  = false;
-                    
-                        // Transforms to handle "in-out" behavior. For object going into A and out B:
-                        // Flip Z: As you go in A, you come out B
-                        // Flip X: Required to maintain right-hand rule.    
-                        
-                        //                       A                  B
-                        //                           (+Y)    (+Y)
-                        //                             |      |
-                        //                             |      |
-                        //                             |      |
-                        //  OBJECT ->     (+Z) - - - - o      o - - - - (+Z)     -> OBJECT
-                        //                            /        \
-                        //                           /          \
-                        //                        (+X)          (-X)
-
-                        let obj_to_in = new THREE.Matrix4();
-                        obj_to_in.multiplyMatrices(in_portal.matrixWorld.invert(), mesh.matrixWorld);
-
-                        let flip_xz = new THREE.Matrix4().identity();
-                        flip_xz.elements[0] *= -1;
-                        flip_xz.elements[10] *= -1;
-
-                        let obj_to_out = new THREE.Matrix4().multiplyMatrices(flip_xz, obj_to_in);
-                        linked_mesh.matrix.multiplyMatrices(out_portal.matrixWorld, obj_to_out);
-
-                        // flag to flip the dummy and real when controls are released.
-                        let inside = mesh.position.dot(clip1.normal) + clip1.constant < 0;
-                        window.flip_linked_meshes = inside;
-
-                        // Mesh.position isn't used when we turn auto-update to false.
-                        // If we want to keep it current, we need to manually set it from the matrix.
-                        linked_mesh.position.setFromMatrixPosition(linked_mesh.matrix);
-                        linked_mesh.matrixWorldNeedsUpdate = true;
-
-                        // Update Camera renderering
-                        let cam_to_in = new THREE.Matrix4();
-                        cam_to_in.multiplyMatrices(in_portal.matrixWorld, camera.matrixWorld);
-
-                        let cam_to_out = in_cam.matrix.multiplyMatrices(flip_xz, cam_to_in);
-                        in_cam.matrix.multiplyMatrices(out_portal.matrix, cam_to_out);
-
-                        in_cam.position.setFromMatrixPosition(in_cam.matrix);
-                        in_cam.matrixWorldNeedsUpdate = true;
-                        
+                    if (renderer.depth > renderer.max_depth) {
+                        renderer.depth = 0;
+                        return;
+                    } else {
+                        renderer.depth += 1;
                     }
+
+                    let camera = window.camera;
+                    let in_cam = window.in_cam;
+
+                    let in_portal = window.plane;
+                    let out_portal = window.plane2;
+                    let clip1 = window.clip1;
+                    let clip2 = window.clip2;
+
+                    let mesh = window.mesh;
+                    let linked_mesh = window.linked_mesh;
+
+                    let control = window.control;
+                    let dummy_control = window.dummy_control;
+
+                    linked_mesh.matrixAutoUpdate  = false;
+                
+                    // Transforms to handle "in-out" behavior. For object going into A and out B:
+                    // Flip Z: As you go in A, you come out B
+                    // Flip X: Required to maintain right-hand rule.    
+                    
+                    //                       A                  B
+                    //                           (+Y)    (+Y)
+                    //                             |      |
+                    //                             |      |
+                    //                             |      |
+                    //  OBJECT ->     (+Z) - - - - o      o - - - - (+Z)     -> OBJECT
+                    //                            /        \
+                    //                           /          \
+                    //                        (+X)          (-X)
+
+                    let obj_to_in = new THREE.Matrix4();
+                    obj_to_in.multiplyMatrices(in_portal.matrixWorld.invert(), mesh.matrixWorld);
+
+                    let flip_xz = new THREE.Matrix4().identity();
+                    flip_xz.elements[0] *= -1;
+                    flip_xz.elements[10] *= -1;
+
+                    let obj_to_out = new THREE.Matrix4().multiplyMatrices(flip_xz, obj_to_in);
+                    linked_mesh.matrix.multiplyMatrices(out_portal.matrixWorld, obj_to_out);
+
+                    // flag to flip the dummy and real when controls are released.
+                    let inside = mesh.position.dot(clip1.normal) + clip1.constant < 0;
+                    window.flip_linked_meshes = inside;
+
+                    // Mesh.position isn't used when we turn auto-update to false.
+                    // If we want to keep it current, we need to manually set it from the matrix.
+                    linked_mesh.position.setFromMatrixPosition(linked_mesh.matrix);
+                    linked_mesh.matrixWorldNeedsUpdate = true;
+
+                    // Update Camera renderering
+                    let cam_to_in = new THREE.Matrix4();
+
+                    cam_to_in.multiplyMatrices(in_portal.matrixWorld, camera.matrixWorld);
+                    let cam_to_out = in_cam.matrix.multiplyMatrices(flip_xz, cam_to_in);
+                    in_cam.matrix.multiplyMatrices(out_portal.matrix, cam_to_out);
+
+                    in_cam.position.setFromMatrixPosition(in_cam.matrix);
+                    
+                    in_cam.matrixWorldNeedsUpdate = true;
 
                     renderer.render( scene, camera );
                 }
-                    
-            // }
+            }
             window.render = render;
+            
 
         </script>
     </body>

@@ -56,8 +56,8 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     this.name = name;
     this.clock = clock;
 
-    this.depth = 1;
-    this.max_depth = options.max_depth || 2;
+    // this.depth = 1;
+    // this.max_depth = options.max_depth || 1;
 
     this.scene = scene;
     this.camera = camera;
@@ -140,19 +140,17 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
    *    The group this portal belongs to (if any).
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
-    // if (this.depth > this.max_depth) { 
-    //   this.depth = 0;
-    //   return;
-    // }
-    // this.depth += 1;
+    if (renderer.depth > renderer.max_depth) {
+      return;
+    } else {
+        renderer.depth += 1;
+    }
 
     console.assert(this.scene !== undefined, "No scene for portal material onBeforeRender");
-
+  
     const initial = this.renderer.getRenderTarget();
     this.renderer.setRenderTarget(this.buffer_texture);
-    if (this.renderer.renderStateStack && this.renderer.renderStateStack.length <= this.max_depth ){
-      this.renderer.render(this.scene, this.camera);
-    }
+    this.renderer.render(this.scene, this.camera);
     
     this.buffer_texture.texture.needsUpdate = false;
 

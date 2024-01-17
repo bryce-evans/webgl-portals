@@ -17,6 +17,7 @@
         </div>
 
         <script type="module">
+            import uvTexturePath from './rsc/textures/uv_test_map.jpeg';
 
             import * as THREE from 'three';
 
@@ -26,7 +27,9 @@
             import { PortalMesh } from '/src/PortalMesh.js';
             import { PortalMaterial } from '/src/PortalMaterial.js';
 
-            let cameraPersp, cameraOrtho, currentCamera;
+            
+
+            let cameraPersp, cameraOrtho, camera;
             let scene, renderer, control, dummy_control, orbit, mesh, linked_mesh;
 
             init();
@@ -38,35 +41,36 @@
                 renderer.setPixelRatio( window.devicePixelRatio );
                 renderer.setSize( window.innerWidth, window.innerHeight );
                 renderer.localClippingEnabled = true;
+
+                THREE.ColorManagement.enabled = false;
+                renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+
                 document.body.appendChild( renderer.domElement );
 
                 const aspect = window.innerWidth / window.innerHeight;
 
-                cameraPersp = new THREE.PerspectiveCamera( 50, aspect, 1, 3000 );
-                cameraOrtho = new THREE.OrthographicCamera( - 6 * aspect, 6 * aspect, 6, - 6, 0.01, 300 );
-                currentCamera = cameraPersp;
-
-                currentCamera.position.set( 7, 11, 7 );
-                currentCamera.lookAt( 0, 20, 0 );
+                camera = new THREE.PerspectiveCamera( 50, aspect, 1, 3000 );
+                camera.position.set( 7, 11, 7 );
+                camera.lookAt( 0, 20, 0 );
 
                 scene = new THREE.Scene();
                 scene.max_depth = 1;
                 scene.add( new THREE.GridHelper( 10, 10, 0x888888, 0x444444 ) );
 
-                var light = new THREE.DirectionalLight( 0xffffff, 1 );
-                light.position.set( 1, 1, 1 );
+                var light = new THREE.DirectionalLight( 0xffffff, 4 );
+                light.position.set( 5, 5, 5 );
                 scene.add( light );
 
-                light = new THREE.AmbientLight( 0x444444 );
+                light = new THREE.AmbientLight( 0x888888 );
                 scene.add( light );
 
-                const texture = new THREE.TextureLoader().load( '/examples/rsc/textures/uv_test_map.jpeg', render );
-
-                orbit = new OrbitControls( currentCamera, renderer.domElement );
+                const texture = new THREE.TextureLoader().load( uvTexturePath );
+                
+                orbit = new OrbitControls( camera, renderer.domElement );
                 orbit.update();
                 orbit.addEventListener( 'change', render );
 
-                control = new TransformControls( currentCamera, renderer.domElement );
+                control = new TransformControls( camera, renderer.domElement );
                 control.addEventListener( 'change', render );
                 control.setSpace( 'local' );
 
@@ -90,13 +94,13 @@
                     orbit.enabled = !event.value;
                 });
 
-                dummy_control = new TransformControls( currentCamera, renderer.domElement );
-				dummy_control.addEventListener( 'change', render );
-				dummy_control.setSpace( "local" );
+                dummy_control = new TransformControls( camera, renderer.domElement );
+                dummy_control.addEventListener( 'change', render );
+                dummy_control.setSpace( "local" );
                 dummy_control.visible = false;
-				dummy_control.addEventListener( 'dragging-changed', function ( event ) {
-					orbit.enabled = ! event.value;
-				} );
+                dummy_control.addEventListener( 'dragging-changed', function ( event ) {
+                    orbit.enabled = ! event.value;
+                } );
 
                 // Assumes fully planar geometry.
                 function clip_from_mesh(mesh) {
@@ -122,13 +126,12 @@
                 const plane_geo = new THREE.PlaneGeometry( 3, 3 );
                 
                 // Meshes for portal.
-                let in_cam = cameraPersp.clone();
+                let in_cam = camera.clone();
                 in_cam.matrixAutoUpdate = false;
                 let in_portal_mat = new PortalMaterial(scene, in_cam, renderer);
                 let plane = new PortalMesh(plane_geo, in_portal_mat, { debug_height: 256, debug_width: 256 });
                 plane.renderDebugUVs();
 
-                // let plane = new THREE.Mesh( plane_geo, plane_mat );
                 plane.rotation.y = - Math.PI / 12;
                 plane.position.z = 2;
                 plane.updateMatrix();
@@ -172,7 +175,7 @@
                 scene.add( control );
 
                 window.THREE = THREE;
-                window.camera = cameraPersp;
+                window.camera = camera;
                 window.in_cam = in_cam;
                 window.scene = scene;
                 window.mesh = mesh;
@@ -183,6 +186,7 @@
                 window.clip2 = clip2;
                 window.control = control;
                 window.dummy_control = dummy_control;
+                window.renderer = renderer;
 
                 window.addEventListener( 'resize', onWindowResize, false );
                 window.addEventListener( 'keydown', function ( event ) {
@@ -203,19 +207,7 @@
                         case 82: // R
                             control.setMode( "scale" );
                             break;
-
-                        case 67: // C
-                            const position = currentCamera.position.clone();
-
-                            currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
-                            currentCamera.position.copy( position );
-
-                            orbit.object = currentCamera;
-                            control.camera = currentCamera;
-
-                            currentCamera.lookAt( orbit.target.x, orbit.target.y, orbit.target.z );
-                            onWindowResize();
-                            break;
+                            
                         case 32: // space
                             const mat = new THREE.MeshBasicMaterial(Math.random()*0xFFFFFF<<0);
                             const geo = new THREE.BoxGeometry(0.1, 0.1, 0.1);
@@ -240,22 +232,12 @@
                 cameraPersp.aspect = aspect;
                 cameraPersp.updateProjectionMatrix();
 
-                cameraOrtho.left = cameraOrtho.bottom * aspect;
-                cameraOrtho.right = cameraOrtho.top * aspect;
-                cameraOrtho.updateProjectionMatrix();
-
                 renderer.setSize( window.innerWidth, window.innerHeight );
 
                 render();
             }
 
             function render() {
-                // const renderRecursive = function(depth) {
-                //     const maxDepth = 3;
-                //     if (depth > maxDepth) {
-                //         return;
-                //     }
-
                     if (window.mesh) {
                         let camera = window.camera;
                         let in_cam = window.in_cam;
@@ -318,7 +300,7 @@
                         
                     }
 
-                    renderer.render( scene, currentCamera );
+                    renderer.render( scene, camera );
                 }
                     
             // }

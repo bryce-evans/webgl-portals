@@ -18,9 +18,9 @@ class RandomGeometryScene extends THREE.Scene {
             case 2:
                 return new THREE.DodecahedronGeometry(size / 2);
             case 3:
-                return new THREE.IcosahedronBufferGeometry(size / 2);
+                return new THREE.IcosahedronGeometry(size / 2);
             case 4:
-                return new THREE.TetrahedronBufferGeometry(size);
+                return new THREE.TetrahedronGeometry(size);
             case 5:
                 return new THREE.TorusGeometry(size / 2, size / 4, 32, 32);
         }

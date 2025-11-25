@@ -1,8 +1,9 @@
+import * as THREE from '../modules/three.js/build/three.module.js';
 import {Mesh} from '../modules/three.js/src/objects/Mesh.js';
 import {PortalMaterial} from './PortalMaterial.js';
 
 
-class LinkedMesh extends Mesh
+class LinkedMesh extends Mesh {
   constructor(geometry, portal_material, options = {}) {
     /** Class to handle Meshes that are midway through a portal and may appear in two locations.
       *  Adds a second dummy mesh on the other side that linked to movement and used for

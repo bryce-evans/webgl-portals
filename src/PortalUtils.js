@@ -1,7 +1,7 @@
 /**
  * A set of geometry utilies.
  */
-import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+import * as THREE from 'three';
 import {PortalMesh} from './PortalMesh.js';
 import {PortalMaterial} from './PortalMaterial.js';
 
@@ -12,45 +12,95 @@ class PortalUtils {
 
   /** Takes a geometry and splits the tris into n_groups.
      *  Useful for splitting core geometry into faces.
-     *  Example: splitGeometryToGroups(new THREE.CubeGeometry(), 6) => [face1, face2, ...]
+     *  Example: splitGeometryToGroups(new THREE.BoxGeometry(), 6) => [face1, face2, ...]
      */
   static splitGeometryToGroups(geometry, n_groups) {
     const groups = [];
-    const n_faces = geometry.faces.length;
+
+    // Get geometry attributes
+    const positionAttr = geometry.getAttribute('position');
+    const normalAttr = geometry.getAttribute('normal');
+    const uvAttr = geometry.getAttribute('uv');
+    const indexAttr = geometry.index;
+
+    // Calculate number of triangles
+    const n_faces = indexAttr ? indexAttr.count / 3 : positionAttr.count / 3;
+
     if (n_faces % n_groups !== 0) {
       console.error('Geometry is not splitable into ' + n_groups + ' groups.');
     }
 
     const group_size = n_faces / n_groups;
 
-    for (let i = 0; i < n_faces; i += group_size) {
-      // Create a new geometry for each group, with map for old vertex indices to new.
-      var g = new THREE.Geometry();
-      var vertex_map = {};
-      for (let j = 0; j < group_size; j++) {
-        // Move the faces in the group to the new geometry.
-        const f = geometry.faces[i + j];
-        var new_vert_idx = [];
+    for (let i = 0; i < n_groups; i++) {
+      const startFace = i * group_size;
+      const endFace = (i + 1) * group_size;
 
-        [f.a, f.b, f.c].forEach(function(vert_idx, k) {
-          if (!(vert_idx in vertex_map)) {
-            g.vertices.push(geometry.vertices[vert_idx]);
-            vertex_map[vert_idx] = g.vertices.length - 1;
+      // Collect unique vertices for this group
+      const vertexMap = new Map();
+      const newPositions = [];
+      const newNormals = [];
+      const newUVs = [];
+      const newIndices = [];
+
+      for (let faceIdx = startFace; faceIdx < endFace; faceIdx++) {
+        const baseIdx = faceIdx * 3;
+
+        for (let v = 0; v < 3; v++) {
+          const vertIdx = indexAttr ? indexAttr.getX(baseIdx + v) : baseIdx + v;
+
+          if (!vertexMap.has(vertIdx)) {
+            const newIdx = vertexMap.size;
+            vertexMap.set(vertIdx, newIdx);
+
+            // Copy vertex data
+            newPositions.push(
+              positionAttr.getX(vertIdx),
+              positionAttr.getY(vertIdx),
+              positionAttr.getZ(vertIdx)
+            );
+
+            if (normalAttr) {
+              newNormals.push(
+                normalAttr.getX(vertIdx),
+                normalAttr.getY(vertIdx),
+                normalAttr.getZ(vertIdx)
+              );
+            }
+
+            if (uvAttr) {
+              newUVs.push(
+                uvAttr.getX(vertIdx),
+                uvAttr.getY(vertIdx)
+              );
+            }
           }
-          new_vert_idx.push(vertex_map[vert_idx]);
-        });
 
-        f.a = new_vert_idx[0];
-        f.b = new_vert_idx[1];
-        f.c = new_vert_idx[2];
-
-        g.faces.push(f);
-        g.faceVertexUvs[0].push(geometry.faceVertexUvs[0][i + j]);
+          newIndices.push(vertexMap.get(vertIdx));
+        }
       }
 
+      // Create new BufferGeometry for this group
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(newPositions, 3));
+
+      if (newNormals.length > 0) {
+        g.setAttribute('normal', new THREE.Float32BufferAttribute(newNormals, 3));
+      } else {
+        // Compute vertex normals if source geometry didn't have them
+        g.computeVertexNormals();
+      }
+
+      if (newUVs.length > 0) {
+        g.setAttribute('uv', new THREE.Float32BufferAttribute(newUVs, 2));
+      }
+
+      g.setIndex(newIndices);
       g.parameters = geometry.parameters;
+
       groups.push(g);
     }
+
     return groups;
   }
 

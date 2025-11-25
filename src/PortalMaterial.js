@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+import * as THREE from 'three';
 
 /** Represents an animated material derived from rendering an offscreen scene.
  *
@@ -40,9 +40,16 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     const resolution_width = options.resolution_width || 1024;
     const resolution_height = options.resolution_height || 1024;
 
-    const buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, {minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
+    const buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.UnsignedByteType,
+      colorSpace: THREE.SRGBColorSpace
+    });
     buffer_texture.name = name;
     buffer_texture.texture.image.name = name;
+    buffer_texture.texture.colorSpace = THREE.SRGBColorSpace;
 
     const alpha_buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, {minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
     alpha_buffer_texture.name = name;
@@ -115,7 +122,6 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
       shader.fragmentShader.replace(
         '#include <map_fragment>',
         `vec4 texelColor = texture2D( map, gl_FragCoord.xy / vec2(${dims.x}, ${dims.y}) ); \
-        texelColor = mapTexelToLinear( texelColor ); \
         diffuseColor *= texelColor;`,
       );
   }

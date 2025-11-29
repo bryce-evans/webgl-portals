@@ -87,8 +87,18 @@ class PortalMesh extends THREE.Mesh {
     let cam_vec = new THREE.Vector3();
     camera.getWorldDirection(cam_vec);
 
-    // assume true: if (this.isPlanar()) {
-    let geo_vec = this.geometry.faces[0].normal;
+    // Get the normal of the first face from BufferGeometry
+    const normalAttr = this.geometry.getAttribute('normal');
+    if (!normalAttr) {
+      return true; // If no normals, assume visible
+    }
+
+    let geo_vec = new THREE.Vector3(
+      normalAttr.getX(0),
+      normalAttr.getY(0),
+      normalAttr.getZ(0)
+    );
+
     return cam_vec.dot(geo_vec) < 0;
   }
 
@@ -106,15 +116,38 @@ class PortalMesh extends THREE.Mesh {
     if (!this.isPlanar) {
       console.warn('Generating single clipping plane for non-planar geometry.');
     }
-    const tri = this.geometry.faces[0];
-    const verts = this.geometry.vertices;
-    const pts = [verts[tri.a], verts[tri.b], verts[tri.c]];
-    const a = new THREE.Vector3(pts[0].x, pts[0].y, pts[0].z);
-    const b = new THREE.Vector3(pts[1].x, pts[1].y, pts[1].z);
-    const c = new THREE.Vector3(pts[2].x, pts[2].y, pts[2].z);
-    const ab = b.sub(a);
-    const ac = c.sub(a);
-    const cross = ab.cross(ac).normalize();
+
+    // Get first triangle from BufferGeometry
+    const positionAttr = this.geometry.getAttribute('position');
+    const indexAttr = this.geometry.index;
+
+    // Get the three vertex indices of the first triangle
+    const i0 = indexAttr ? indexAttr.getX(0) : 0;
+    const i1 = indexAttr ? indexAttr.getX(1) : 1;
+    const i2 = indexAttr ? indexAttr.getX(2) : 2;
+
+    // Get the three vertices
+    const a = new THREE.Vector3(
+      positionAttr.getX(i0),
+      positionAttr.getY(i0),
+      positionAttr.getZ(i0)
+    );
+    const b = new THREE.Vector3(
+      positionAttr.getX(i1),
+      positionAttr.getY(i1),
+      positionAttr.getZ(i1)
+    );
+    const c = new THREE.Vector3(
+      positionAttr.getX(i2),
+      positionAttr.getY(i2),
+      positionAttr.getZ(i2)
+    );
+
+    // Calculate plane from three points
+    const ab = new THREE.Vector3().subVectors(b, a);
+    const ac = new THREE.Vector3().subVectors(c, a);
+    const cross = new THREE.Vector3().crossVectors(ab, ac).normalize();
+
     return new THREE.Plane(cross, -(a.x * cross.x + a.y * cross.y + a.z * cross.z));
   }
 
@@ -162,20 +195,31 @@ class PortalMesh extends THREE.Mesh {
     // }
 
     // Compute UVs for where the mesh is on the screen.
-    const face_uvs = this.geometry.getAttribute( 'uv' ).array;
-    const face_idx = this.geometry.index.array;
-    const vertices = this.geometry.getAttribute('position').array;
+    const face_uvs = this.geometry.getAttribute('uv');
+    const positionAttr = this.geometry.getAttribute('position');
+    const indexAttr = this.geometry.index;
 
-    // Process each tri:
-    for (let i = 0; i < vertices.length/3; i++) {
-      const tri_vertices = face_idx.slice(i * 2, (i + 1) * 3);
-      const tri_geometry = [vertices[tri_vertices[0]], vertices[tri_vertices[1]], vertices[tri_vertices[2]]];
+    // Get number of triangles
+    const triangleCount = indexAttr ? indexAttr.count / 3 : positionAttr.count / 3;
+
+    // Process each triangle:
+    for (let i = 0; i < triangleCount; i++) {
       const uvs = [];
 
-      // Process each vertex:
+      // Process each vertex of the triangle:
       for (let j = 0; j < 3; j++) {
-        // Project to camera.
-        const vertex = new THREE.Vector3().fromArray(tri_geometry.slice(j * 3, (j+1) * 3));
+        const vertexIndex = i * 3 + j;
+        const posIndex = indexAttr ? indexAttr.getX(vertexIndex) : vertexIndex;
+
+        // Get vertex position in local space
+        const vertex = new THREE.Vector3(
+          positionAttr.getX(posIndex),
+          positionAttr.getY(posIndex),
+          positionAttr.getZ(posIndex)
+        );
+
+        // Transform to world space, then project to camera
+        vertex.applyMatrix4(this.matrixWorld);
         const projected = vertex.project(this.camera);
         projected.x = (projected.x + 1) / 2;
         projected.y = -(projected.y - 1) / 2;
@@ -186,8 +230,7 @@ class PortalMesh extends THREE.Mesh {
         }
 
         // Set the UVs.
-        face_uvs[2 * j] = projected.x;
-        face_uvs[2 *  + 1] = projected.y;
+        face_uvs.setXY(vertexIndex, projected.x, projected.y);
       }
 
       // Draw debug viz.
@@ -195,7 +238,8 @@ class PortalMesh extends THREE.Mesh {
         this._drawTriangle(this.debug_canvas2d, uvs[0], uvs[1], uvs[2]);
       }
     }
-    this.geometry.uvsNeedUpdate = true;
+
+    face_uvs.needsUpdate = true;
   }
 
   /**

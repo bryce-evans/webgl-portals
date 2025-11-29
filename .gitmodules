@@ -2,6 +2,7 @@
 	path = modules/three.js
 	url = https://github.com/mrdoob/three.js
 	branch = master
+	sparse-checkout = true
 [submodule "modules/jquery"]
 	path = modules/jquery
 	url = git://github.com/jquery/jquery

@@ -40,9 +40,16 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     const resolution_width = options.resolution_width || 1024;
     const resolution_height = options.resolution_height || 1024;
 
-    const buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, {minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
+    const buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.UnsignedByteType,
+      colorSpace: THREE.SRGBColorSpace
+    });
     buffer_texture.name = name;
     buffer_texture.texture.image.name = name;
+    buffer_texture.texture.colorSpace = THREE.SRGBColorSpace;
 
     const alpha_buffer_texture = new THREE.WebGLRenderTarget(resolution_width, resolution_height, {minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
     alpha_buffer_texture.name = name;

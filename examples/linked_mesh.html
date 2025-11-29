@@ -160,11 +160,28 @@
                 block2.rotation.y =  Math.PI / 4;
                 block2.position.z = -4.25;
                 block2.position.x = -5.25;
-                // scene.add( block2 );
+                scene.add( block2 );
 
                 // Clipping planes from portals.
                 const clip1 = clip_from_mesh(plane);
                 const clip2 = clip_from_mesh(plane2);
+
+                // clip1 is for clipping out portal2 (viewed from portal 1)
+                const camera_clip1 = clip2.clone();
+                const camera_clip2 = clip1.clone();
+                
+                camera_clip1.normal.multiplyScalar(-1);
+                camera_clip1.constant *= -1;
+                camera_clip2.normal.multiplyScalar(-1);
+                camera_clip2.constant *= -1;
+
+                // in_cam.clippingPlanes = [camera_clip1];
+                // out_cam.clippingPlanes = [camera_clip2];
+                const myPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+                const planeHelper = new THREE.PlaneHelper(myPlane, 3, "red");
+                scene.add(planeHelper);
+
+                camera.clippingPlanes = [myPlane];
 
                 // Cube geometry.
                 const geometry = new THREE.BoxGeometry( 2, 2, 2 );

@@ -3,8 +3,8 @@
  * Adds listeners to show debug info on keypress.
  */
 
-
-import { OrbitControls } from '../../../modules/three.js/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PortalMesh } from '../../../src/PortalMesh.js';
 
 

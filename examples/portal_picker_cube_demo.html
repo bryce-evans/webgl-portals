@@ -1,10 +1,17 @@
-<!DOCTYPE>
+<!DOCTYPE html>
 <html>
 
 <head>
 	<title>WebGL Portals | Portal PickCube Demo</title>
 	<script type="text/javascript" src="/modules/jquery/build/jquery-3.5.1.min.js"></script>
-	<script type="text/javascript" src="/modules/three.js/build/three.module.js"></script>
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "/modules/three.js/build/three.module.js",
+				"three/examples/": "/modules/three.js/examples/"
+			}
+		}
+	</script>
 	<script type="module" src="js/PortalPickerCubeDemo.js"></script>
 	<link rel="stylesheet" href="./css/demo_base.css">
 </head>

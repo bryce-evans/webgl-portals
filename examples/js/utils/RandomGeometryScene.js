@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 class RandomGeometryScene extends THREE.Scene {
 
     constructor(options={}) {
@@ -60,7 +62,7 @@ class RandomGeometryScene extends THREE.Scene {
         light2.position.set(1, 12, 0);
         this.add(light2);
 
-        this.add(new THREE.AmbientLight(white), 0.2);
+        this.add(new THREE.AmbientLight(white, 0.2));
 
         let materials = this.randComplementPhongMaterials();
         if (room_geo != null) {

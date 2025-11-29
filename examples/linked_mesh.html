@@ -4,7 +4,14 @@
         <title>three.js webgl - transform controls</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <script type="module" src="/modules/three.js/build/three.module.js"></script>
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "/modules/three.js/build/three.module.js",
+                    "three/examples/": "/modules/three.js/examples/"
+                }
+            }
+        </script>
 
         <link rel="stylesheet" href="/examples/css/demo_base.css">
     </head>

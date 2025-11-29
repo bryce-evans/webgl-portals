@@ -1,9 +1,16 @@
-<!DOCTYPE>
+<!DOCTYPE html>
 <html>
 
 <head>
 	<title>WebGL Portals | Standalone Portal Demo</title>
-	<script type="module" src="/modules/three.js/examples/jsm/controls/OrbitControls.js"></script>
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "/modules/three.js/build/three.module.js",
+				"three/examples/": "/modules/three.js/examples/"
+			}
+		}
+	</script>
 	<script type="module" src="js/StandaloneExample.js"></script>
 	<script type="module" src="/examples/js/utils/Controls.js"></script>
 	<link rel="stylesheet" href="./css/demo_base.css">

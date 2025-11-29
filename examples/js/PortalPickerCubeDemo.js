@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { ObjectPicker, Controls } from '/examples/js/utils/Controls.js';
 import { CubePortalLayout } from '/examples/js/layouts/CubePortalLayout.js';
 import { PortalMesh } from '/src/PortalMesh.js';
@@ -93,7 +94,7 @@ class PortalPickerCubeDemo {
     scene.add(this.portal);
 
     if (show_uv_debug) {
-      this.portal.renderDebugUVs(true, $("#debug_uvs"));
+      this.portal.renderDebugUVs(true, $("#debug_uvs")[0]);
     }
     //this.renderer.domElement.addEventListener('click', function(e) {this.obj_picker.pick(scene, camera, 0)}.bind(this));
   }

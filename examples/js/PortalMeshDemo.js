@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { Controls } from '/examples/js/utils/Controls.js';
 import { PortalMaterial } from '/src/PortalMaterial.js';
 import { PortalMesh } from '/src/PortalMesh.js';
@@ -42,7 +43,7 @@ class PortalMeshDemo {
     this.buffer_texture = portal_mat.buffer_texture;
 
     var portal = new PortalMesh(portal_geo, portal_mat, { "debug_width": 256, "debug_height": 256 });
-    portal.renderDebugUVs(true, $("#debug_uvs"));
+    portal.renderDebugUVs(true, $("#debug_uvs")[0]);
     scene.add(portal);
 
     this.camera = camera;

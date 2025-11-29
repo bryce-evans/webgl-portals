@@ -5,8 +5,8 @@
 
 import * as THREE from 'three';
 import $ from "jquery";
-import { OrbitControls } from '/modules/three.js/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from '/modules/three.js/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 function main() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });

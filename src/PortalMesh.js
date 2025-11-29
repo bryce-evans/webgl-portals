@@ -39,6 +39,10 @@ class PortalMesh extends THREE.Mesh {
 
     this.camera = this.material.camera;
 
+    // Store original UVs for affine (uncorrected) rendering
+    const originalUvs = this.geometry.getAttribute('uv');
+    this.originalUVs = originalUvs.clone();
+
     // A wireframe showing the geometry.
     this.wire = null;
 
@@ -187,12 +191,24 @@ class PortalMesh extends THREE.Mesh {
     // Render the internal scene of the portal to this mesh's texture.
     this.material.onBeforeRender(renderer, scene, camera, geometry, material, group);
 
-    // XXX FIXME This is broken. Causing infinite recursion.
-    // if (this.show_debug_uvs) {
-    //   const ctx = this.debug_canvas2d.getContext('2d');
-    //   ctx.clearRect(0, 0, this.debug_canvas2d.width, this.debug_canvas2d.height);
-    //   this.debug_renderer.render(this.material.scene, this.camera);
-    // }
+    // Show the internal scene in the debug view
+    if (this.show_debug_uvs && this.debug_renderer) {
+      // Render the portal's internal scene to the debug canvas
+      const portalScene = this.material.scene;
+      const portalCamera = this.material.camera;
+
+      if (portalScene && portalCamera) {
+        this.debug_renderer.render(portalScene, portalCamera);
+      }
+
+      // Clear the overlay canvas for drawing UV lines
+      if (this.debug_canvas2d) {
+        const ctx = this.debug_canvas2d.getContext('2d');
+        if (ctx) {
+          ctx.clearRect(0, 0, this.debug_canvas2d.width, this.debug_canvas2d.height);
+        }
+      }
+    }
 
     // Compute UVs for where the mesh is on the screen.
     const face_uvs = this.geometry.getAttribute('uv');
@@ -201,6 +217,9 @@ class PortalMesh extends THREE.Mesh {
 
     // Get number of triangles
     const triangleCount = indexAttr ? indexAttr.count / 3 : positionAttr.count / 3;
+
+    // Debug logging (only log first portal mesh to avoid spam)
+    const shouldLog = this.material.name && this.material.name.includes('__p0') && Math.random() < 0.01;
 
     // Process each triangle:
     for (let i = 0; i < triangleCount; i++) {
@@ -224,19 +243,28 @@ class PortalMesh extends THREE.Mesh {
         projected.x = (projected.x + 1) / 2;
         projected.y = -(projected.y - 1) / 2;
 
-        // Push point to debug viz.
+        // Push point to debug viz overlay
         if (this.show_debug_uvs) {
           uvs.push({x: projected.x * this.debug_width, y: projected.y * this.debug_height});
         }
 
         // Set the UVs.
         face_uvs.setXY(vertexIndex, projected.x, projected.y);
+
+        // Log sample UVs for debugging
+        if (shouldLog && i === 0) {
+          console.log(`[${this.material.name}] Vertex ${j}: pos=(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)}, ${vertex.z.toFixed(2)}) UV=(${projected.x.toFixed(3)}, ${projected.y.toFixed(3)})`);
+        }
       }
 
-      // Draw debug viz.
-      if (this.show_debug_uvs) {
+      // Draw UV triangles on overlay canvas
+      if (this.show_debug_uvs && uvs.length === 3) {
         this._drawTriangle(this.debug_canvas2d, uvs[0], uvs[1], uvs[2]);
       }
+    }
+
+    if (shouldLog) {
+      console.log(`[${this.material.name}] Camera pos:`, this.camera.position, 'Matrix updated:', this.camera.matrixWorldNeedsUpdate);
     }
 
     face_uvs.needsUpdate = true;

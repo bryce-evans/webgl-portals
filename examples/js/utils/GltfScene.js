@@ -1,4 +1,5 @@
-import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 class GltfScene extends THREE.Scene {
     constructor(gltf_file, args) {

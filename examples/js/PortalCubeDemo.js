@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { ObjectPicker, Controls } from '/examples/js/utils/Controls.js';
 import { CubePortalLayout } from '/examples/js/layouts/CubePortalLayout.js';
 import { RandomGeometryScene } from '/examples/js/utils/RandomGeometryScene.js';

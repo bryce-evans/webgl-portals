@@ -1,5 +1,6 @@
-import {PortalMaterial} from '../PortalMaterial.js';
-import {PortalMesh} from '../PortalMesh.js';
+import * as THREE from 'three';
+import {PortalMaterial} from '../../../src/PortalMaterial.js';
+import {PortalMesh} from '../../../src/PortalMesh.js';
 
 class PortalLayout extends THREE.Group {
   constructor(options = {}) {
@@ -116,9 +117,9 @@ class PortalLayout extends THREE.Group {
   /** Callback used by THREE.
      * Render the windows in the group here.
      */
-  onBeforeRender() {
+  onBeforeRender(renderer, scene, camera, geometry, material, group) {
     for (let i = 0; i < this.portals.length; i++) {
-      this.portals[i].onBeforeRender();
+      this.portals[i].onBeforeRender(renderer, scene, camera, geometry, material, group);
     }
   }
 

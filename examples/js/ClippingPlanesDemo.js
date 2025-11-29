@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { Controls } from '/examples/js/utils/Controls.js';
 import { PortalMaterial } from '/src/PortalMaterial.js';
 import { PortalMesh } from '/src/PortalMesh.js';

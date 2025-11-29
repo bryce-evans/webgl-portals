@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { ObjectPicker, Controls } from '/examples/js/utils/Controls.js';
 import { CubePortalLayout } from '/src/layouts/CubePortalLayout.js';
 import { PortalMesh } from '/src/PortalMesh.js';
@@ -104,7 +105,7 @@ class TeleportDemo {
     scene.add(ring);
 
     if (show_uv_debug) {
-      this.portal.renderDebugUVs(true, $("#debug_uvs"));
+      this.portal.renderDebugUVs(true, $("#debug_uvs")[0]);
     }
   }
   render() {

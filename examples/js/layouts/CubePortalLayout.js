@@ -1,5 +1,6 @@
-import {PortalLayout} from 'PortalLayout.js';
-// import {PortalUtils} from 'src/PortalUtils.js';
+import * as THREE from 'three';
+import {PortalLayout} from './PortalLayout.js';
+import {PortalUtils} from '../../../src/PortalUtils.js';
 
 const MAX_SCENES = 6;
 

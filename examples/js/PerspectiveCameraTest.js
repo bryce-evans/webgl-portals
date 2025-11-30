@@ -180,6 +180,17 @@ class IncorrectCubeScene extends CubeScene {
 
     console.log(`Creating debug views for ${portals.length} portals`);
 
+    // Create a single shared renderer for all debug views to avoid too many WebGL contexts
+    const sharedDebugCanvas = document.createElement('canvas');
+    sharedDebugCanvas.width = debugSize;
+    sharedDebugCanvas.height = debugSize;
+    const sharedDebugRenderer = new THREE.WebGLRenderer({
+      canvas: sharedDebugCanvas,
+      antialias: true
+    });
+    sharedDebugRenderer.setSize(debugSize, debugSize);
+    sharedDebugRenderer.setClearColor(0x000000, 1);
+
     portals.forEach((portal, index) => {
       const mat = portal.material;
       if (!mat.bufferTexture) {
@@ -194,7 +205,7 @@ class IncorrectCubeScene extends CubeScene {
       div.style.position = 'relative';
       div.style.margin = '5px';
 
-      // Create a canvas to display the buffer texture using 2D context
+      // Create a 2D canvas for displaying the rendered scene + UV overlay
       const canvas = document.createElement('canvas');
       canvas.width = debugSize;
       canvas.height = debugSize;
@@ -212,11 +223,14 @@ class IncorrectCubeScene extends CubeScene {
       div.appendChild(label);
       container.appendChild(div);
 
-      // Store the canvas for drawing the texture later
+      // Store references
       mat.debugCanvas = canvas;
 
-      console.log(`Created debug canvas for portal ${index}, buffer size: ${mat.bufferTexture.width}x${mat.bufferTexture.height}`);
+      console.log(`Created debug view for portal ${index}`);
     });
+
+    // Store the shared renderer
+    this.sharedDebugRenderer = sharedDebugRenderer;
   }
 }
 
@@ -291,62 +305,26 @@ class PerspectiveCameraTest {
       scene_right.renderer.render(scene_right.scene, scene_right.camera);
 
       // Update debug views if they exist
-      if (scene_left.portal_cube) {
+      if (scene_left.portal_cube && scene_left.sharedDebugRenderer) {
         const debugVisible = document.getElementById('debug_uvs').style.display !== 'none';
 
         if (debugVisible) {
           scene_left.portal_cube.portals.forEach((portal, index) => {
             const mat = portal.material;
-            if (mat.debugCanvas && mat.bufferTexture) {
+            if (mat.debugCanvas) {
               try {
-                // Read pixels from the buffer texture and draw to canvas
+                // Render the portal scene using the shared renderer
+                scene_left.sharedDebugRenderer.render(mat.portalScene, mat.portalCamera);
+
+                // Copy the rendered result to this portal's debug canvas
                 const canvas = mat.debugCanvas;
                 const ctx = canvas.getContext('2d');
                 const debugWidth = canvas.width;
                 const debugHeight = canvas.height;
 
-                // Get actual buffer texture dimensions
-                const bufferWidth = mat.bufferTexture.width;
-                const bufferHeight = mat.bufferTexture.height;
-
-                // Create a temporary buffer to read pixels at full resolution
-                const pixels = new Uint8Array(bufferWidth * bufferHeight * 4);
-
-                // Read from the buffer texture
-                const currentRenderTarget = scene_left.renderer.getRenderTarget();
-                scene_left.renderer.setRenderTarget(mat.bufferTexture);
-                scene_left.renderer.readRenderTargetPixels(
-                  mat.bufferTexture,
-                  0, 0,
-                  bufferWidth, bufferHeight,
-                  pixels
-                );
-                scene_left.renderer.setRenderTarget(currentRenderTarget);
-
-                // Create a temporary canvas at full resolution
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = bufferWidth;
-                tempCanvas.height = bufferHeight;
-                const tempCtx = tempCanvas.getContext('2d');
-                const imageData = tempCtx.createImageData(bufferWidth, bufferHeight);
-
-                // Flip Y axis (WebGL has origin at bottom-left, canvas at top-left)
-                for (let y = 0; y < bufferHeight; y++) {
-                  for (let x = 0; x < bufferWidth; x++) {
-                    const srcIdx = ((bufferHeight - 1 - y) * bufferWidth + x) * 4;
-                    const dstIdx = (y * bufferWidth + x) * 4;
-                    imageData.data[dstIdx] = pixels[srcIdx];
-                    imageData.data[dstIdx + 1] = pixels[srcIdx + 1];
-                    imageData.data[dstIdx + 2] = pixels[srcIdx + 2];
-                    imageData.data[dstIdx + 3] = 255; // Force opaque
-                  }
-                }
-
-                tempCtx.putImageData(imageData, 0, 0);
-
-                // Scale down to debug canvas size
+                // Clear and draw the WebGL rendered scene
                 ctx.clearRect(0, 0, debugWidth, debugHeight);
-                ctx.drawImage(tempCanvas, 0, 0, bufferWidth, bufferHeight, 0, 0, debugWidth, debugHeight);
+                ctx.drawImage(scene_left.sharedDebugRenderer.domElement, 0, 0);
 
                 // Project cube face vertices into camera/image space to show UV mapping
                 const geometry = portal.geometry;

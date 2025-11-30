@@ -7,13 +7,14 @@ class CubeScene {
   constructor(target, scenes, has_perspective_corrected) {
     target = target || document.body;
     let width = target.offsetWidth / 2;
-    let height = target.offsetHeight;
+    let height = window.innerHeight - 128; // Subtract 128px for debug bar
 
     let renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor(0xffffff, 1);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     renderer.domElement.style.display = "inline-block";
+    renderer.domElement.style.verticalAlign = "top"; // Prevent inline-block spacing issues
     target.appendChild(renderer.domElement);
     this.renderer = renderer;
 
@@ -22,7 +23,7 @@ class CubeScene {
     this.scene = scene;
 
     let camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-    camera.position.set(11, 11, 11);
+    camera.position.set(17, 10, 17);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     this.camera = camera;
   }
@@ -176,9 +177,17 @@ class IncorrectCubeScene extends CubeScene {
   }
 
   renderCustomDebugUVs(portals, container) {
-    const debugSize = 256;
-
     console.log(`Creating debug views for ${portals.length} portals`);
+
+    // Calculate size to fit all 6 portals across the screen width
+    // Cap height at 128px
+    const maxHeight = 128;
+    const availableWidth = window.innerWidth;
+    const debugWidth = Math.floor(availableWidth / portals.length);
+    const debugHeight = Math.min(debugWidth, maxHeight); // Cap at 128px
+    const debugSize = debugHeight; // Use height as the size (square)
+
+    console.log(`Debug canvas size: ${debugSize}x${debugSize}`);
 
     // Create a single shared renderer for all debug views to avoid too many WebGL contexts
     const sharedDebugCanvas = document.createElement('canvas');
@@ -198,30 +207,16 @@ class IncorrectCubeScene extends CubeScene {
         return;
       }
 
-      // Create a container div for this portal
-      const div = document.createElement('div');
-      div.classList.add('debug_container');
-      div.style.display = 'inline-block';
-      div.style.position = 'relative';
-      div.style.margin = '5px';
-
       // Create a 2D canvas for displaying the rendered scene + UV overlay
       const canvas = document.createElement('canvas');
       canvas.width = debugSize;
       canvas.height = debugSize;
-      canvas.style.border = '2px solid #fff';
+      canvas.style.width = `${debugSize}px`;
+      canvas.style.height = `${debugSize}px`;
+      canvas.style.display = 'block';
       canvas.style.backgroundColor = '#000';
 
-      // Label
-      const label = document.createElement('div');
-      label.textContent = `Portal ${index}`;
-      label.style.color = '#fff';
-      label.style.fontSize = '12px';
-      label.style.textAlign = 'center';
-
-      div.appendChild(canvas);
-      div.appendChild(label);
-      container.appendChild(div);
+      container.appendChild(canvas);
 
       // Store references
       mat.debugCanvas = canvas;
@@ -306,7 +301,8 @@ class PerspectiveCameraTest {
 
       // Update debug views if they exist
       if (scene_left.portal_cube && scene_left.sharedDebugRenderer) {
-        const debugVisible = document.getElementById('debug_uvs').style.display !== 'none';
+        const debugDiv = document.getElementById('debug_uvs');
+        const debugVisible = debugDiv && debugDiv.style.display !== 'none';
 
         if (debugVisible) {
           scene_left.portal_cube.portals.forEach((portal, index) => {

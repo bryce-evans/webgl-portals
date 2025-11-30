@@ -39,6 +39,10 @@ class PortalMesh extends THREE.Mesh {
 
     this.camera = this.material.camera;
 
+    // Store frozen camera state for freeze mode
+    this.frozenCameraMatrix = null;
+    this.frozenProjectionMatrix = null;
+
     // Store original UVs for affine (uncorrected) rendering
     const originalUvs = this.geometry.getAttribute('uv');
     this.originalUVs = originalUvs.clone();
@@ -175,16 +179,27 @@ class PortalMesh extends THREE.Mesh {
      *    The group this portal belongs to (if any).
      */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
-    // TODO: disabled temporarily.
-    // if (window._FREEZE_ALL_PORTALS) {
-    //   if (this.material instanceof PortalMaterial) {
-    //     this.material.uniforms["frozen"].value = true;
-    //   }
-    //   return;
-    // }
-    // if (this.material instanceof PortalMaterial) {
-    //   this.material.uniforms["frozen"].value = false;
-    // }
+    // Check if freeze mode is enabled
+    if (window._FREEZE_ALL_PORTALS) {
+      // On first freeze, capture the current camera state
+      if (!this.frozenCameraMatrix) {
+        this.frozenCameraMatrix = this.camera.matrixWorldInverse.clone();
+        this.frozenProjectionMatrix = this.camera.projectionMatrix.clone();
+        console.log('[PortalMesh] Freeze mode activated - camera state captured');
+      }
+      // Debug: Log occasionally when frozen
+      if (Math.random() < 0.01) {
+        console.log('[PortalMesh] Freeze mode active - skipping render and UV updates');
+      }
+      return;
+    } else {
+      // Clear frozen state when unfrozen
+      if (this.frozenCameraMatrix) {
+        this.frozenCameraMatrix = null;
+        this.frozenProjectionMatrix = null;
+        console.log('[PortalMesh] Freeze mode deactivated - camera state cleared');
+      }
+    }
 
     this.update();
 

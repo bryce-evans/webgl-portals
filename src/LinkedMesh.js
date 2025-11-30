@@ -139,16 +139,10 @@ class LinkedMesh extends Mesh {
      *    The group this portal belongs to (if any).
      */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
-    // TODO: disabled temporarily.
-    // if (window._FREEZE_ALL_PORTALS) {
-    //   if (this.material instanceof PortalMaterial) {
-    //     this.material.uniforms["frozen"].value = true;
-    //   }
-    //   return;
-    // }
-    // if (this.material instanceof PortalMaterial) {
-    //   this.material.uniforms["frozen"].value = false;
-    // }
+    // Check if freeze mode is enabled - skip all rendering and UV updates
+    if (window._FREEZE_ALL_PORTALS) {
+      return;
+    }
 
     this.update();
 

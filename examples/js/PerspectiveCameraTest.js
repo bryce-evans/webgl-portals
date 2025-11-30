@@ -4,7 +4,7 @@ import { RandomGeometryScene } from "./utils/RandomGeometryScene.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 class CubeScene {
-  constructor(target, scenes, has_perspective_corrected) {
+  constructor(target) {
     target = target || document.body;
     let width = target.offsetWidth / 2;
     let height = window.innerHeight - 128; // Subtract 128px for debug bar
@@ -14,7 +14,7 @@ class CubeScene {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     renderer.domElement.style.display = "inline-block";
-    renderer.domElement.style.verticalAlign = "top"; // Prevent inline-block spacing issues
+    renderer.domElement.style.verticalAlign = "top";
     target.appendChild(renderer.domElement);
     this.renderer = renderer;
 
@@ -30,9 +30,8 @@ class CubeScene {
 }
 
 class IncorrectCubeScene extends CubeScene {
-  constructor(target, scenes, has_perspective_corrected, testInstance) {
-    super(target, scenes, has_perspective_corrected);
-    this.testInstance = testInstance;
+  constructor(target, scenes) {
+    super(target);
 
     const portal_render_resolution = 1048 * window.devicePixelRatio;
     let portal_cube = new CubePortalLayout(scenes, this.camera, this.renderer, {
@@ -49,7 +48,6 @@ class IncorrectCubeScene extends CubeScene {
 
     // Replace PortalMaterial with basic MeshBasicMaterial for affine UV interpolation
     portal_cube.portals.forEach((portal, index) => {
-      // Get the scene and camera from the portal materials array
       const portalScene = scenes[index];
 
       // Create a separate camera with aspect ratio 1.0 for square buffer texture
@@ -59,7 +57,6 @@ class IncorrectCubeScene extends CubeScene {
         this.camera.near,
         this.camera.far
       );
-      // Copy position and rotation from main camera
       portalCamera.position.copy(this.camera.position);
       portalCamera.quaternion.copy(this.camera.quaternion);
       portalCamera.updateProjectionMatrix();
@@ -89,24 +86,14 @@ class IncorrectCubeScene extends CubeScene {
       basicMat.bufferTexture = bufferTexture;
 
       // Recalculate UVs based on camera projection
-      // This is necessary because we're rendering with a perspective camera
-      // and need the UVs to match the projected vertex positions
       this.updatePortalUVs(portal, portalCamera);
 
       // Add empty update method (required by PortalMesh)
-      basicMat.update = function () {
-        // No-op: MeshBasicMaterial doesn't need updates
-      };
+      basicMat.update = function () {};
 
       // Override onBeforeRender to render the portal scene to buffer texture
-      // This recreates the portal rendering without perspective correction
-      const sceneInstance = this;
       basicMat.onBeforeRender = function (renderer) {
-        // Skip if freeze mode is enabled (F key)
-        if (
-          sceneInstance.testInstance &&
-          sceneInstance.testInstance.freezeMode
-        ) {
+        if (window._FREEZE_ALL_PORTALS) {
           return;
         }
 
@@ -117,63 +104,52 @@ class IncorrectCubeScene extends CubeScene {
 
         const initial = renderer.getRenderTarget();
         renderer.setRenderTarget(basicMat.bufferTexture);
-
-        // Render the portal scene to the buffer texture
         renderer.render(basicMat.portalScene, basicMat.portalCamera);
-
         basicMat.bufferTexture.texture.needsUpdate = false;
         renderer.setRenderTarget(initial);
 
         renderer.depth -= 1;
       };
 
-      // Replace the material on the portal mesh and trigger shader recompilation
+      // Replace the material on the portal mesh
       portal.material = basicMat;
       basicMat.needsUpdate = true;
     });
 
     // Create custom debug display for buffer textures
-    if (!has_perspective_corrected) {
-      const debugContainer = $("#debug_uvs")[0];
-      if (debugContainer) {
-        this.renderCustomDebugUVs(portal_cube.portals, debugContainer);
-      }
+    const debugContainer = $("#debug_uvs")[0];
+    if (debugContainer) {
+      this.renderCustomDebugUVs(portal_cube.portals, debugContainer);
     }
   }
 
   updatePortalUVs(portal, portalCamera) {
-    // Get the geometry and ensure world matrix is up to date
+    if (window._FREEZE_ALL_PORTALS) {
+      return;
+    }
+
     const geometry = portal.geometry;
     portal.updateMatrixWorld(true);
 
-    // Get position and UV attributes
     const positionAttr = geometry.getAttribute("position");
     const uvAttr = geometry.getAttribute("uv");
 
     if (!positionAttr || !uvAttr) {
-      console.warn("Portal geometry missing position or UV attribute");
       return;
     }
 
-    // Create array to store new UVs
     const newUVs = new Float32Array(uvAttr.count * 2);
 
-    // For each vertex, project it through the camera and compute UV
     for (let i = 0; i < positionAttr.count; i++) {
-      // Get vertex position in local space
       const vertex = new THREE.Vector3(
         positionAttr.getX(i),
         positionAttr.getY(i),
         positionAttr.getZ(i)
       );
 
-      // Transform to world space
       vertex.applyMatrix4(portal.matrixWorld);
-
-      // Project through the portal camera to get NDC coordinates
       vertex.project(portalCamera);
 
-      // Convert from NDC (-1 to 1) to UV space (0 to 1)
       const u = vertex.x * 0.5 + 0.5;
       const v = vertex.y * 0.5 + 0.5;
 
@@ -181,25 +157,17 @@ class IncorrectCubeScene extends CubeScene {
       newUVs[i * 2 + 1] = v;
     }
 
-    // Update the UV attribute
     geometry.setAttribute("uv", new THREE.Float32BufferAttribute(newUVs, 2));
     geometry.attributes.uv.needsUpdate = true;
   }
 
   renderCustomDebugUVs(portals, container) {
-    console.log(`Creating debug views for ${portals.length} portals`);
-
-    // Calculate size to fit all 6 portals across the screen width
-    // Cap height at 128px
     const maxHeight = 128;
     const availableWidth = window.innerWidth;
     const debugWidth = Math.floor(availableWidth / portals.length);
-    const debugHeight = Math.min(debugWidth, maxHeight); // Cap at 128px
-    const debugSize = debugHeight; // Use height as the size (square)
+    const debugSize = Math.min(debugWidth, maxHeight);
 
-    console.log(`Debug canvas size: ${debugSize}x${debugSize}`);
-
-    // Create a single shared renderer for all debug views to avoid too many WebGL contexts
+    // Create a single shared renderer for all debug views
     const sharedDebugCanvas = document.createElement("canvas");
     sharedDebugCanvas.width = debugSize;
     sharedDebugCanvas.height = debugSize;
@@ -210,14 +178,12 @@ class IncorrectCubeScene extends CubeScene {
     sharedDebugRenderer.setSize(debugSize, debugSize);
     sharedDebugRenderer.setClearColor(0x000000, 1);
 
-    portals.forEach((portal, index) => {
+    portals.forEach((portal) => {
       const mat = portal.material;
       if (!mat.bufferTexture) {
-        console.warn(`Portal ${index} has no bufferTexture`);
         return;
       }
 
-      // Create a 2D canvas for displaying the rendered scene + UV overlay
       const canvas = document.createElement("canvas");
       canvas.width = debugSize;
       canvas.height = debugSize;
@@ -227,21 +193,16 @@ class IncorrectCubeScene extends CubeScene {
       canvas.style.backgroundColor = "#000";
 
       container.appendChild(canvas);
-
-      // Store references
       mat.debugCanvas = canvas;
-
-      console.log(`Created debug view for portal ${index}`);
     });
 
-    // Store the shared renderer
     this.sharedDebugRenderer = sharedDebugRenderer;
   }
 }
 
 class CorrectedCubeScene extends CubeScene {
-  constructor(target, scenes, has_perspective_corrected) {
-    super(target, scenes, has_perspective_corrected);
+  constructor(target, scenes) {
+    super(target);
 
     const portal_render_resolution = 1048 * window.devicePixelRatio;
     let portal_cube = new CubePortalLayout(scenes, this.camera, this.renderer, {
@@ -260,77 +221,155 @@ class CorrectedCubeScene extends CubeScene {
 
 class PerspectiveCameraTest {
   constructor() {
-    this.freezeMode = false; // F key toggles freeze mode (stops rendering and UV updates)
-    window._FREEZE_ALL_PORTALS = false; // Initialize global freeze flag
+    window._FREEZE_ALL_PORTALS = false;
 
     let scenes = [];
     for (let i = 0; i < CubePortalLayout.maxScenes(); i++) {
       scenes.push(new RandomGeometryScene({ size: 5 }));
     }
 
-    this.scene_left = new IncorrectCubeScene(
-      document.body,
-      scenes,
-      false,
-      this
-    );
-    this.scene_right = new CorrectedCubeScene(document.body, scenes, true);
+    this.scene_left = new IncorrectCubeScene(document.body, scenes);
+    this.scene_right = new CorrectedCubeScene(document.body, scenes);
 
     this.controls = new OrbitControls(this.scene_left.camera, document.body);
 
-    // Add keyboard listeners for freeze functionality
+    // Add keyboard listener for freeze functionality
     document.addEventListener("keydown", (e) => {
       if (e.key === "f" || e.key === "F") {
-        // Set freeze flag BEFORE toggling mode to prevent one more frame from updating
-        const newFreezeMode = !this.freezeMode;
-        window._FREEZE_ALL_PORTALS = newFreezeMode;
-        this.freezeMode = newFreezeMode;
+        e.preventDefault();
+       
+        // Lock in current UVs from the camera when frozen.
+        this.scene_left.portal_cube.portals.forEach((portal) => {
+          const mat = portal.material;
+          if (mat.portalCamera) {
+            this.scene_left.updatePortalUVs(portal, mat.portalCamera);
+          }
+        });
 
-        console.log("=".repeat(60));
-        console.log("Freeze Mode:", this.freezeMode ? "ON (textures and UVs frozen)" : "OFF");
-        console.log("window._FREEZE_ALL_PORTALS =", window._FREEZE_ALL_PORTALS);
-        console.log("=".repeat(60));
+        window._FREEZE_ALL_PORTALS = !window._FREEZE_ALL_PORTALS;
 
         // Update the info div to show freeze status
-        const infoDiv = document.getElementById('info');
+        const infoDiv = document.getElementById("info");
         if (infoDiv) {
-          const freezeStatus = this.freezeMode ? '<span style="color: red; font-weight: bold;">FREEZE MODE ACTIVE</span>' : '';
-          infoDiv.innerHTML = `Perspective Camera Test<br>Press &lt;space&gt; to toggle debug view, F to freeze UVs, G to freeze textures<br>${freezeStatus}`;
+          const freezeStatus = window._FREEZE_ALL_PORTALS
+            ? '<span style="color: red; font-weight: bold;">FREEZE MODE ACTIVE</span>'
+            : "";
+          infoDiv.innerHTML = `Perspective Camera Test<br>Press &lt;space&gt; to toggle debug view, F to freeze<br>${freezeStatus}`;
         }
       }
     });
   }
 
+  updateDebugViews() {
+    const scene_left = this.scene_left;
+
+    if (!scene_left.portal_cube || !scene_left.sharedDebugRenderer) {
+      return;
+    }
+
+    const debugDiv = document.getElementById("debug_uvs");
+    const debugVisible = debugDiv && debugDiv.style.display !== "none";
+
+    if (!debugVisible) {
+      return;
+    }
+
+    scene_left.portal_cube.portals.forEach((portal) => {
+      const mat = portal.material;
+      if (!mat.debugCanvas) {
+        return;
+      }
+
+      const canvas = mat.debugCanvas;
+      const ctx = canvas.getContext("2d");
+
+      // Render the portal scene using the shared renderer
+      scene_left.sharedDebugRenderer.render(mat.portalScene, mat.portalCamera);
+
+      // Copy the rendered result to this portal's debug canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(scene_left.sharedDebugRenderer.domElement, 0, 0);
+
+      // Project cube face vertices to show UV mapping
+      const geometry = portal.geometry;
+      const positionAttr = geometry.getAttribute("position");
+      const indexAttr = geometry.index;
+
+      if (!positionAttr || !indexAttr) {
+        return;
+      }
+
+      ctx.strokeStyle = "#FF0000";
+      ctx.lineWidth = 2;
+
+      const triangleCount = indexAttr.count / 3;
+      const portalCamera = mat.portalCamera;
+      portal.updateMatrixWorld();
+
+      // Draw each triangle
+      for (let i = 0; i < triangleCount; i++) {
+        const projectedUVs = [];
+
+        for (let j = 0; j < 3; j++) {
+          const vertexIndex = i * 3 + j;
+          const posIndex = indexAttr.getX(vertexIndex);
+
+          const vertex = new THREE.Vector3(
+            positionAttr.getX(posIndex),
+            positionAttr.getY(posIndex),
+            positionAttr.getZ(posIndex)
+          );
+
+          vertex.applyMatrix4(portal.matrixWorld);
+          vertex.project(portalCamera);
+
+          const u = vertex.x * 0.5 + 0.5;
+          const v = vertex.y * 0.5 + 0.5;
+
+          projectedUVs.push({
+            x: u * canvas.width,
+            y: (1 - v) * canvas.height,
+          });
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(projectedUVs[0].x, projectedUVs[0].y);
+        ctx.lineTo(projectedUVs[1].x, projectedUVs[1].y);
+        ctx.lineTo(projectedUVs[2].x, projectedUVs[2].y);
+        ctx.lineTo(projectedUVs[0].x, projectedUVs[0].y);
+        ctx.stroke();
+      }
+    });
+  }
+
   render() {
-    let scene_left = this.scene_left;
-    let scene_right = this.scene_right;
-    let controls = this.controls;
-    let self = this;
+    const scene_left = this.scene_left;
+    const scene_right = this.scene_right;
+    const controls = this.controls;
+    const self = this;
 
     function render_loop() {
       controls.update();
       requestAnimationFrame(render_loop);
 
-      scene_left.camera.updateMatrixWorld();
+        scene_left.camera.updateMatrixWorld();
 
-      scene_right.camera.position.copy(scene_left.camera.position);
-      scene_right.camera.quaternion.copy(scene_left.camera.quaternion);
-      scene_right.camera.zoom = scene_left.camera.zoom;
-      scene_right.camera.updateProjectionMatrix();
-      scene_right.camera.updateMatrixWorld();
+        // Sync right camera with left camera
+        scene_right.camera.position.copy(scene_left.camera.position);
+        scene_right.camera.quaternion.copy(scene_left.camera.quaternion);
+        scene_right.camera.zoom = scene_left.camera.zoom;
+        scene_right.camera.updateProjectionMatrix();
+        scene_right.camera.updateMatrixWorld();
 
-      // Update portal cameras to match main camera position/rotation
-      if (scene_left.portal_cube) {
+        if (!window._FREEZE_ALL_PORTALS) {
+        // Update portal cameras to match main camera position/rotation
         scene_left.portal_cube.portals.forEach((portal) => {
           const mat = portal.material;
           if (mat.portalCamera) {
-            // Skip camera and UV updates if freeze mode is enabled
-            if (!self.freezeMode) {
-              mat.portalCamera.position.copy(scene_left.camera.position);
-              mat.portalCamera.quaternion.copy(scene_left.camera.quaternion);
-              mat.portalCamera.updateMatrixWorld();
-              scene_left.updatePortalUVs(portal, mat.portalCamera);
-            }
+            mat.portalCamera.position.copy(scene_left.camera.position);
+            mat.portalCamera.quaternion.copy(scene_left.camera.quaternion);
+            mat.portalCamera.updateMatrixWorld();
+            scene_left.updatePortalUVs(portal, mat.portalCamera);
           }
         });
       }
@@ -338,103 +377,11 @@ class PerspectiveCameraTest {
       scene_left.renderer.depth = 0;
       scene_right.renderer.depth = 0;
 
+      
       scene_left.renderer.render(scene_left.scene, scene_left.camera);
       scene_right.renderer.render(scene_right.scene, scene_right.camera);
 
-      // Update debug views if they exist
-      if (scene_left.portal_cube && scene_left.sharedDebugRenderer) {
-        const debugDiv = document.getElementById("debug_uvs");
-        const debugVisible = debugDiv && debugDiv.style.display !== "none";
-
-        if (debugVisible) {
-          scene_left.portal_cube.portals.forEach((portal, index) => {
-            const mat = portal.material;
-            if (mat.debugCanvas) {
-              try {
-                // Render the portal scene using the shared renderer
-                scene_left.sharedDebugRenderer.render(
-                  mat.portalScene,
-                  mat.portalCamera
-                );
-
-                // Copy the rendered result to this portal's debug canvas
-                const canvas = mat.debugCanvas;
-                const ctx = canvas.getContext("2d");
-                const debugWidth = canvas.width;
-                const debugHeight = canvas.height;
-
-                // Clear and draw the WebGL rendered scene
-                ctx.clearRect(0, 0, debugWidth, debugHeight);
-                ctx.drawImage(scene_left.sharedDebugRenderer.domElement, 0, 0);
-
-                // Project cube face vertices into camera/image space to show UV mapping
-                const geometry = portal.geometry;
-                const positionAttr = geometry.getAttribute("position");
-                const indexAttr = geometry.index;
-
-                if (positionAttr && indexAttr) {
-                  ctx.strokeStyle = "#FF0000";
-                  ctx.lineWidth = 2;
-
-                  // Get the number of triangles
-                  const triangleCount = indexAttr.count / 3;
-
-                  // Get the portal camera used for rendering this face
-                  const portalCamera = mat.portalCamera;
-                  portal.updateMatrixWorld();
-
-                  // Draw each triangle by projecting its vertices through the camera
-                  for (let i = 0; i < triangleCount; i++) {
-                    const projectedUVs = [];
-
-                    // Get world positions for the 3 vertices of this triangle
-                    for (let j = 0; j < 3; j++) {
-                      const vertexIndex = i * 3 + j;
-                      const posIndex = indexAttr.getX(vertexIndex);
-
-                      // Get vertex position in local space
-                      const vertex = new THREE.Vector3(
-                        positionAttr.getX(posIndex),
-                        positionAttr.getY(posIndex),
-                        positionAttr.getZ(posIndex)
-                      );
-
-                      // Transform to world space
-                      vertex.applyMatrix4(portal.matrixWorld);
-
-                      // Project through the portal camera to get NDC coordinates
-                      vertex.project(portalCamera);
-
-                      // Convert from NDC (-1 to 1) to UV space (0 to 1)
-                      // Then to canvas pixel coordinates
-                      const u = vertex.x * 0.5 + 0.5;
-                      const v = vertex.y * 0.5 + 0.5;
-
-                      projectedUVs.push({
-                        x: u * debugWidth,
-                        y: (1 - v) * debugHeight, // Flip Y for canvas coordinates
-                      });
-                    }
-
-                    // Draw the triangle
-                    ctx.beginPath();
-                    ctx.moveTo(projectedUVs[0].x, projectedUVs[0].y);
-                    ctx.lineTo(projectedUVs[1].x, projectedUVs[1].y);
-                    ctx.lineTo(projectedUVs[2].x, projectedUVs[2].y);
-                    ctx.lineTo(projectedUVs[0].x, projectedUVs[0].y);
-                    ctx.stroke();
-                  }
-                }
-              } catch (e) {
-                console.error(
-                  `Error rendering debug view for portal ${index}:`,
-                  e
-                );
-              }
-            }
-          });
-        }
-      }
+      self.updateDebugViews();
     }
     render_loop();
   }

@@ -147,6 +147,11 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
    *    The group this portal belongs to (if any).
    */
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
+    // Check if freeze mode is enabled - skip rendering inner scene
+    if (window._FREEZE_ALL_PORTALS) {
+      return;
+    }
+
     if (renderer.depth > renderer.max_depth) {
       return;
     } else {

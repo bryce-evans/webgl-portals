@@ -42,6 +42,8 @@ class PortalMesh extends THREE.Mesh {
     // Store frozen camera state for freeze mode
     this.frozenCameraMatrix = null;
     this.frozenProjectionMatrix = null;
+    this.frozenUVs = null;
+    this.wasFrozen = false;
 
     // Store original UVs for affine (uncorrected) rendering
     const originalUvs = this.geometry.getAttribute('uv');
@@ -181,11 +183,12 @@ class PortalMesh extends THREE.Mesh {
   onBeforeRender(renderer, scene, camera, geometry, material, group) {
     // Check if freeze mode is enabled
     if (window._FREEZE_ALL_PORTALS) {
-      // On first freeze, capture the current camera state
-      if (!this.frozenCameraMatrix) {
-        this.frozenCameraMatrix = this.camera.matrixWorldInverse.clone();
-        this.frozenProjectionMatrix = this.camera.projectionMatrix.clone();
-        console.log('[PortalMesh] Freeze mode activated - camera state captured');
+      // On first freeze, capture the current UV state BEFORE any updates
+      if (!this.wasFrozen) {
+        const currentUVs = this.geometry.getAttribute('uv');
+        this.frozenUVs = currentUVs.clone();
+        this.wasFrozen = true;
+        console.log('[PortalMesh] Freeze mode activated - UV state captured');
       }
       // Debug: Log occasionally when frozen
       if (Math.random() < 0.01) {
@@ -194,10 +197,10 @@ class PortalMesh extends THREE.Mesh {
       return;
     } else {
       // Clear frozen state when unfrozen
-      if (this.frozenCameraMatrix) {
-        this.frozenCameraMatrix = null;
-        this.frozenProjectionMatrix = null;
-        console.log('[PortalMesh] Freeze mode deactivated - camera state cleared');
+      if (this.wasFrozen) {
+        this.frozenUVs = null;
+        this.wasFrozen = false;
+        console.log('[PortalMesh] Freeze mode deactivated - UV state cleared');
       }
     }
 
@@ -223,6 +226,11 @@ class PortalMesh extends THREE.Mesh {
           ctx.clearRect(0, 0, this.debug_canvas2d.width, this.debug_canvas2d.height);
         }
       }
+    }
+
+    // Double-check freeze flag before UV computation (in case it was set during this frame)
+    if (window._FREEZE_ALL_PORTALS) {
+      return;
     }
 
     // Compute UVs for where the mesh is on the screen.
@@ -282,7 +290,10 @@ class PortalMesh extends THREE.Mesh {
       console.log(`[${this.material.name}] Camera pos:`, this.camera.position, 'Matrix updated:', this.camera.matrixWorldNeedsUpdate);
     }
 
-    face_uvs.needsUpdate = true;
+    // Final check before marking UVs as needing update
+    if (!window._FREEZE_ALL_PORTALS) {
+      face_uvs.needsUpdate = true;
+    }
   }
 
   /**

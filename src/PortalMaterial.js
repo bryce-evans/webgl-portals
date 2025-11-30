@@ -164,11 +164,11 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
       console.log(`[${this.name}] Rendering portal. Scene children:`, this.scene.children.length, 'Camera pos:', this.camera.position);
     }
 
-    this.renderer.render(this.scene, this.camera);
+    renderer.render(this.scene, this.camera);
 
     this.buffer_texture.texture.needsUpdate = false;
 
-    this.renderer.setRenderTarget(initial);
+    renderer.setRenderTarget(initial);
   }
 }
 

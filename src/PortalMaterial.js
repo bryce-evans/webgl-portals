@@ -152,11 +152,11 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
       return;
     }
 
-    if (renderer.depth > renderer.max_depth) {
+    if (renderer.depth >= renderer.max_depth) {
       return;
-    } else {
-        renderer.depth += 1;
     }
+
+    renderer.depth += 1;
 
     console.assert(this.scene !== undefined, "No scene for portal material onBeforeRender");
 
@@ -168,6 +168,8 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     this.buffer_texture.texture.needsUpdate = false;
 
     renderer.setRenderTarget(initial);
+
+    renderer.depth -= 1;
   }
 }
 

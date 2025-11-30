@@ -33,7 +33,7 @@
             import { PortalMaterial } from '/src/PortalMaterial.js';
             import { PortalRenderer } from '/src/PortalRenderer.js';
 
-            import uvTexturePath from './rsc/textures/uv_test_map.jpeg';
+            const uvTexturePath = './rsc/textures/uv_test_map.jpeg';
 
 
             let cameraPersp, cameraOrtho, camera;
@@ -46,8 +46,8 @@
                 renderer = new THREE.WebGLRenderer({antialias:true});
                 renderer.setPixelRatio( window.devicePixelRatio );
                 renderer.setSize( window.innerWidth, window.innerHeight );
-                renderer.depth = 1;
-                renderer.max_depth = 1;
+                renderer.depth = 0;
+                renderer.max_depth = 0;
                 renderer.localClippingEnabled = true;
 
                 THREE.ColorManagement.enabled = false;
@@ -271,13 +271,6 @@
                 if (window.mesh) {
                     let renderer = window.renderer;
 
-                    if (renderer.depth > renderer.max_depth) {
-                        renderer.depth = 0;
-                        return;
-                    } else {
-                        renderer.depth += 1;
-                    }
-
                     let camera = window.camera;
                     let in_cam = window.in_cam;
 
@@ -335,9 +328,10 @@
                     in_cam.matrix.multiplyMatrices(out_portal.matrix, cam_to_out);
 
                     in_cam.position.setFromMatrixPosition(in_cam.matrix);
-                    
+
                     in_cam.matrixWorldNeedsUpdate = true;
 
+                    renderer.depth = 0;
                     renderer.render( scene, camera );
                 }
             }

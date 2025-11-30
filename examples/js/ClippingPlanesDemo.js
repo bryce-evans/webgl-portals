@@ -14,6 +14,8 @@ class ClippingPlanesDemo {
     this.renderer.setClearColor(0x222222, 1);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(width, height);
+    this.renderer.depth = 0;
+    this.renderer.max_depth = 1;
     document.body.appendChild(this.renderer.domElement);
 
     var main_scene = new THREE.Scene();
@@ -197,9 +199,7 @@ class ClippingPlanesDemo {
       _this.knot3.position.z += delta
       _this.knot4.position.z += delta
 
-      portal.onBeforeRender();
-      portal2.onBeforeRender();
-
+      renderer.depth = 0;
       renderer.render(scene, camera);
     }
     render_loop();

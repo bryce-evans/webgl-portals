@@ -163,12 +163,6 @@ class PortalMaterial extends THREE.MeshBasicMaterial {
     const initial = this.renderer.getRenderTarget();
     this.renderer.setRenderTarget(this.buffer_texture);
 
-    // Debug: Check if scene has objects
-    const shouldLog = Math.random() < 0.001;
-    if (shouldLog) {
-      console.log(`[${this.name}] Rendering portal. Scene children:`, this.scene.children.length, 'Camera pos:', this.camera.position);
-    }
-
     renderer.render(this.scene, this.camera);
 
     this.buffer_texture.texture.needsUpdate = false;

@@ -188,11 +188,6 @@ class PortalMesh extends THREE.Mesh {
         const currentUVs = this.geometry.getAttribute('uv');
         this.frozenUVs = currentUVs.clone();
         this.wasFrozen = true;
-        console.log('[PortalMesh] Freeze mode activated - UV state captured');
-      }
-      // Debug: Log occasionally when frozen
-      if (Math.random() < 0.01) {
-        console.log('[PortalMesh] Freeze mode active - skipping render and UV updates');
       }
       return;
     } else {
@@ -200,7 +195,6 @@ class PortalMesh extends THREE.Mesh {
       if (this.wasFrozen) {
         this.frozenUVs = null;
         this.wasFrozen = false;
-        console.log('[PortalMesh] Freeze mode deactivated - UV state cleared');
       }
     }
 
@@ -241,9 +235,6 @@ class PortalMesh extends THREE.Mesh {
     // Get number of triangles
     const triangleCount = indexAttr ? indexAttr.count / 3 : positionAttr.count / 3;
 
-    // Debug logging for all portals occasionally
-    const shouldLog = this.material.name && Math.random() < 0.005;
-
     // Process each triangle:
     for (let i = 0; i < triangleCount; i++) {
       const uvs = [];
@@ -273,21 +264,12 @@ class PortalMesh extends THREE.Mesh {
 
         // Set the UVs.
         face_uvs.setXY(vertexIndex, projected.x, projected.y);
-
-        // Log sample UVs for debugging
-        if (shouldLog && i === 0) {
-          console.log(`[${this.material.name}] Vertex ${j}: pos=(${vertex.x.toFixed(2)}, ${vertex.y.toFixed(2)}, ${vertex.z.toFixed(2)}) UV=(${projected.x.toFixed(3)}, ${projected.y.toFixed(3)})`);
-        }
       }
 
       // Draw UV triangles on overlay canvas
       if (this.show_debug_uvs && uvs.length === 3) {
         this._drawTriangle(this.debug_canvas2d, uvs[0], uvs[1], uvs[2]);
       }
-    }
-
-    if (shouldLog) {
-      console.log(`[${this.material.name}] Camera pos:`, this.camera.position, 'Matrix updated:', this.camera.matrixWorldNeedsUpdate);
     }
 
     // Final check before marking UVs as needing update

@@ -218,8 +218,8 @@ class PortalMesh extends THREE.Mesh {
     // Get number of triangles
     const triangleCount = indexAttr ? indexAttr.count / 3 : positionAttr.count / 3;
 
-    // Debug logging (only log first portal mesh to avoid spam)
-    const shouldLog = this.material.name && this.material.name.includes('__p0') && Math.random() < 0.01;
+    // Debug logging for all portals occasionally
+    const shouldLog = this.material.name && Math.random() < 0.005;
 
     // Process each triangle:
     for (let i = 0; i < triangleCount; i++) {

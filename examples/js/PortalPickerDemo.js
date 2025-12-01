@@ -11,6 +11,8 @@ class PortalPickerDemo {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
     this.renderer.setPixelRatio( window.devicePixelRatio );
+    this.renderer.depth = 0;
+    this.renderer.max_depth = 1;
     var width = window.innerWidth;
     var height = window.innerHeight;
     this.renderer.setSize(width, height);
@@ -117,10 +119,10 @@ class PortalPickerDemo {
       time += 0.0001;
       controls.update();
 
-      portal.onBeforeRender();
       obj_picker.pick(scene, camera, time);
+      renderer.depth = 0;
       renderer.render(scene, camera);
-      
+
       window.PORTAL_STATS.end();
 
       requestAnimationFrame(render_loop)

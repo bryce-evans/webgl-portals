@@ -4,7 +4,6 @@
  */
 
 import * as THREE from 'three';
-import $ from "jquery";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
@@ -38,16 +37,16 @@ function main() {
 
   var show_debug_uvs = false;
 
-  $(document).keydown(function (event) {
-    if (event.which == 32) {
-      $('#debug_uvs').show();
+  document.addEventListener('keydown', function (event) {
+    if (event.which == 32 || event.keyCode == 32) {
+      document.getElementById('debug_uvs').style.display = 'block';
       show_debug_uvs = true;
     }
   });
 
-  $(document).keyup(function (event) {
-    if (event.which == 32) {
-      $('#debug_uvs').hide();
+  document.addEventListener('keyup', function (event) {
+    if (event.which == 32 || event.keyCode == 32) {
+      document.getElementById('debug_uvs').style.display = 'none';
       show_debug_uvs = false;
     }
   });
@@ -89,15 +88,18 @@ function main() {
     miniscene_renderer.setSize(width / 4, height / 4);
     debug_renderers.push(miniscene_renderer);
 
-    var div = $('<div>');
-    div.append(miniscene_renderer.domElement);
+    var div = document.createElement('div');
+    div.appendChild(miniscene_renderer.domElement);
 
-    var canvas2d = $(`<canvas height=${height / 4} width=${width / 4} class="overlay"></canvas>`);
-    div.append(canvas2d)
+    var canvas2d = document.createElement('canvas');
+    canvas2d.height = height / 4;
+    canvas2d.width = width / 4;
+    canvas2d.className = 'overlay';
+    div.appendChild(canvas2d);
 
-    canvas2ds.push(canvas2d[0]);
+    canvas2ds.push(canvas2d);
 
-    $("#debug_uvs").append(div);
+    document.getElementById('debug_uvs').appendChild(div);
 
     var buffer_texture = new THREE.WebGLRenderTarget(width, height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter });
     buffer_textures.push(buffer_texture)

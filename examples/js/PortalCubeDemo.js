@@ -11,6 +11,8 @@ class PortalCubeDemo {
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
+    this.renderer.depth = 0;
+    this.renderer.max_depth = 1;
     //this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(width, height);
     //this.renderer.autoClear = false;
@@ -56,8 +58,8 @@ class PortalCubeDemo {
       controls.update();
       requestAnimationFrame(render_loop)
 
-      portal.onBeforeRender();
       obj_picker.pick(scene, camera, 0);
+      renderer.depth = 0;
       renderer.render(scene, camera);
     }
     render_loop();

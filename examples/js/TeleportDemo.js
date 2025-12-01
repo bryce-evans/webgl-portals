@@ -12,6 +12,8 @@ class TeleportDemo {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setClearColor(0x222222, 0);
     this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.depth = 0;
+    this.renderer.max_depth = 1;
     var width = window.innerWidth;
     var height = window.innerHeight;
     this.renderer.setSize(width, height);
@@ -121,8 +123,8 @@ class TeleportDemo {
       controls.update();
       requestAnimationFrame(render_loop)
 
-      portal.onBeforeRender();
       obj_picker.pick(scene, camera, time);
+      renderer.depth = 0;
       renderer.render(scene, camera);
     }
     render_loop();

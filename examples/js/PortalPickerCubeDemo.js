@@ -9,6 +9,8 @@ class PortalPickerCubeDemo {
   constructor() {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor(0x222222, 1);
+    this.renderer.depth = 0;
+    this.renderer.max_depth = 1;
 
     var show_uv_debug = true;
 
@@ -96,7 +98,7 @@ class PortalPickerCubeDemo {
     if (show_uv_debug) {
       this.portal.renderDebugUVs(true, $("#debug_uvs")[0]);
     }
-    //this.renderer.domElement.addEventListener('click', function(e) {this.obj_picker.pick(scene, camera, 0)}.bind(this));
+    this.renderer.domElement.addEventListener('click', function(e) {this.obj_picker.pick(scene, camera, 0)}.bind(this));
   }
   render() {
     var camera = this.camera;
@@ -111,8 +113,8 @@ class PortalPickerCubeDemo {
       controls.update();
       requestAnimationFrame(render_loop)
 
-      portal.onBeforeRender();
       //obj_picker.pick(scene, camera, time);
+      renderer.depth = 0;
       renderer.render(scene, camera);
     }
     render_loop();
